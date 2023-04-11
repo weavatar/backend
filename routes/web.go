@@ -17,6 +17,7 @@ func Web() {
 
 	avatarController := controllers.NewAvatarController()
 	facades.Route.Get("avatar/{hash}", avatarController.Avatar) // 用于获取头像
+	facades.Route.Get("avatar", avatarController.Avatar)        // 用于获取头像
 
 	facades.Route.Prefix("captcha").Middleware(frameworkmiddleware.Throttle("global")).Group(func(route route.Route) {
 		captchaController := controllers.NewCaptchaController()
