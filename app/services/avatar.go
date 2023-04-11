@@ -168,13 +168,15 @@ func (r *AvatarImpl) getQqAvatar(hash string) (image.Image, error) {
 
 // getGravatarAvatar 通过 Gravatar 获取头像
 func (r *AvatarImpl) getGravatarAvatar(hash string) (image.Image, error) {
+	var img image.Image
+	var imgErr error
+
 	if facades.Storage.Exists("cache/gravatar/" + hash[:2] + "/" + hash) {
-		img, imgErr := imaging.Open(facades.Storage.Path("cache/gravatar/" + hash[:2] + "/" + hash))
+		img, imgErr = imaging.Open(facades.Storage.Path("cache/gravatar/" + hash[:2] + "/" + hash))
 		if imgErr != nil {
 			facades.Log.Warning("Gravatar[图片解析出错]", imgErr.Error())
 			return nil, imgErr
 		}
-		return img, nil
 	} else {
 		// 不存在则从 Gravatar 获取头像
 		client := req.C().SetUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36 Edg/112.0.1722.34")
@@ -186,7 +188,7 @@ func (r *AvatarImpl) getGravatarAvatar(hash string) (image.Image, error) {
 
 		// 检查图片是否正常
 		reader := strings.NewReader(resp.String())
-		img, imgErr := imaging.Decode(reader)
+		img, imgErr = imaging.Decode(reader)
 		if imgErr != nil {
 			facades.Log.Warning("Gravatar[图片不正常]", imgErr.Error())
 			return nil, imgErr
@@ -197,9 +199,9 @@ func (r *AvatarImpl) getGravatarAvatar(hash string) (image.Image, error) {
 		if err != nil {
 			return nil, err
 		}
-
-		return img, nil
 	}
+
+	return img, nil
 }
 
 // getDefaultAvatar 通过默认参数获取头像
@@ -392,13 +394,19 @@ func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, 
 		img, imgErr = r.getGravatarAvatar(hash)
 		from := "gravatar"
 		if imgErr != nil {
+			facades.Log.Warning("WeAvatar[Gravatar 头像获取失败]", imgErr.Error())
 			// 如果 Gravatar 头像获取失败，则使用 QQ 头像
 			img, imgErr = r.getQqAvatar(hash)
 			from = "qq"
 			if imgErr != nil {
+				facades.Log.Warning("WeAvatar[QQ 头像获取失败]", imgErr.Error())
 				// 如果 QQ 头像获取失败，则使用默认头像
 				from = "weavatar"
-				img, _ = r.GetDefaultAvatarByType(defaultAvatar, option)
+				img, imgErr = r.GetDefaultAvatarByType(defaultAvatar, option)
+				if imgErr != nil {
+					facades.Log.Warning("WeAvatar[默认头像获取失败]", imgErr.Error())
+					return nil, from, imgErr
+				}
 			}
 		}
 
