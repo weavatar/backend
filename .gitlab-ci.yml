@@ -19,6 +19,7 @@ variables:
   OUTPUT_NAME: "framework"
   GO111MODULE: "on"
   GOPROXY: "https://goproxy.cn,direct"
+  CI_DEBUG_TRACE: "true"
 
 stages:
   - prepare
