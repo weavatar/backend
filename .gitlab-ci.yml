@@ -1,4 +1,4 @@
-image: golang:latest
+image: golang:alpine
 
 # 在每个任务执行前运行
 before_script:
@@ -27,9 +27,12 @@ stages:
 
 golangci_lint:
   stage: prepare
-  image: golangci/golangci-lint:latest
+  image: golangci/golangci-lint:latest-alpine
   extends: .go_cache
   allow_failure: true
+  before_script:
+    - sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
+    - apk add --no-cache libwebp-dev
   script:
     - golangci-lint run --timeout 30m
 
@@ -37,12 +40,18 @@ unit_test:
   stage: prepare
   extends: .go_cache
   allow_failure: true
+  before_script:
+    - sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
+    - apk add --no-cache libwebp-dev
   script:
     - go test -v -coverprofile=coverage.txt -covermode=atomic ./...
 
 build:
   stage: build
   extends: .go_cache
+  before_script:
+    - sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
+    - apk add --no-cache libwebp-dev
   script:
     - go mod download
     - CGO_ENABLED=0 go build -ldflags '-s -w --extldflags "-static -fpic"' -o $OUTPUT_NAME

@@ -3,6 +3,12 @@ package services
 import (
 	"bytes"
 	"errors"
+	"image"
+	"image/color"
+	"net/url"
+	"strings"
+	"unicode/utf8"
+
 	"github.com/disintegration/imaging"
 	"github.com/disintegration/letteravatar"
 	"github.com/golang/freetype/truetype"
@@ -14,11 +20,7 @@ import (
 	"github.com/o1egl/govatar"
 	"github.com/spf13/cast"
 	"golang.org/x/exp/slices"
-	"image"
-	"image/color"
-	"net/url"
-	"strings"
-	"unicode/utf8"
+
 	"weavatar/app/models"
 )
 
