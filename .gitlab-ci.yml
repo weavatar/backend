@@ -57,7 +57,7 @@ build:
     - apk add --no-cache build-base
   script:
     - go mod download
-    - CGO_ENABLED=1 go build -ldflags '-s -w --extldflags "-static -fpic"' -o $OUTPUT_NAME
+    - CGO_CFLAGS=-I/usr/local/include CGO_LDFLAGS=-L/usr/local/lib CGO_ENABLED=1 go build -ldflags '-s -w --extldflags "-static -fpic"' -o $OUTPUT_NAME
   artifacts:
     name: "$OUTPUT_NAME"
     paths:
