@@ -7,6 +7,7 @@ require (
 	github.com/alibabacloud-go/dysmsapi-20170525/v3 v3.0.5
 	github.com/alibabacloud-go/tea v1.1.19
 	github.com/alibabacloud-go/tea-utils/v2 v2.0.1
+	github.com/chai2010/webp v1.1.1
 	github.com/disintegration/imaging v1.6.2
 	github.com/disintegration/letteravatar v0.0.0-20160912210445-1a457b860450
 	github.com/gertd/go-pluralize v0.2.1
@@ -18,7 +19,6 @@ require (
 	github.com/imroc/req/v3 v3.33.2
 	github.com/ipsn/go-adorable v1.0.0
 	github.com/issue9/identicon/v2 v2.1.1
-	github.com/kolesa-team/go-webp v1.0.4
 	github.com/mojocn/base64Captcha v1.3.5
 	github.com/o1egl/govatar v0.4.1
 	github.com/spf13/cast v1.4.1

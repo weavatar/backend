@@ -5,11 +5,10 @@ import (
 	"image"
 	"strings"
 
+	"github.com/chai2010/webp"
 	"github.com/disintegration/imaging"
 	"github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/facades"
-	"github.com/kolesa-team/go-webp/encoder"
-	"github.com/kolesa-team/go-webp/webp"
 
 	"weavatar/app/services"
 )
@@ -81,8 +80,7 @@ func (r *AvatarController) encodeImage(img image.Image, imageExt string) ([]byte
 
 	switch imageExt {
 	case "webp":
-		options, _ := encoder.NewLossyEncoderOptions(encoder.PresetIcon, 90)
-		err = webp.Encode(writer, img, options)
+		err = webp.Encode(writer, img, &webp.Options{Lossless: true})
 	case "png":
 		err = imaging.Encode(writer, img, imaging.PNG)
 	case "jpg", "jpeg":
