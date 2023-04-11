@@ -20,6 +20,7 @@ import (
 	"github.com/o1egl/govatar"
 	"github.com/spf13/cast"
 	"golang.org/x/exp/slices"
+	_ "golang.org/x/image/webp"
 
 	"weavatar/app/models"
 )
@@ -350,6 +351,10 @@ func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, 
 
 	// 检查是否有默认头像
 	err = facades.Orm.Query().Where("hash", hash).First(&avatar)
+	if err != nil {
+		facades.Log.Error("WeAvatar[数据库错误]", err.Error())
+		return nil, "weavatar", err
+	}
 	if avatar.UserID != 0 && avatar.Hash != "" {
 		// 检查 Hash 是否有对应的 App
 		err = facades.Orm.Query().Where("app_id", appid).Where("avatar_hash", hash).First(&appAvatar)
