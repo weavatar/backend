@@ -2,13 +2,14 @@ package controllers
 
 import (
 	"bytes"
-	"github.com/goravel/framework/facades"
+	"github.com/kolesa-team/go-webp/encoder"
 	"image"
 	"strings"
 
 	"github.com/disintegration/imaging"
 	"github.com/goravel/framework/contracts/http"
-	"github.com/nickalie/go-webpbin"
+	"github.com/goravel/framework/facades"
+	"github.com/kolesa-team/go-webp/webp"
 
 	"weavatar/app/services"
 )
@@ -80,7 +81,8 @@ func (r *AvatarController) encodeImage(img image.Image, imageExt string) ([]byte
 
 	switch imageExt {
 	case "webp":
-		err = webpbin.Encode(writer, img)
+		options, _ := encoder.NewLossyEncoderOptions(encoder.PresetIcon, 90)
+		err = webp.Encode(writer, img, options)
 	case "png":
 		err = imaging.Encode(writer, img, imaging.PNG)
 	case "jpg", "jpeg":
