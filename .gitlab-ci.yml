@@ -56,7 +56,9 @@ build:
     - sed -i 's/deb.debian.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/sources.list
     - apt-get update
     - apt-get install -y libwebp-dev
+    - apt-get install -y build-essential
   script:
+    - go install github.com/mattn/go-sqlite3
     - go mod download
     - CGO_ENABLED=1 go build -ldflags '-s -w --extldflags "-static -fpic"' -o $OUTPUT_NAME
   artifacts:
