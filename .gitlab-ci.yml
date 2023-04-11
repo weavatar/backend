@@ -50,14 +50,14 @@ unit_test:
 
 build:
   stage: build
+  image: golang:latest
   extends: .go_cache
   before_script:
     - sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
-    - apk add --no-cache libwebp-dev
-    - apk add --no-cache build-base
+    - apt-get install -y libwebp-dev
   script:
     - go mod download
-    - CGO_CFLAGS=-I/usr/local/include CGO_LDFLAGS=-L/usr/local/lib CGO_ENABLED=1 go build -ldflags '-s -w --extldflags "-static -fpic"' -o $OUTPUT_NAME
+    - CGO_ENABLED=1 go build -ldflags '-s -w --extldflags "-static -fpic"' -o $OUTPUT_NAME
   artifacts:
     name: "$OUTPUT_NAME"
     paths:

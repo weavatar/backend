@@ -2,13 +2,13 @@ package controllers
 
 import (
 	"bytes"
-	"github.com/kolesa-team/go-webp/encoder"
 	"image"
 	"strings"
 
 	"github.com/disintegration/imaging"
 	"github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/facades"
+	"github.com/kolesa-team/go-webp/encoder"
 	"github.com/kolesa-team/go-webp/webp"
 
 	"weavatar/app/services"
