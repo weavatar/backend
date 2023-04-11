@@ -7,8 +7,7 @@ import (
 
 	"github.com/disintegration/imaging"
 	"github.com/goravel/framework/contracts/http"
-	"github.com/kolesa-team/go-webp/encoder"
-	"github.com/kolesa-team/go-webp/webp"
+	"github.com/nickalie/go-webpbin"
 
 	"weavatar/app/services"
 )
@@ -73,16 +72,12 @@ func (r *AvatarController) Avatar(ctx http.Context) {
 
 // encodeImage 编码图片
 func (r *AvatarController) encodeImage(img image.Image, imageExt string) ([]byte, error) {
-	// WEBP 参数
-	options, err := encoder.NewLossyEncoderOptions(encoder.PresetIcon, 85)
-	if err != nil {
-		return nil, err
-	}
+	var err error
 	writer := bytes.NewBuffer([]byte{})
 
 	switch imageExt {
 	case "webp":
-		err = webp.Encode(writer, img, options)
+		err = webpbin.Encode(writer, img)
 	case "png":
 		err = imaging.Encode(writer, img, imaging.PNG)
 	case "jpg", "jpeg":
