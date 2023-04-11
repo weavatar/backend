@@ -382,7 +382,7 @@ func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, 
 
 		// 如果头像获取失败，则使用默认头像
 		if imgErr != nil {
-			facades.Log.Warning("WeAvatar[头像获取失败]", imgErr.Error())
+			facades.Log.Warning("WeAvatar[头像匹配失败]", imgErr.Error())
 			img, _ = r.GetDefaultAvatarByType(defaultAvatar, option)
 			return img, "weavatar", nil
 		}

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"bytes"
+	"github.com/goravel/framework/facades"
 	"image"
 	"strings"
 
@@ -45,6 +46,7 @@ func (r *AvatarController) Avatar(ctx http.Context) {
 	}
 
 	if err != nil {
+		facades.Log.Error("WeAvatar[获取头像错误]", err.Error())
 		ctx.Response().String(http.StatusInternalServerError, "WeAvatar 服务出现错误")
 		return
 	}
@@ -58,6 +60,7 @@ func (r *AvatarController) Avatar(ctx http.Context) {
 	img := imaging.Resize(avatar, size, size, imaging.Lanczos)
 	imageData, imgErr := r.encodeImage(img, imageExt)
 	if imgErr != nil {
+		facades.Log.Error("WeAvatar[生成头像错误]", imgErr.Error())
 		ctx.Response().String(http.StatusInternalServerError, "WeAvatar 服务出现错误")
 		return
 	}
