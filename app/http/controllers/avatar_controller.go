@@ -45,15 +45,15 @@ func (r *AvatarController) Avatar(ctx http.Context) {
 		avatar, from, err = avatarService.GetAvatar(appid, hash, defaultAvatar, option)
 	}
 
-	if err != nil {
-		facades.Log.Error("WeAvatar[获取头像错误]", err.Error())
-		ctx.Response().String(http.StatusInternalServerError, "WeAvatar 服务出现错误")
-		return
-	}
-
 	// 判断一下 404 请求
 	if avatar == nil && defaultAvatar == "404" {
 		ctx.Response().String(http.StatusNotFound, "404 Not Found\nWeAvatar")
+		return
+	}
+
+	if err != nil || avatar == nil {
+		facades.Log.Error("WeAvatar[获取头像错误]", err.Error())
+		ctx.Response().String(http.StatusInternalServerError, "WeAvatar 服务出现错误")
 		return
 	}
 

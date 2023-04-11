@@ -132,7 +132,7 @@ func (r *AvatarImpl) getQqAvatar(hash string) (image.Image, error) {
 		}).Get("http://q1.qlogo.cn/g")
 		if reqErr != nil || !resp.IsSuccessState() {
 			facades.Log.Warning("QQ头像[获取图片出错]", reqErr.Error())
-			return nil, reqErr
+			return nil, errors.New("获取 QQ头像 失败")
 		}
 
 		if cast.ToInt(resp.GetHeader("Content-Length")) < 6400 {
@@ -183,7 +183,7 @@ func (r *AvatarImpl) getGravatarAvatar(hash string) (image.Image, error) {
 		resp, reqErr := client.R().Get("http://proxy.server/http://0.gravatar.com/avatar/" + hash + ".png?s=1000&r=g&d=404")
 		if reqErr != nil || !resp.IsSuccessState() {
 			// Gravatar 不需要记录日志
-			return nil, reqErr
+			return nil, errors.New("获取 Gravatar头像 失败")
 		}
 
 		// 检查图片是否正常
@@ -394,19 +394,13 @@ func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, 
 		img, imgErr = r.getGravatarAvatar(hash)
 		from := "gravatar"
 		if imgErr != nil {
-			facades.Log.Warning("WeAvatar[Gravatar 头像获取失败]", imgErr.Error())
 			// 如果 Gravatar 头像获取失败，则使用 QQ 头像
 			img, imgErr = r.getQqAvatar(hash)
 			from = "qq"
 			if imgErr != nil {
-				facades.Log.Warning("WeAvatar[QQ 头像获取失败]", imgErr.Error())
 				// 如果 QQ 头像获取失败，则使用默认头像
 				from = "weavatar"
-				img, imgErr = r.GetDefaultAvatarByType(defaultAvatar, option)
-				if imgErr != nil {
-					facades.Log.Warning("WeAvatar[默认头像获取失败]", imgErr.Error())
-					return nil, from, imgErr
-				}
+				img, _ = r.GetDefaultAvatarByType(defaultAvatar, option)
 			}
 		}
 
