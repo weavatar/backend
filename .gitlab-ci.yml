@@ -50,13 +50,11 @@ unit_test:
 
 build:
   stage: build
-  image: golang:latest
   extends: .go_cache
   before_script:
-    - sed -i 's/deb.debian.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apt/sources.list
-    - apt-get update
-    - apt-get install -y libwebp-dev
-    - apt-get install -y build-essential
+    - sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
+    - apk add --no-cache libwebp-dev
+    - apk add --no-cache build-base
   script:
     - go install github.com/mattn/go-sqlite3
     - go mod download
