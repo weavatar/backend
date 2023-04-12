@@ -289,7 +289,7 @@ func (r *AvatarImpl) getDefaultAvatar(defaultAvatar string, option string) (imag
 			return nil, fontErr
 		}
 
-		img, imgErr := letteravatar.Draw(100, firstLetter, &letteravatar.Options{
+		img, imgErr := letteravatar.Draw(1200, firstLetter, &letteravatar.Options{
 			Font:       font,
 			PaletteKey: option, // 对相同的字符串使用相同的颜色
 		})
