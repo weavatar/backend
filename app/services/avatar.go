@@ -280,7 +280,7 @@ func (r *AvatarImpl) getDefaultAvatar(defaultAvatar string, option string) (imag
 
 	if defaultAvatar == "letter" {
 		firstLetter, _ := utf8.DecodeRuneInString(option)
-		fontStr, err := facades.Storage.Get("fonts/HarmonyOS_Sans_SC_Black.ttf")
+		fontStr, err := facades.Storage.Get("fonts/HarmonyOS_Sans_SC_Medium.ttf")
 		if err != nil {
 			return nil, err
 		}
