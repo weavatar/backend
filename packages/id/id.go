@@ -2,11 +2,11 @@ package id
 
 import (
 	"fmt"
+	"strconv"
 	"sync"
 
 	"github.com/golang-module/carbon/v2"
 	"github.com/goravel/framework/facades"
-	"github.com/spf13/cast"
 )
 
 /**
@@ -64,7 +64,12 @@ func (rat *RatID) Generate() (uint, error) {
 
 	rat.lastTimestamp = timestamp // 更新上次生成ID的时间戳
 
-	return cast.ToUint(carbon.Now().Format("ymd") + secondStr + milliStr + cast.ToString(rat.nodeID) + fmt.Sprintf("%03d", rat.sequence)), nil
+	id, err := strconv.ParseUint(carbon.Now().Format("ymd")+secondStr+milliStr+strconv.Itoa(rat.nodeID)+fmt.Sprintf("%03d", rat.sequence), 10, 64)
+	if err != nil {
+		return 0, err
+	}
+
+	return uint(id), nil
 }
 
 // timeGen 获取当前时间戳，单位：毫秒

@@ -6,7 +6,6 @@ import (
 
 	"github.com/goravel/framework/facades"
 	"github.com/mojocn/base64Captcha"
-	"github.com/spf13/cast"
 )
 
 type Captcha struct {
@@ -32,11 +31,11 @@ func NewCaptcha() *Captcha {
 
 		// 配置 base64Captcha 驱动信息
 		driver := base64Captcha.NewDriverDigit(
-			facades.Config.GetInt("captcha.height"),               // 宽
-			facades.Config.GetInt("captcha.width"),                // 高
-			facades.Config.GetInt("captcha.length"),               // 长度
-			cast.ToFloat64(facades.Config.Get("captcha.maxskew")), // 数字的最大倾斜角度
-			facades.Config.GetInt("captcha.dotcount"),             // 图片背景里的混淆点数量
+			facades.Config.GetInt("captcha.height"),         // 宽
+			facades.Config.GetInt("captcha.width"),          // 高
+			facades.Config.GetInt("captcha.length"),         // 长度
+			facades.Config.Get("captcha.maxskew").(float64), // 数字的最大倾斜角度
+			facades.Config.GetInt("captcha.dotcount"),       // 图片背景里的混淆点数量
 		)
 
 		// 实例化 base64Captcha 并赋值给内部使用的 internalCaptcha 对象

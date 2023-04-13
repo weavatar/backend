@@ -2,12 +2,13 @@ package commands
 
 import (
 	"fmt"
+	"os"
+	"strconv"
+
 	"github.com/gookit/color"
 	"github.com/goravel/framework/contracts/console"
 	"github.com/goravel/framework/contracts/console/command"
 	"github.com/goravel/framework/facades"
-	"github.com/spf13/cast"
-	"os"
 )
 
 type HashInsert struct {
@@ -46,7 +47,11 @@ func (receiver *HashInsert) Extend() command.Extend {
 
 // Handle Execute the console command.
 func (receiver *HashInsert) Handle(ctx console.Context) error {
-	table := cast.ToInt(ctx.Option("table"))
+	table, err := strconv.Atoi(ctx.Option("table"))
+	if err != nil {
+		color.Errorln("分表数量必须是数字")
+		return err
+	}
 	dir := ctx.Option("dir")
 
 	color.Warnf("分表数量: %d\n", table)

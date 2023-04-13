@@ -3,11 +3,13 @@ package commands
 import (
 	"bufio"
 	"fmt"
+	"os"
+	"strconv"
+
 	"github.com/gookit/color"
 	"github.com/goravel/framework/contracts/console"
 	"github.com/goravel/framework/contracts/console/command"
 	"github.com/spf13/cast"
-	"os"
 
 	"weavatar/packages/helpers"
 )
@@ -85,7 +87,11 @@ func (receiver *HashMake) Handle(ctx console.Context) error {
 	// 生成 MD5 值并写入对应的文件
 	for num := start; num <= end; num++ {
 		md5Sum := helpers.MD5(fmt.Sprintf("%d@qq.com", num))
-		tableIndex := (cast.ToInt64("0x"+md5Sum[:10]) % int64(table)) + 1
+		hashIndex, hashErr := strconv.ParseInt(md5Sum, 16, 64)
+		if hashErr != nil {
+			return hashErr
+		}
+		tableIndex := (hashIndex % int64(table)) + 1
 
 		writer := fileWriters[tableIndex]
 

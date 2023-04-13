@@ -4,8 +4,6 @@ import (
 	"time"
 
 	"github.com/goravel/framework/facades"
-
-	"github.com/spf13/cast"
 )
 
 // CacheStore 实现 base64Captcha.Store interface
@@ -33,7 +31,7 @@ func (s *CacheStore) Set(key string, value string) error {
 // Get 实现 base64Captcha.Store interface 的 Get 方法
 func (s *CacheStore) Get(key string, clear bool) string {
 	key = s.KeyPrefix + key
-	val := cast.ToString(facades.Cache.Get(key, false))
+	val := facades.Cache.Get(key, false).(string)
 	if clear {
 		facades.Cache.Forget(key)
 	}

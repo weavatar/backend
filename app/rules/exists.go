@@ -3,7 +3,6 @@ package rules
 import (
 	"github.com/goravel/framework/contracts/validation"
 	"github.com/goravel/framework/facades"
-	"github.com/spf13/cast"
 )
 
 type Exists struct {
@@ -18,11 +17,11 @@ func (receiver *Exists) Signature() string {
 func (receiver *Exists) Passes(_ validation.Data, val any, options ...any) bool {
 
 	// 第一个参数，表名称，如 categories
-	tableName := cast.ToString(options[0])
+	tableName := options[0].(string)
 	// 第二个参数，字段名称，如 id
-	fieldName := cast.ToString(options[1])
+	fieldName := options[1].(string)
 	// 用户请求过来的数据
-	requestValue := cast.ToString(val)
+	requestValue := val.(string)
 
 	// 判断是否为空
 	if len(requestValue) == 0 {
@@ -35,7 +34,7 @@ func (receiver *Exists) Passes(_ validation.Data, val any, options ...any) bool 
 	// 判断第三个参数及之后的参数是否存在
 	if len(options) > 2 {
 		for i := 2; i < len(options); i++ {
-			query = query.OrWhere(cast.ToString(options[i]), requestValue)
+			query = query.OrWhere(options[i].(string), requestValue)
 		}
 	}
 	err := query.Count(&count)

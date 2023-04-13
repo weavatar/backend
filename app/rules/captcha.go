@@ -2,7 +2,6 @@ package rules
 
 import (
 	"github.com/goravel/framework/contracts/validation"
-	"github.com/spf13/cast"
 
 	"weavatar/packages/captcha"
 )
@@ -22,7 +21,7 @@ func (receiver *Captcha) Passes(data validation.Data, val any, options ...any) b
 		return false
 	}
 
-	if !captcha.NewCaptcha().VerifyCaptcha(cast.ToString(captchaID), cast.ToString(val), true) {
+	if !captcha.NewCaptcha().VerifyCaptcha(captchaID.(string), val.(string), true) {
 		return false
 	}
 

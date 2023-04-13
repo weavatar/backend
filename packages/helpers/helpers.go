@@ -7,9 +7,6 @@ import (
 	"fmt"
 	"io"
 	"reflect"
-
-	"github.com/golang-module/carbon/v2"
-	"github.com/spf13/cast"
 )
 
 // Empty 类似于 PHP 的 empty() 函数
@@ -35,26 +32,6 @@ func Empty(val interface{}) bool {
 		return v.IsNil()
 	}
 	return reflect.DeepEqual(val, reflect.Zero(v.Type()).Interface())
-}
-
-// ID 生成唯一ID
-/**
- * Rat算法
- * 格式：日期（去掉前2位）+ 当日已过的毫秒数（不足左补0） + 2位机器码 + 3位随机数
- * 例如：230403 00509559 00 593
-
- */
-func ID() uint {
-	date := carbon.Now().Format("ymd")
-	second := carbon.Now().StartOfDay().DiffAbsInSeconds(carbon.Now())
-	secondStr := fmt.Sprintf("%05d", second)
-	milli := carbon.Now().Millisecond()
-	milliStr := fmt.Sprintf("%03d", milli)   // 不足8位时在左边补0
-	machine := "00"                          // 机器码，此处设为固定值00
-	random := cast.ToInt(RandomNumber(3))    // 3位随机数
-	randomStr := fmt.Sprintf("%03d", random) // 不足3位时在左边补0
-
-	return cast.ToUint(date + secondStr + milliStr + machine + randomStr)
 }
 
 // FirstElement 安全地获取 args[0]，避免 panic: runtime error: index out of range

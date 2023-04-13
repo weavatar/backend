@@ -3,6 +3,13 @@ package services
 import (
 	"bytes"
 	"errors"
+	"image"
+	"image/color"
+	"net/url"
+	"strconv"
+	"strings"
+	"unicode"
+
 	"github.com/HaoZi-Team/letteravatar"
 	"github.com/disintegration/imaging"
 	"github.com/golang/freetype/truetype"
@@ -12,14 +19,9 @@ import (
 	"github.com/ipsn/go-adorable"
 	"github.com/issue9/identicon/v2"
 	"github.com/o1egl/govatar"
-	"github.com/spf13/cast"
 	"golang.org/x/exp/slices"
 	_ "golang.org/x/image/webp"
-	"image"
-	"image/color"
-	"net/url"
-	"strings"
-	"unicode"
+
 	"weavatar/app/models"
 )
 
@@ -59,7 +61,10 @@ func (r *AvatarImpl) Sanitize(ctx http.Context) (string, string, string, int, bo
 	}
 
 	// 从 URL 中获取图片大小
-	size := cast.ToInt(ctx.Request().Input("s", "80"))
+	size, err := strconv.Atoi(ctx.Request().Input("s", "80"))
+	if err != nil {
+		size = 80
+	}
 	// 检查图片大小是否合法
 	if size > 2000 {
 		size = 2000
@@ -97,7 +102,11 @@ func (r *AvatarImpl) Sanitize(ctx http.Context) (string, string, string, int, bo
 
 // getQqAvatar 通过 QQ 号获取头像
 func (r *AvatarImpl) getQqAvatar(hash string) (image.Image, error) {
-	tableIndex := (cast.ToInt64("0x"+hash[:10]) % int64(4000)) + 1
+	hashIndex, hashErr := strconv.ParseInt(hash, 16, 64)
+	if hashErr != nil {
+		return nil, hashErr
+	}
+	tableIndex := (hashIndex % int64(4000)) + 1
 	type qqHash struct {
 		Hash string `gorm:"column:hash"`
 		Qq   string `gorm:"column:qq"`
@@ -113,7 +122,7 @@ func (r *AvatarImpl) getQqAvatar(hash string) (image.Image, error) {
 
 		return img, nil
 	} else {
-		err := facades.Orm.Connection("hash").Query().Table("qq_"+cast.ToString(tableIndex)).Where("hash", hash).First(&qq)
+		err := facades.Orm.Connection("hash").Query().Table("qq_"+strconv.Itoa(int(tableIndex))).Where("hash", hash).First(&qq)
 		if err != nil {
 			return nil, err
 		}
@@ -133,7 +142,8 @@ func (r *AvatarImpl) getQqAvatar(hash string) (image.Image, error) {
 			return nil, errors.New("获取 QQ头像 失败")
 		}
 
-		if cast.ToInt(resp.GetHeader("Content-Length")) < 6400 {
+		length, lengthErr := strconv.Atoi(resp.GetHeader("Content-Length"))
+		if length < 6400 || lengthErr != nil {
 			// 如果图片小于 6400 字节，则尝试获取 100 尺寸的图片
 			resp, reqErr = client.R().SetQueryParams(map[string]string{
 				"b":  "qq",
@@ -411,7 +421,7 @@ func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, 
 				return banImg, "weavatar", nil
 			} else {
 				// 如果不是封禁状态，则检查是否有对应的头像
-				img, imgErr = imaging.Open(facades.Storage.Path("upload/app/" + cast.ToString(appAvatar.AppID) + "/" + hash[:2] + "/" + hash))
+				img, imgErr = imaging.Open(facades.Storage.Path("upload/app/" + strconv.Itoa(int(appAvatar.AppID)) + "/" + hash[:2] + "/" + hash))
 			}
 		} else {
 			// 检查默认头像是否封禁状态
@@ -419,7 +429,7 @@ func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, 
 				return banImg, "weavatar", nil
 			} else {
 				// 如果不是封禁状态，则检查是否有对应的头像
-				img, imgErr = imaging.Open(facades.Storage.Path("upload/default/" + cast.ToString(appAvatar.AppID) + "/" + hash[:2] + "/" + hash))
+				img, imgErr = imaging.Open(facades.Storage.Path("upload/default/" + strconv.Itoa(int(appAvatar.AppID)) + "/" + hash[:2] + "/" + hash))
 			}
 		}
 
