@@ -203,7 +203,7 @@ func (r *AvatarImpl) getGravatarAvatar(hash string) (image.Image, error) {
 }
 
 // getDefaultAvatar 通过默认参数获取头像
-func (r *AvatarImpl) getDefaultAvatar(defaultAvatar string, option string) (image.Image, error) {
+func (r *AvatarImpl) getDefaultAvatar(defaultAvatar string, option []string) (image.Image, error) {
 
 	if defaultAvatar == "404" {
 		return nil, nil
@@ -218,7 +218,7 @@ func (r *AvatarImpl) getDefaultAvatar(defaultAvatar string, option string) (imag
 		return img, nil
 	}
 
-	if defaultAvatar == "mp" || defaultAvatar == "mm" || defaultAvatar == "mystery" {
+	if defaultAvatar == "mp" {
 		img, imgErr := imaging.Open(facades.Storage.Path("default/mp.png"))
 		if imgErr != nil {
 			return nil, imgErr
@@ -228,12 +228,12 @@ func (r *AvatarImpl) getDefaultAvatar(defaultAvatar string, option string) (imag
 	}
 
 	if defaultAvatar == "identicon" {
-		img := identicon.Make(identicon.Style1, 1200, color.RGBA{R: 255, A: 100}, color.RGBA{R: 102, G: 204, B: 255, A: 255}, []byte(option))
+		img := identicon.Make(identicon.Style1, 1200, color.RGBA{R: 255, A: 100}, color.RGBA{R: 102, G: 204, B: 255, A: 255}, []byte(option[0]))
 		return img, nil
 	}
 
 	if defaultAvatar == "monsterid" {
-		img, err := govatar.GenerateForUsername(govatar.FEMALE, option)
+		img, err := govatar.GenerateForUsername(govatar.FEMALE, option[0])
 		if err != nil {
 			return nil, err
 		}
@@ -242,7 +242,7 @@ func (r *AvatarImpl) getDefaultAvatar(defaultAvatar string, option string) (imag
 	}
 
 	if defaultAvatar == "wavatar" {
-		avatar := adorable.PseudoRandom([]byte(option))
+		avatar := adorable.PseudoRandom([]byte(option[0]))
 		img, err := imaging.Decode(bytes.NewReader(avatar))
 
 		if err != nil {
@@ -254,12 +254,12 @@ func (r *AvatarImpl) getDefaultAvatar(defaultAvatar string, option string) (imag
 
 	if defaultAvatar == "retro" {
 		ii := identicon.New(identicon.Style2, 1200, color.RGBA{R: 255, A: 100}, color.RGBA{R: 102, G: 204, B: 255, A: 255})
-		img := ii.Make([]byte(option))
+		img := ii.Make([]byte(option[0]))
 		return img, nil
 	}
 
 	if defaultAvatar == "robohash" {
-		img, err := govatar.GenerateForUsername(govatar.MALE, option)
+		img, err := govatar.GenerateForUsername(govatar.MALE, option[0])
 		if err != nil {
 			return nil, err
 		}
@@ -290,7 +290,7 @@ func (r *AvatarImpl) getDefaultAvatar(defaultAvatar string, option string) (imag
 
 		// 判断中文
 		hasChinese := false
-		for _, w := range option {
+		for _, w := range option[0] {
 			if unicode.Is(unicode.Han, w) {
 				hasChinese = true
 				break
@@ -298,7 +298,7 @@ func (r *AvatarImpl) getDefaultAvatar(defaultAvatar string, option string) (imag
 		}
 
 		// 判断长度
-		letters := []rune(option)
+		letters := []rune(option[0])
 		length := len(letters)
 		if length > 4 {
 			letters = letters[:4]
@@ -336,7 +336,7 @@ func (r *AvatarImpl) getDefaultAvatar(defaultAvatar string, option string) (imag
 		img, imgErr := letteravatar.Draw(1000, letters, &letteravatar.Options{
 			Font:       font,
 			FontSize:   fontSize,
-			PaletteKey: option, // 对相同的字符串使用相同的颜色
+			PaletteKey: option[1], // 对相同的字符串使用相同的颜色
 		})
 		if imgErr != nil {
 			return nil, err
@@ -348,19 +348,15 @@ func (r *AvatarImpl) getDefaultAvatar(defaultAvatar string, option string) (imag
 	return nil, nil
 }
 
-func (r *AvatarImpl) GetDefaultAvatarByType(avatarType, option string) (image.Image, error) {
+func (r *AvatarImpl) GetDefaultAvatarByType(avatarType string, option []string) (image.Image, error) {
 	var avatar image.Image
 	var err error
 
 	switch avatarType {
 	case "404":
 		avatar, err = r.getDefaultAvatar("404", option)
-	case "mp":
+	case "mp", "mm", "mystery":
 		avatar, err = r.getDefaultAvatar("mp", option)
-	case "mm":
-		avatar, err = r.getDefaultAvatar("mm", option)
-	case "mystery":
-		avatar, err = r.getDefaultAvatar("mystery", option)
 	case "identicon":
 		avatar, err = r.getDefaultAvatar("identicon", option)
 	case "monsterid":
@@ -383,7 +379,7 @@ func (r *AvatarImpl) GetDefaultAvatarByType(avatarType, option string) (image.Im
 }
 
 // GetAvatar 获取头像
-func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, option string) (image.Image, string, error) {
+func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, option []string) (image.Image, string, error) {
 	var avatar models.Avatar
 	var appAvatar models.AppAvatar
 	var err error

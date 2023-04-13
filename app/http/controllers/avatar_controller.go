@@ -29,14 +29,14 @@ func (r *AvatarController) Avatar(ctx http.Context) {
 	appid, hash, imageExt, size, forceDefault, defaultAvatar := avatarService.Sanitize(ctx)
 
 	var avatar image.Image
-	var option string
+	var option []string
 	var err error
 	from := "weavatar"
 
 	if defaultAvatar == "letter" {
-		option = strings.Trim(ctx.Request().Input("letter"), " ")
+		option = []string{strings.Trim(ctx.Request().Input("letter"), " "), hash}
 	} else {
-		option = hash
+		option = []string{hash}
 	}
 
 	if forceDefault {
