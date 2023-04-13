@@ -52,7 +52,7 @@ func (r *AvatarController) Avatar(ctx http.Context) {
 	}
 
 	if err != nil || avatar == nil {
-		facades.Log.Error("WeAvatar[获取头像错误]", err.Error())
+		facades.Log.Error("WeAvatar[获取头像错误]", err, avatar)
 		ctx.Response().String(http.StatusInternalServerError, "WeAvatar 服务出现错误")
 		return
 	}

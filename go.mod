@@ -3,13 +3,13 @@ module weavatar
 go 1.18
 
 require (
+	github.com/HaoZi-Team/letteravatar v1.0.1
 	github.com/alibabacloud-go/darabonba-openapi/v2 v2.0.4
 	github.com/alibabacloud-go/dysmsapi-20170525/v3 v3.0.5
 	github.com/alibabacloud-go/tea v1.1.19
 	github.com/alibabacloud-go/tea-utils/v2 v2.0.1
 	github.com/chai2010/webp v1.1.1
 	github.com/disintegration/imaging v1.6.2
-	github.com/disintegration/letteravatar v0.0.0-20160912210445-1a457b860450
 	github.com/gertd/go-pluralize v0.2.1
 	github.com/golang-module/carbon/v2 v2.2.3
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0

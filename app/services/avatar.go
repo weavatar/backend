@@ -3,14 +3,8 @@ package services
 import (
 	"bytes"
 	"errors"
-	"image"
-	"image/color"
-	"net/url"
-	"strings"
-	"unicode/utf8"
-
+	"github.com/HaoZi-Team/letteravatar"
 	"github.com/disintegration/imaging"
-	"github.com/disintegration/letteravatar"
 	"github.com/golang/freetype/truetype"
 	"github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/facades"
@@ -21,7 +15,11 @@ import (
 	"github.com/spf13/cast"
 	"golang.org/x/exp/slices"
 	_ "golang.org/x/image/webp"
-
+	"image"
+	"image/color"
+	"net/url"
+	"strings"
+	"unicode"
 	"weavatar/app/models"
 )
 
@@ -279,7 +277,6 @@ func (r *AvatarImpl) getDefaultAvatar(defaultAvatar string, option string) (imag
 	}
 
 	if defaultAvatar == "letter" {
-		firstLetter, _ := utf8.DecodeRuneInString(option)
 		fontStr, err := facades.Storage.Get("fonts/HarmonyOS_Sans_SC_Medium.ttf")
 		if err != nil {
 			return nil, err
@@ -289,8 +286,56 @@ func (r *AvatarImpl) getDefaultAvatar(defaultAvatar string, option string) (imag
 			return nil, fontErr
 		}
 
-		img, imgErr := letteravatar.Draw(1200, firstLetter, &letteravatar.Options{
+		fontSize := 0
+
+		// 判断中文
+		hasChinese := false
+		for _, w := range option {
+			if unicode.Is(unicode.Han, w) {
+				hasChinese = true
+				break
+			}
+		}
+
+		// 判断长度
+		letters := []rune(option)
+		length := len(letters)
+		if length > 4 {
+			letters = letters[:4]
+			length = 4
+		}
+		switch {
+		case length == 1:
+			if hasChinese {
+				fontSize = 500
+			} else {
+				fontSize = 600
+			}
+		case length == 2:
+			if hasChinese {
+				fontSize = 400
+			} else {
+				fontSize = 500
+			}
+		case length == 3:
+			if hasChinese {
+				fontSize = 300
+			} else {
+				fontSize = 400
+			}
+		case length == 4:
+			if hasChinese {
+				fontSize = 200
+			} else {
+				fontSize = 300
+			}
+		default:
+			fontSize = 200
+		}
+
+		img, imgErr := letteravatar.Draw(1000, letters, &letteravatar.Options{
 			Font:       font,
+			FontSize:   fontSize,
 			PaletteKey: option, // 对相同的字符串使用相同的颜色
 		})
 		if imgErr != nil {
