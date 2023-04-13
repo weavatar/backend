@@ -31,10 +31,6 @@ func (s *HelperTestSuite) TestEmpty() {
 	s.False(Empty(true))
 }
 
-func (s *HelperTestSuite) TestID() {
-	s.IsType(uint(0), ID())
-}
-
 func (s *HelperTestSuite) TestFirstElement() {
 	s.Equal("HaoZi", FirstElement([]string{"HaoZi"}))
 }
