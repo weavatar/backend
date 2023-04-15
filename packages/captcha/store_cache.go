@@ -31,7 +31,7 @@ func (s *CacheStore) Set(key string, value string) error {
 // Get 实现 base64Captcha.Store interface 的 Get 方法
 func (s *CacheStore) Get(key string, clear bool) string {
 	key = s.KeyPrefix + key
-	val := facades.Cache.Get(key, false).(string)
+	val := facades.Cache.Get(key, "").(string)
 	if clear {
 		facades.Cache.Forget(key)
 	}
