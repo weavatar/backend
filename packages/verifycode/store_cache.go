@@ -28,7 +28,7 @@ func (s *CacheStore) Set(key string, value string) bool {
 // Get 实现 verifycode.Store interface 的 Get 方法
 func (s *CacheStore) Get(key string, clear bool) (value string) {
 	key = s.KeyPrefix + key
-	val := facades.Cache.Get(key, false)
+	val := facades.Cache.Get(key, "")
 	if clear {
 		facades.Cache.Forget(key)
 	}
