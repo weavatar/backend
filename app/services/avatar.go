@@ -102,7 +102,7 @@ func (r *AvatarImpl) Sanitize(ctx http.Context) (string, string, string, int, bo
 
 // getQqAvatar 通过 QQ 号获取头像
 func (r *AvatarImpl) getQqAvatar(hash string) (image.Image, error) {
-	hashIndex, hashErr := strconv.ParseInt(hash, 16, 64)
+	hashIndex, hashErr := strconv.ParseInt(hash[:10], 16, 64)
 	if hashErr != nil {
 		return nil, hashErr
 	}

@@ -72,9 +72,9 @@ func (vc *VerifyCode) SendEmail(email string, forName string) bool {
 }
 
 // Check 检查用户提交的验证码是否正确，key 可以是手机号或者 Email
-func (vc *VerifyCode) Check(key string, answer string, forName string, clear bool) bool {
+func (vc *VerifyCode) Check(key string, answer string, useFor string, clear bool) bool {
 
-	return vc.Store.Verify(forName+":"+key, answer, clear)
+	return vc.Store.Verify(useFor+":"+key, answer, clear)
 }
 
 // generateVerifyCode 生成验证码，并放置于 Redis 中
