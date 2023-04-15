@@ -76,10 +76,11 @@ deploy_development:
   before_script:
     - sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
     - apk add --no-cache openssh-client sshpass
+    - mv $OUTPUT_NAME $OUTPUT_NAME@new
   script:
+    - sshpass -p $DEVELOPMENT_SERVER_PASSWORD scp -o StrictHostKeyChecking=no -P $DEVELOPMENT_SERVER_PORT -r $OUTPUT_NAME@new $DEVELOPMENT_SERVER_USER@$DEVELOPMENT_SERVER_IP:$DEVELOPMENT_SERVER_PATH
     - sshpass -p $DEVELOPMENT_SERVER_PASSWORD ssh -o StrictHostKeyChecking=no -p $DEVELOPMENT_SERVER_PORT $DEVELOPMENT_SERVER_USER@$DEVELOPMENT_SERVER_IP "supervisorctl stop $OUTPUT_NAME" || true
-    - sshpass -p $DEVELOPMENT_SERVER_PASSWORD scp -o StrictHostKeyChecking=no -P $DEVELOPMENT_SERVER_PORT -r $OUTPUT_NAME $DEVELOPMENT_SERVER_USER@$DEVELOPMENT_SERVER_IP:$DEVELOPMENT_SERVER_PATH
-    - sshpass -p $DEVELOPMENT_SERVER_PASSWORD ssh -o StrictHostKeyChecking=no -p $DEVELOPMENT_SERVER_PORT $DEVELOPMENT_SERVER_USER@$DEVELOPMENT_SERVER_IP "cd $DEVELOPMENT_SERVER_PATH && chmod 755 $OUTPUT_NAME && chown www:www $OUTPUT_NAME && supervisorctl restart $OUTPUT_NAME"
+    - sshpass -p $DEVELOPMENT_SERVER_PASSWORD ssh -o StrictHostKeyChecking=no -p $DEVELOPMENT_SERVER_PORT $DEVELOPMENT_SERVER_USER@$DEVELOPMENT_SERVER_IP "rm -f $DEVELOPMENT_SERVER_PATH/$OUTPUT_NAME && mv $DEVELOPMENT_SERVER_PATH/$OUTPUT_NAME@new $DEVELOPMENT_SERVER_PATH/$OUTPUT_NAME && chmod -R 755 $DEVELOPMENT_SERVER_PATH && chown -R www:www $DEVELOPMENT_SERVER_PATH && supervisorctl start $OUTPUT_NAME"
 
 deploy_production:
   stage: deploy
@@ -95,7 +96,8 @@ deploy_production:
   before_script:
     - sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
     - apk add --no-cache openssh-client sshpass
+    - mv $OUTPUT_NAME $OUTPUT_NAME@new
   script:
+    - sshpass -p $PRODUCTION_SERVER_PASSWORD scp -o StrictHostKeyChecking=no -P $PRODUCTION_SERVER_PORT -r $OUTPUT_NAME@new $PRODUCTION_SERVER_USER@$PRODUCTION_SERVER_IP:$PRODUCTION_SERVER_PATH
     - sshpass -p $PRODUCTION_SERVER_PASSWORD ssh -o StrictHostKeyChecking=no -p $PRODUCTION_SERVER_PORT $PRODUCTION_SERVER_USER@$PRODUCTION_SERVER_IP "supervisorctl stop $OUTPUT_NAME" || true
-    - sshpass -p $PRODUCTION_SERVER_PASSWORD scp -o StrictHostKeyChecking=no -P $PRODUCTION_SERVER_PORT -r $OUTPUT_NAME $PRODUCTION_SERVER_USER@$PRODUCTION_SERVER_IP:$PRODUCTION_SERVER_PATH
-    - sshpass -p $PRODUCTION_SERVER_PASSWORD ssh -o StrictHostKeyChecking=no -p $PRODUCTION_SERVER_PORT $PRODUCTION_SERVER_USER@$PRODUCTION_SERVER_IP "cd $PRODUCTION_SERVER_PATH && chmod 755 $OUTPUT_NAME && chown www:www $OUTPUT_NAME && supervisorctl restart $OUTPUT_NAME"
+    - sshpass -p $PRODUCTION_SERVER_PASSWORD ssh -o StrictHostKeyChecking=no -p $PRODUCTION_SERVER_PORT $PRODUCTION_SERVER_USER@$PRODUCTION_SERVER_IP "rm -f $PRODUCTION_SERVER_PATH/$OUTPUT_NAME && mv $PRODUCTION_SERVER_PATH/$OUTPUT_NAME@new $PRODUCTION_SERVER_PATH/$OUTPUT_NAME && chmod -R 755 $PRODUCTION_SERVER_PATH && chown -R www:www $PRODUCTION_SERVER_PATH && supervisorctl start $OUTPUT_NAME"
