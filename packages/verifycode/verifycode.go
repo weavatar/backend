@@ -34,10 +34,10 @@ func NewVerifyCode() *VerifyCode {
 }
 
 // SendSMS 发送短信验证码
-func (vc *VerifyCode) SendSMS(phone string, forName string) bool {
+func (vc *VerifyCode) SendSMS(phone string, useFor string) bool {
 
 	// 生成验证码
-	code := vc.generateVerifyCode(phone, forName)
+	code := vc.generateVerifyCode(phone, useFor)
 
 	// 方便本地和 API 自动测试
 	if facades.Config.GetBool("app.debug") {
@@ -51,10 +51,10 @@ func (vc *VerifyCode) SendSMS(phone string, forName string) bool {
 }
 
 // SendEmail 发送邮件验证码
-func (vc *VerifyCode) SendEmail(email string, forName string) bool {
+func (vc *VerifyCode) SendEmail(email string, useFor string) bool {
 
 	// 生成验证码
-	code := vc.generateVerifyCode(email, forName)
+	code := vc.generateVerifyCode(email, useFor)
 
 	// 方便本地和 API 自动测试
 	if facades.Config.GetBool("app.debug") {
@@ -77,7 +77,7 @@ func (vc *VerifyCode) Check(key string, answer string, useFor string, clear bool
 }
 
 // generateVerifyCode 生成验证码，并放置于 Redis 中
-func (vc *VerifyCode) generateVerifyCode(key string, forName string) string {
+func (vc *VerifyCode) generateVerifyCode(key string, useFor string) string {
 
 	// 生成随机码
 	code := helpers.RandomNumber(facades.Config.GetInt("verifycode.code_length"))
@@ -88,6 +88,6 @@ func (vc *VerifyCode) generateVerifyCode(key string, forName string) string {
 	}
 
 	// 存储验证码
-	vc.Store.Set(forName+":"+key, code)
+	vc.Store.Set(useFor+":"+key, code)
 	return code
 }
