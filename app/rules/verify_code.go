@@ -20,14 +20,14 @@ func (receiver *VerifyCode) Passes(data validation.Data, val any, options ...any
 	fieldName := options[0].(string)
 
 	// 第二个参数，验证码类型，如 register
-	forName := options[1].(string)
+	useFor := options[1].(string)
 
 	// 取字段值
 	field, exist := data.Get(fieldName)
 	if !exist {
 		return false
 	}
-	if !verifycode.NewVerifyCode().Check(field.(string), val.(string), forName, true) {
+	if !verifycode.NewVerifyCode().Check(field.(string), val.(string), useFor, true) {
 		return false
 	}
 
