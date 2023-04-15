@@ -3,7 +3,6 @@ package verifycode
 
 import (
 	"fmt"
-	"strings"
 	"sync"
 
 	"github.com/goravel/framework/contracts/mail"
@@ -41,7 +40,7 @@ func (vc *VerifyCode) SendSMS(phone string, forName string) bool {
 	code := vc.generateVerifyCode(phone, forName)
 
 	// 方便本地和 API 自动测试
-	if facades.Config.GetBool("app.debug") && strings.HasPrefix(phone, facades.Config.GetString("verifycode.debug_phone_prefix")) {
+	if facades.Config.GetBool("app.debug") {
 		return true
 	}
 
@@ -58,7 +57,7 @@ func (vc *VerifyCode) SendEmail(email string, forName string) bool {
 	code := vc.generateVerifyCode(email, forName)
 
 	// 方便本地和 API 自动测试
-	if facades.Config.GetBool("app.debug") && strings.HasSuffix(email, facades.Config.GetString("verifycode.debug_email_suffix")) {
+	if facades.Config.GetBool("app.debug") {
 		return true
 	}
 
