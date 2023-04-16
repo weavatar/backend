@@ -21,7 +21,13 @@ func (receiver *Captcha) Passes(data validation.Data, val any, options ...any) b
 		return false
 	}
 
-	if !captcha.NewCaptcha().VerifyCaptcha(captchaID.(string), val.(string), true) {
+	// 第一个参数（如果有），是否清除验证码，如 false
+	clear := true
+	if len(options) > 0 {
+		clear = options[0].(bool)
+	}
+
+	if !captcha.NewCaptcha().VerifyCaptcha(captchaID.(string), val.(string), clear) {
 		return false
 	}
 

@@ -22,12 +22,18 @@ func (receiver *VerifyCode) Passes(data validation.Data, val any, options ...any
 	// 第二个参数，验证码类型，如 register
 	useFor := options[1].(string)
 
+	// 第三个参数（如果有），是否清除验证码，如 false
+	clear := true
+	if len(options) > 2 {
+		clear = options[2].(bool)
+	}
+
 	// 取字段值
 	field, exist := data.Get(fieldName)
 	if !exist {
 		return false
 	}
-	if !verifycode.NewVerifyCode().Check(field.(string), val.(string), useFor, true) {
+	if !verifycode.NewVerifyCode().Check(field.(string), val.(string), useFor, clear) {
 		return false
 	}
 
