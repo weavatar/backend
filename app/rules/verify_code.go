@@ -1,6 +1,8 @@
 package rules
 
 import (
+	"strconv"
+
 	"github.com/goravel/framework/contracts/validation"
 
 	"weavatar/packages/verifycode"
@@ -24,8 +26,12 @@ func (receiver *VerifyCode) Passes(data validation.Data, val any, options ...any
 
 	// 第三个参数（如果有），是否清除验证码，如 false
 	clear := true
+	var err error
 	if len(options) > 2 {
-		clear = options[2].(bool)
+		clear, err = strconv.ParseBool(options[2].(string))
+		if err != nil {
+			clear = true
+		}
 	}
 
 	// 取字段值
