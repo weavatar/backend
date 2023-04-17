@@ -1,7 +1,7 @@
 CREATE TABLE avatars
 (
     hash       CHAR(32) PRIMARY KEY NOT NULL,
-    raw        VARCHAR(255) UNIQUE  NOT NULL,
+    raw        VARCHAR(255) UNIQUE,
     user_id    BIGINT  DEFAULT NULL,
     ban        BOOLEAN DEFAULT '0',
     checked    BOOLEAN DEFAULT '0',

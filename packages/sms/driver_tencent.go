@@ -17,8 +17,8 @@ func (s *Tencent) Send(phone string, message Message, config map[string]string) 
 	facades.Log.Info("短信[腾讯云]", "配置信息", config)
 
 	credential := common.NewCredential(
-		config["access_key_id"],
-		config["access_key_secret"],
+		config["access_key"],
+		config["secret_key"],
 	)
 	cpf := profile.NewClientProfile()
 	cpf.HttpProfile.Endpoint = "sms.tencentcloudapi.com"
