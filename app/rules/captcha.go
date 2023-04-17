@@ -1,6 +1,8 @@
 package rules
 
 import (
+	"strconv"
+
 	"github.com/goravel/framework/contracts/validation"
 
 	"weavatar/packages/captcha"
@@ -21,7 +23,17 @@ func (receiver *Captcha) Passes(data validation.Data, val any, options ...any) b
 		return false
 	}
 
-	if !captcha.NewCaptcha().VerifyCaptcha(captchaID.(string), val.(string), true) {
+	// 第一个参数（如果有），是否清除验证码，如 false
+	clear := true
+	var err error
+	if len(options) > 0 {
+		clear, err = strconv.ParseBool(options[0].(string))
+		if err != nil {
+			clear = true
+		}
+	}
+
+	if !captcha.NewCaptcha().VerifyCaptcha(captchaID.(string), val.(string), clear) {
 		return false
 	}
 

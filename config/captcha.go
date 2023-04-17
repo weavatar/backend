@@ -11,16 +11,16 @@ func init() {
 		"height": 60,
 
 		// 验证码图片宽度
-		"width": 200,
+		"width": 120,
 
 		// 验证码的长度
 		"length": 6,
 
 		// 数字的最大倾斜角度
-		"maxskew": 0.7,
+		"maxskew": 0.6,
 
 		// 图片背景里的混淆点数量
-		"dotcount": 60,
+		"dotcount": 40,
 
 		// 过期时间，单位是分钟
 		"expire_time": 5,
