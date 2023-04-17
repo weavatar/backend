@@ -3,6 +3,8 @@ package providers
 import (
 	"github.com/goravel/framework/contracts/queue"
 	"github.com/goravel/framework/facades"
+
+	"weavatar/app/jobs"
 )
 
 type QueueServiceProvider struct {
@@ -17,5 +19,7 @@ func (receiver *QueueServiceProvider) Boot() {
 }
 
 func (receiver *QueueServiceProvider) Jobs() []queue.Job {
-	return []queue.Job{}
+	return []queue.Job{
+		&jobs.ProcessAvatarCheck{},
+	}
 }
