@@ -5,9 +5,9 @@ import (
 	"github.com/goravel/framework/contracts/route"
 	"github.com/goravel/framework/facades"
 	frameworkmiddleware "github.com/goravel/framework/http/middleware"
-	"weavatar/app/http/middleware"
 
 	"weavatar/app/http/controllers"
+	"weavatar/app/http/middleware"
 )
 
 func Web() {
@@ -29,7 +29,7 @@ func Web() {
 	facades.Route.Prefix("user").Middleware(frameworkmiddleware.Throttle("global")).Group(func(route route.Route) {
 		userController := controllers.NewUserController()
 		route.Post("oauthLogin", userController.OauthLogin)
-		route.Post("oauthCallback", userController.OauthCallback)
+		route.Get("oauthCallback", userController.OauthCallback)
 		route.Middleware(middleware.Jwt()).Post("updateNickname", userController.UpdateNickname)
 		route.Middleware(middleware.Jwt()).Post("logout", userController.Logout)
 		route.Middleware(middleware.Jwt()).Post("refresh", userController.Refresh)
