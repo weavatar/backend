@@ -14,22 +14,27 @@ func NewAppController() *AppController {
 	}
 }
 
-func (r *AppController) Create(ctx http.Context) {
+// Index 获取应用列表
+func (r *AppController) Index(ctx http.Context) {
 
 }
 
-func (r *AppController) Get(ctx http.Context) {
+// Show 获取应用详情
+func (r *AppController) Show(ctx http.Context) {
 
 }
 
-func (r *AppController) GetSingle(ctx http.Context) {
+// Store 创建应用
+func (r *AppController) Store(ctx http.Context) {
 
 }
 
+// Update 更新应用
 func (r *AppController) Update(ctx http.Context) {
 
 }
 
-func (r *AppController) Delete(ctx http.Context) {
+// Destroy 删除应用
+func (r *AppController) Destroy(ctx http.Context) {
 
 }

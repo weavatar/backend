@@ -34,7 +34,13 @@ func (r *UserController) OauthLogin(ctx http.Context) {
 
 	url := facades.Config.GetString("haozi.account.base_url") + "/oauth/authorize?client_id=" + facades.Config.GetString("haozi.account.client_id") + "&redirect_uri=" + facades.Config.GetString("http.url") + "/api/user/oauthCallback&response_type=code&scope=basic&state=" + state
 
-	ctx.Response().Redirect(http.StatusFound, url)
+	ctx.Response().Success().Json(http.Json{
+		"code":    0,
+		"message": "获取成功",
+		"data": http.Json{
+			"url": url,
+		},
+	})
 }
 
 func (r *UserController) OauthCallback(ctx http.Context) {
@@ -56,13 +62,13 @@ func (r *UserController) OauthCallback(ctx http.Context) {
 	}
 
 	// 验证 state
-	/*if facades.Cache.GetString("oauth_state:"+oauthCallbackRequest.State, "1.1.1.1") != ctx.Request().Ip() {
+	if facades.Cache.GetString("oauth_state:"+oauthCallbackRequest.State, "1.1.1.1") != ctx.Request().Ip() {
 		ctx.Response().Json(http.StatusUnprocessableEntity, http.Json{
 			"code":    422,
 			"message": "状态码不存在或已过期",
 		})
 		return
-	}*/
+	}
 
 	// 获取 token
 	tokenMap, tokenErr := oauth.GetToken(oauthCallbackRequest.Code)
@@ -130,7 +136,48 @@ func (r *UserController) OauthCallback(ctx http.Context) {
 }
 
 func (r *UserController) UpdateNickname(ctx http.Context) {
+	var updateNicknameRequest requests.UpdateNicknameRequest
+	errors, err := ctx.Request().ValidateRequest(&updateNicknameRequest)
+	if err != nil {
+		ctx.Response().Json(http.StatusUnprocessableEntity, http.Json{
+			"code":    422,
+			"message": err.Error(),
+		})
+		return
+	}
+	if errors != nil {
+		ctx.Response().Json(http.StatusUnprocessableEntity, http.Json{
+			"code":    422,
+			"message": errors.All(),
+		})
+		return
+	}
 
+	// 取出用户信息
+	user, ok := ctx.Value("user").(models.User)
+	if !ok {
+		ctx.Request().AbortWithStatusJson(http.StatusUnauthorized, http.Json{
+			"code":    401,
+			"message": "登录已过期",
+		})
+		return
+	}
+
+	user.Nickname = updateNicknameRequest.Nickname
+	updateErr := facades.Orm.Query().Save(&user)
+	if updateErr != nil {
+		facades.Log.WithContext(ctx).Error("[UserController][UpdateNickname] 更新用户失败: ", updateErr)
+		ctx.Response().Json(http.StatusInternalServerError, http.Json{
+			"code":    500,
+			"message": "系统内部错误",
+		})
+		return
+	}
+
+	ctx.Response().Success().Json(http.Json{
+		"code":    0,
+		"message": "修改成功",
+	})
 }
 
 func (r *UserController) Logout(ctx http.Context) {

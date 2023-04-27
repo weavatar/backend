@@ -10,6 +10,7 @@ import (
 	"github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/facades"
 
+	"weavatar/app/models"
 	"weavatar/app/services"
 )
 
@@ -73,7 +74,7 @@ func (r *AvatarController) Avatar(ctx http.Context) {
 	ctx.Response().Data(http.StatusOK, "image/"+imageExt, imageData)
 }
 
-// encodeImage 编码图片
+// encodeImage 编码图片为指定格式
 func (r *AvatarController) encodeImage(img image.Image, imageExt string) ([]byte, error) {
 	var err error
 	writer := bytes.NewBuffer([]byte{})
@@ -98,26 +99,51 @@ func (r *AvatarController) encodeImage(img image.Image, imageExt string) ([]byte
 	return writer.Bytes(), nil
 }
 
-func (r *AvatarController) Create(ctx http.Context) {
+// Index 获取头像列表
+func (r *AvatarController) Index(ctx http.Context) {
+	// 取出用户信息
+	user, ok := ctx.Value("user").(models.User)
+	if !ok {
+		ctx.Request().AbortWithStatusJson(http.StatusUnauthorized, http.Json{
+			"code":    401,
+			"message": "登录已过期",
+		})
+		return
+	}
+
+	var avatars []models.Avatar
+	err := facades.Orm.Query().Where("user_id", user.ID).Find(&avatars)
+	if err != nil {
+		facades.Log.WithContext(ctx).Error("[AvatarController][Index] 查询用户头像失败: ", err.Error())
+		ctx.Response().Json(http.StatusInternalServerError, http.Json{
+			"code":    500,
+			"message": "系统内部错误",
+		})
+		return
+	}
+}
+
+// Show 获取头像详情
+func (r *AvatarController) Show(ctx http.Context) {
 
 }
 
-func (r *AvatarController) Get(ctx http.Context) {
+// Store 添加头像
+func (r *AvatarController) Store(ctx http.Context) {
 
 }
 
-func (r *AvatarController) GetSingle(ctx http.Context) {
-
-}
-
+// Update 更新头像
 func (r *AvatarController) Update(ctx http.Context) {
 
 }
 
-func (r *AvatarController) Delete(ctx http.Context) {
+// Destroy 删除头像
+func (r *AvatarController) Destroy(ctx http.Context) {
 
 }
 
+// CheckBind 检查绑定
 func (r *AvatarController) CheckBind(ctx http.Context) {
 
 }
