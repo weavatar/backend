@@ -12,6 +12,7 @@ import (
 
 	"github.com/HaoZi-Team/letteravatar"
 	"github.com/disintegration/imaging"
+	"github.com/golang-module/carbon/v2"
 	"github.com/golang/freetype/truetype"
 	"github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/contracts/queue"
@@ -219,16 +220,6 @@ func (r *AvatarImpl) getGravatarAvatar(hash string) (image.Image, error) {
 		if err != nil {
 			return nil, err
 		}
-
-		// 审核头像
-		go func() {
-			checkErr := facades.Queue.Job(&jobs.ProcessAvatarCheck{}, []queue.Arg{
-				{Type: "string", Value: hash},
-			}).Dispatch()
-			if checkErr != nil {
-				facades.Log.Error("WeAvatar[推送头像到审核队列失败]", checkErr.Error())
-			}
-		}()
 	}
 
 	return img, nil
@@ -425,8 +416,9 @@ func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, 
 		return nil, "weavatar", banImgErr
 	}
 
-	// 检查是否有WeAvatar
-	err = facades.Orm.Query().FirstOrCreate(&avatar, &models.Avatar{Hash: &hash})
+	// 取头像数据
+	_, err = facades.Orm.Query().Exec(`INSERT INTO "avatars" ("hash", "created_at", "updated_at") VALUES (?, ?, ?) ON CONFLICT DO NOTHING`, hash, carbon.DateTime{Carbon: carbon.Now()}, carbon.DateTime{Carbon: carbon.Now()})
+	err = facades.Orm.Query().Where("hash", hash).First(&avatar)
 	if err != nil {
 		facades.Log.Error("WeAvatar[数据库错误]", err.Error())
 		return nil, "weavatar", err
@@ -480,6 +472,18 @@ func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, 
 				from = "weavatar"
 				img, _ = r.GetDefaultAvatarByType(defaultAvatar, option)
 			}
+		}
+
+		// 审核头像
+		if !avatar.Checked {
+			go func() {
+				checkErr := facades.Queue.Job(&jobs.ProcessAvatarCheck{}, []queue.Arg{
+					{Type: "string", Value: hash},
+				}).Dispatch()
+				if checkErr != nil {
+					facades.Log.Error("WeAvatar[推送头像到审核队列失败]", checkErr.Error())
+				}
+			}()
 		}
 
 		return img, from, nil

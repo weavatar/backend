@@ -29,26 +29,24 @@ func Web() {
 	facades.Route.Prefix("user").Middleware(frameworkmiddleware.Throttle("global")).Group(func(route route.Route) {
 		userController := controllers.NewUserController()
 		route.Post("oauthLogin", userController.OauthLogin)
-		route.Get("oauthCallback", userController.OauthCallback)
+		route.Post("oauthCallback", userController.OauthCallback)
 		route.Middleware(middleware.Jwt()).Post("updateNickname", userController.UpdateNickname)
 		route.Middleware(middleware.Jwt()).Post("logout", userController.Logout)
 		route.Middleware(middleware.Jwt()).Post("refresh", userController.Refresh)
 	})
-	facades.Route.Prefix("avatar").Middleware(frameworkmiddleware.Throttle("global")).Group(func(route route.Route) {
-
-		route.Middleware(middleware.Jwt()).Get("get", avatarController.Get)
-		route.Middleware(middleware.Jwt()).Post("create", avatarController.Create)
-		route.Middleware(middleware.Jwt()).Post("update", avatarController.Update)
-		route.Middleware(middleware.Jwt()).Post("delete", avatarController.Delete)
-		route.Middleware(middleware.Jwt()).Get("get/{id}", avatarController.GetSingle)
-		route.Middleware(middleware.Jwt()).Post("checkBind", avatarController.CheckBind)
+	facades.Route.Middleware(frameworkmiddleware.Throttle("global")).Group(func(route route.Route) {
+		route.Middleware(middleware.Jwt()).Get("avatars", avatarController.Index)
+		route.Middleware(middleware.Jwt()).Post("avatars", avatarController.Store)
+		route.Middleware(middleware.Jwt()).Put("avatars", avatarController.Update)
+		route.Middleware(middleware.Jwt()).Delete("avatars", avatarController.Destroy)
+		route.Middleware(middleware.Jwt()).Post("avatars/checkBind", avatarController.CheckBind)
 	})
-	facades.Route.Prefix("app").Middleware(frameworkmiddleware.Throttle("global")).Group(func(route route.Route) {
+	facades.Route.Middleware(frameworkmiddleware.Throttle("global")).Group(func(route route.Route) {
 		appController := controllers.NewAppController()
-		route.Middleware(middleware.Jwt()).Get("get", appController.Get)
-		route.Middleware(middleware.Jwt()).Post("create", appController.Create)
-		route.Middleware(middleware.Jwt()).Post("update", appController.Update)
-		route.Middleware(middleware.Jwt()).Post("delete", appController.Delete)
-		route.Middleware(middleware.Jwt()).Get("get/{id}", appController.GetSingle)
+		route.Middleware(middleware.Jwt()).Get("apps", appController.Index)
+		route.Middleware(middleware.Jwt()).Post("apps", appController.Store)
+		route.Middleware(middleware.Jwt()).Put("apps", appController.Update)
+		route.Middleware(middleware.Jwt()).Delete("apps", appController.Destroy)
+		route.Middleware(middleware.Jwt()).Get("apps/{id}", appController.Show)
 	})
 }
