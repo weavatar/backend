@@ -38,8 +38,3 @@ func (r *AppController) Update(ctx http.Context) {
 func (r *AppController) Destroy(ctx http.Context) {
 
 }
-
-// Delete 删除应用
-func (r *AppController) Delete(ctx http.Context) {
-
-}

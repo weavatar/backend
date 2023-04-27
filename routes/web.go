@@ -35,18 +35,11 @@ func Web() {
 		route.Middleware(middleware.Jwt()).Post("refresh", userController.Refresh)
 	})
 	facades.Route.Middleware(frameworkmiddleware.Throttle("global")).Group(func(route route.Route) {
-		route.Middleware(middleware.Jwt()).Get("avatars", avatarController.Index)
-		route.Middleware(middleware.Jwt()).Post("avatars", avatarController.Store)
-		route.Middleware(middleware.Jwt()).Put("avatars", avatarController.Update)
-		route.Middleware(middleware.Jwt()).Delete("avatars", avatarController.Destroy)
+		route.Middleware(middleware.Jwt()).Resource("avatars", avatarController)
 		route.Middleware(middleware.Jwt()).Post("avatars/checkBind", avatarController.CheckBind)
 	})
 	facades.Route.Middleware(frameworkmiddleware.Throttle("global")).Group(func(route route.Route) {
 		appController := controllers.NewAppController()
-		route.Middleware(middleware.Jwt()).Get("apps", appController.Index)
-		route.Middleware(middleware.Jwt()).Post("apps", appController.Store)
-		route.Middleware(middleware.Jwt()).Put("apps", appController.Update)
-		route.Middleware(middleware.Jwt()).Delete("apps", appController.Destroy)
-		route.Middleware(middleware.Jwt()).Get("apps/{id}", appController.Show)
+		route.Middleware(middleware.Jwt()).Resource("apps", appController)
 	})
 }

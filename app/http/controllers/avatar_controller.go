@@ -123,6 +123,11 @@ func (r *AvatarController) Index(ctx http.Context) {
 	}
 }
 
+// Show 获取头像详情
+func (r *AvatarController) Show(ctx http.Context) {
+
+}
+
 // Store 添加头像
 func (r *AvatarController) Store(ctx http.Context) {
 
