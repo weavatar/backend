@@ -34,7 +34,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 	checker := qcloud.NewCreator(accessKey, secretKey, bucket)
 
 	// 检查图片是否违规
-	isSafe, err := checker.Check("https://weavatar.com/avatar/" + hash + "?s=1000&d=404")
+	isSafe, err := checker.Check("https://weavatar.com/avatar/" + hash + ".png?s=400&d=404")
 	if err != nil {
 		return err
 	}
