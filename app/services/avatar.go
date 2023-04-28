@@ -119,7 +119,7 @@ func (r *AvatarImpl) getQqAvatar(hash string) (image.Image, error) {
 	if facades.Storage.Exists("cache/qq/" + hash[:2] + "/" + hash) {
 		img, imgErr := imaging.Open(facades.Storage.Path("cache/qq/" + hash[:2] + "/" + hash))
 		if imgErr != nil {
-			facades.Log.Warning("QQ头像[图片解析出错]", imgErr.Error())
+			facades.Log.Warning("QQ头像[图片解析出错] ", imgErr.Error())
 			return nil, imgErr
 		}
 
@@ -142,10 +142,8 @@ func (r *AvatarImpl) getQqAvatar(hash string) (image.Image, error) {
 		}).Get("http://q1.qlogo.cn/g")
 		if !resp.IsSuccessState() {
 			if reqErr != nil {
-				facades.Log.Warning("QQ头像[获取图片出错]", reqErr.Error())
 				return nil, reqErr
 			} else {
-				facades.Log.Warning("QQ头像[获取图片出错]", resp.String())
 				return nil, errors.New("获取 QQ头像 失败")
 			}
 		}
@@ -160,10 +158,8 @@ func (r *AvatarImpl) getQqAvatar(hash string) (image.Image, error) {
 			}).Get("http://q1.qlogo.cn/g")
 			if !resp.IsSuccessState() {
 				if reqErr != nil {
-					facades.Log.Warning("QQ头像[获取图片出错]", reqErr.Error())
 					return nil, reqErr
 				} else {
-					facades.Log.Warning("QQ头像[获取图片出错]", resp.String())
 					return nil, errors.New("获取 QQ头像 失败")
 				}
 			}
@@ -173,7 +169,7 @@ func (r *AvatarImpl) getQqAvatar(hash string) (image.Image, error) {
 		reader := strings.NewReader(resp.String())
 		img, imgErr := imaging.Decode(reader)
 		if err != nil {
-			facades.Log.Warning("QQ头像[图片不正常]", err.Error())
+			facades.Log.Warning("QQ头像[图片不正常] ", err.Error())
 			return nil, imgErr
 		}
 
@@ -195,7 +191,7 @@ func (r *AvatarImpl) getGravatarAvatar(hash string) (image.Image, error) {
 	if facades.Storage.Exists("cache/gravatar/" + hash[:2] + "/" + hash) {
 		img, imgErr = imaging.Open(facades.Storage.Path("cache/gravatar/" + hash[:2] + "/" + hash))
 		if imgErr != nil {
-			facades.Log.Warning("Gravatar[图片解析出错]", imgErr.Error())
+			facades.Log.Warning("Gravatar[图片解析出错] ", imgErr.Error())
 			return nil, imgErr
 		}
 	} else {
@@ -203,7 +199,6 @@ func (r *AvatarImpl) getGravatarAvatar(hash string) (image.Image, error) {
 		client := req.C().SetUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36 Edg/112.0.1722.34")
 		resp, reqErr := client.R().Get("http://proxy.server/http://0.gravatar.com/avatar/" + hash + ".png?s=1000&r=g&d=404")
 		if reqErr != nil || !resp.IsSuccessState() {
-			// Gravatar 不需要记录日志
 			return nil, errors.New("获取 Gravatar头像 失败")
 		}
 
@@ -211,7 +206,7 @@ func (r *AvatarImpl) getGravatarAvatar(hash string) (image.Image, error) {
 		reader := strings.NewReader(resp.String())
 		img, imgErr = imaging.Decode(reader)
 		if imgErr != nil {
-			facades.Log.Warning("Gravatar[图片不正常]", imgErr.Error())
+			facades.Log.Warning("Gravatar[图片不正常] ", imgErr.Error())
 			return nil, imgErr
 		}
 
@@ -413,32 +408,32 @@ func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, 
 	from := "weavatar"
 	var imgErr error
 	if banImgErr != nil {
-		facades.Log.Warning("WeAvatar[封禁图片解析出错]", banImgErr.Error())
+		facades.Log.Warning("WeAvatar[封禁图片解析出错] ", banImgErr.Error())
 		return nil, from, banImgErr
 	}
 
 	// 取头像数据
 	_, err = facades.Orm.Query().Exec(`INSERT INTO "avatars" ("hash", "created_at", "updated_at") VALUES (?, ?, ?) ON CONFLICT DO NOTHING`, hash, carbon.DateTime{Carbon: carbon.Now()}, carbon.DateTime{Carbon: carbon.Now()})
 	if err != nil {
-		facades.Log.Error("WeAvatar[数据库错误]", err.Error())
+		facades.Log.Error("WeAvatar[数据库错误] ", err.Error())
 		return nil, from, err
 	}
 	err = facades.Orm.Query().Where("hash", hash).First(&avatar)
 	if err != nil {
-		facades.Log.Error("WeAvatar[数据库错误]", err.Error())
+		facades.Log.Error("WeAvatar[数据库错误] ", err.Error())
 		return nil, from, err
 	}
 	if avatar.UserID != nil && avatar.Raw != nil {
 		// 检查 Hash 是否有对应的 App
 		err = facades.Orm.Query().Where("app_id", appid).Where("avatar_hash", hash).First(&appAvatar)
 		if err != nil {
-			facades.Log.Error("WeAvatar[数据库错误]", err.Error())
+			facades.Log.Error("WeAvatar[数据库错误] ", err.Error())
 			return nil, from, err
 		}
 		// 如果有对应的 App，则检查其 APP 头像是否封禁状态
 		if appAvatar.AppID != 0 {
 			if appAvatar.Ban {
-				return banImg, "weavatar", nil
+				return banImg, from, nil
 			} else {
 				// 如果不是封禁状态，则检查是否有对应的头像
 				img, imgErr = imaging.Open(facades.Storage.Path("upload/app/" + strconv.Itoa(int(appAvatar.AppID)) + "/" + hash[:2] + "/" + hash))
@@ -446,7 +441,7 @@ func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, 
 		} else {
 			// 检查默认头像是否封禁状态
 			if avatar.Ban {
-				return banImg, "weavatar", nil
+				return banImg, from, nil
 			} else {
 				// 如果不是封禁状态，则检查是否有对应的头像
 				img, imgErr = imaging.Open(facades.Storage.Path("upload/default/" + strconv.Itoa(int(appAvatar.AppID)) + "/" + hash[:2] + "/" + hash))
@@ -455,7 +450,7 @@ func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, 
 
 		// 如果头像获取失败，则使用默认头像
 		if imgErr != nil {
-			facades.Log.Warning("WeAvatar[头像匹配失败]", imgErr.Error())
+			facades.Log.Warning("WeAvatar[头像匹配失败] ", imgErr.Error())
 			img, _ = r.GetDefaultAvatarByType(defaultAvatar, option)
 			return img, from, nil
 		}
@@ -482,12 +477,9 @@ func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, 
 	// 审核头像
 	if !avatar.Checked && from != "weavatar" {
 		go func() {
-			checkErr := facades.Queue.Job(&jobs.ProcessAvatarCheck{}, []queue.Arg{
+			_ = facades.Queue.Job(&jobs.ProcessAvatarCheck{}, []queue.Arg{
 				{Type: "string", Value: hash},
 			}).Dispatch()
-			if checkErr != nil {
-				facades.Log.Error("WeAvatar[推送头像到审核队列失败]", checkErr.Error())
-			}
 		}()
 	}
 
