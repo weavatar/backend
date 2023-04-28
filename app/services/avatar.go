@@ -410,29 +410,30 @@ func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, 
 
 	banImg, banImgErr := imaging.Open(facades.Storage.Path("default/ban.png"))
 	var img image.Image
+	from := "weavatar"
 	var imgErr error
 	if banImgErr != nil {
 		facades.Log.Warning("WeAvatar[封禁图片解析出错]", banImgErr.Error())
-		return nil, "weavatar", banImgErr
+		return nil, from, banImgErr
 	}
 
 	// 取头像数据
 	_, err = facades.Orm.Query().Exec(`INSERT INTO "avatars" ("hash", "created_at", "updated_at") VALUES (?, ?, ?) ON CONFLICT DO NOTHING`, hash, carbon.DateTime{Carbon: carbon.Now()}, carbon.DateTime{Carbon: carbon.Now()})
 	if err != nil {
 		facades.Log.Error("WeAvatar[数据库错误]", err.Error())
-		return nil, "weavatar", err
+		return nil, from, err
 	}
 	err = facades.Orm.Query().Where("hash", hash).First(&avatar)
 	if err != nil {
 		facades.Log.Error("WeAvatar[数据库错误]", err.Error())
-		return nil, "weavatar", err
+		return nil, from, err
 	}
 	if avatar.UserID != nil && avatar.Raw != nil {
 		// 检查 Hash 是否有对应的 App
 		err = facades.Orm.Query().Where("app_id", appid).Where("avatar_hash", hash).First(&appAvatar)
 		if err != nil {
 			facades.Log.Error("WeAvatar[数据库错误]", err.Error())
-			return nil, "weavatar", err
+			return nil, from, err
 		}
 		// 如果有对应的 App，则检查其 APP 头像是否封禁状态
 		if appAvatar.AppID != 0 {
@@ -456,40 +457,39 @@ func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, 
 		if imgErr != nil {
 			facades.Log.Warning("WeAvatar[头像匹配失败]", imgErr.Error())
 			img, _ = r.GetDefaultAvatarByType(defaultAvatar, option)
-			return img, "weavatar", nil
+			return img, from, nil
 		}
-		return img, "weavatar", nil
 	} else {
 		// 检查头像是否封禁状态
 		if avatar.Ban {
-			return banImg, "weavatar", nil
+			return banImg, from, nil
 		}
 		// 优先使用 Gravatar 头像
 		img, imgErr = r.getGravatarAvatar(hash)
-		from := "gravatar"
+		from = "gravatar"
 		if imgErr != nil {
 			// 如果 Gravatar 头像获取失败，则使用 QQ 头像
 			img, imgErr = r.getQqAvatar(hash)
 			from = "qq"
 			if imgErr != nil {
 				// 如果 QQ 头像获取失败，则使用默认头像
-				from = "weavatar"
 				img, _ = r.GetDefaultAvatarByType(defaultAvatar, option)
+				from = "weavatar"
 			}
 		}
-
-		// 审核头像
-		if !avatar.Checked {
-			go func() {
-				checkErr := facades.Queue.Job(&jobs.ProcessAvatarCheck{}, []queue.Arg{
-					{Type: "string", Value: hash},
-				}).Dispatch()
-				if checkErr != nil {
-					facades.Log.Error("WeAvatar[推送头像到审核队列失败]", checkErr.Error())
-				}
-			}()
-		}
-
-		return img, from, nil
 	}
+
+	// 审核头像
+	if !avatar.Checked && from != "weavatar" {
+		go func() {
+			checkErr := facades.Queue.Job(&jobs.ProcessAvatarCheck{}, []queue.Arg{
+				{Type: "string", Value: hash},
+			}).Dispatch()
+			if checkErr != nil {
+				facades.Log.Error("WeAvatar[推送头像到审核队列失败]", checkErr.Error())
+			}
+		}()
+	}
+
+	return img, from, nil
 }
