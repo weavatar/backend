@@ -24,7 +24,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 	// 断言参数
 	hash, ok := args[0].(string)
 	if !ok {
-		facades.Log.Error("COS审核[队列参数断言失败]")
+		facades.Log.Error("COS审核[队列参数断言失败] HASH:" + hash)
 		return nil
 	}
 
@@ -36,7 +36,6 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 	// 检查图片是否违规
 	isSafe, err := checker.Check("https://weavatar.com/avatar/" + hash + "?s=1000&d=404")
 	if err != nil {
-		facades.Log.Error("COS审核[队列审核失败]" + err.Error())
 		return err
 	}
 
@@ -44,7 +43,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 	var avatar models.Avatar
 	err = facades.Orm.Query().Where("hash", hash).First(&avatar)
 	if err != nil {
-		facades.Log.Error("COS审核[数据库查询失败]" + err.Error())
+		facades.Log.Error("COS审核[数据库查询失败] " + err.Error())
 		return err
 	}
 
@@ -52,7 +51,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 	avatar.Ban = !isSafe
 	err = facades.Orm.Query().Save(&avatar)
 	if err != nil {
-		facades.Log.Error("COS审核[数据库更新失败]" + err.Error())
+		facades.Log.Error("COS审核[数据库更新失败] " + err.Error())
 		return err
 	}
 
