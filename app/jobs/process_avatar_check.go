@@ -2,7 +2,9 @@ package jobs
 
 import (
 	"github.com/goravel/framework/facades"
+
 	"weavatar/app/models"
+	packagecdn "weavatar/packages/cdn"
 	"weavatar/packages/qcloud"
 )
 
@@ -54,6 +56,10 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 		facades.Log.Error("COS审核[数据库更新失败] " + err.Error())
 		return err
 	}
+
+	// 刷新缓存
+	cdn := packagecdn.NewCDN()
+	cdn.RefreshUrl([]string{"https://weavatar.com/avatar/" + hash + "*", "http://weavatar.com/avatar/" + hash + "*"})
 
 	return nil
 }

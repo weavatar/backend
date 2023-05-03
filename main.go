@@ -29,5 +29,8 @@ func main() {
 		}
 	}()
 
+	// Start schedule by facades.Schedule
+	go facades.Schedule.Run()
+
 	select {}
 }
