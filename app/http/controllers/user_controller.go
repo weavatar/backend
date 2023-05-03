@@ -32,7 +32,7 @@ func (r *UserController) OauthLogin(ctx http.Context) {
 		return
 	}
 
-	url := facades.Config.GetString("haozi.account.base_url") + "/oauth/authorize?client_id=" + facades.Config.GetString("haozi.account.client_id") + "&redirect_uri=" + facades.Config.GetString("http.url") + "/api/user/oauthCallback&response_type=code&scope=basic&state=" + state
+	url := facades.Config.GetString("haozi.account.base_url") + "/oauth/authorize?client_id=" + facades.Config.GetString("haozi.account.client_id") + "&redirect_uri=" + facades.Config.GetString("http.url") + "/oauth/callback&response_type=code&scope=basic&state=" + state
 
 	ctx.Response().Success().Json(http.Json{
 		"code":    0,

@@ -44,7 +44,7 @@ func GetAuthorizationState(ip string) (string, error) {
 func GetToken(code string) (map[string]string, error) {
 	clientID := facades.Config.GetString("haozi.account.client_id")
 	clientSecret := facades.Config.GetString("haozi.account.client_secret")
-	redirectURI := facades.Config.GetString("http.url") + "/api/user/oauthCallback"
+	redirectURI := facades.Config.GetString("http.url") + "/oauth/callback"
 
 	client := req.C()
 	resp, err := client.R().SetQueryParams(map[string]string{

@@ -2,13 +2,17 @@ package controllers
 
 import (
 	"bytes"
+	"github.com/golang-module/carbon/v2"
 	"image"
 	"strings"
+	requests "weavatar/app/http/requests/avatar"
+	"weavatar/packages/helpers"
 
 	"github.com/chai2010/webp"
 	"github.com/disintegration/imaging"
 	"github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/facades"
+	_ "golang.org/x/image/webp"
 
 	"weavatar/app/models"
 	"weavatar/app/services"
@@ -101,7 +105,6 @@ func (r *AvatarController) encodeImage(img image.Image, imageExt string) ([]byte
 
 // Index 获取头像列表
 func (r *AvatarController) Index(ctx http.Context) {
-	// 取出用户信息
 	user, ok := ctx.Value("user").(models.User)
 	if !ok {
 		ctx.Request().AbortWithStatusJson(http.StatusUnauthorized, http.Json{
@@ -121,29 +124,331 @@ func (r *AvatarController) Index(ctx http.Context) {
 		})
 		return
 	}
+
+	ctx.Response().Json(http.StatusOK, http.Json{
+		"code":    0,
+		"message": "获取成功",
+		"data":    avatars,
+	})
 }
 
 // Show 获取头像详情
 func (r *AvatarController) Show(ctx http.Context) {
+	user, ok := ctx.Value("user").(models.User)
+	if !ok {
+		ctx.Request().AbortWithStatusJson(http.StatusUnauthorized, http.Json{
+			"code":    401,
+			"message": "登录已过期",
+		})
+		return
+	}
 
+	var avatar models.Avatar
+	err := facades.Orm.Query().Where("user_id", user.ID).Where("hash", ctx.Request().Input("id")).First(&avatar)
+	if err != nil {
+		facades.Log.WithContext(ctx).Error("[AvatarController][Show] 查询用户头像失败: ", err.Error())
+		ctx.Response().Json(http.StatusInternalServerError, http.Json{
+			"code":    500,
+			"message": "系统内部错误",
+		})
+		return
+	}
+
+	if avatar.Hash == nil {
+		ctx.Response().Json(http.StatusNotFound, http.Json{
+			"code":    404,
+			"message": "头像不存在",
+		})
+		return
+	}
+
+	ctx.Response().Json(http.StatusOK, http.Json{
+		"code":    0,
+		"message": "获取成功",
+		"data":    avatar,
+	})
 }
 
 // Store 添加头像
 func (r *AvatarController) Store(ctx http.Context) {
+	user, ok := ctx.Value("user").(models.User)
+	if !ok {
+		ctx.Request().AbortWithStatusJson(http.StatusUnauthorized, http.Json{
+			"code":    401,
+			"message": "登录已过期",
+		})
+		return
+	}
 
+	var storeAvatarRequest requests.StoreAvatarRequest
+	errors, err := ctx.Request().ValidateRequest(&storeAvatarRequest)
+	if err != nil {
+		ctx.Response().Json(http.StatusUnprocessableEntity, http.Json{
+			"code":    422,
+			"message": err.Error(),
+		})
+		return
+	}
+	if errors != nil {
+		ctx.Response().Json(http.StatusUnprocessableEntity, http.Json{
+			"code":    422,
+			"message": errors.All(),
+		})
+		return
+	}
+
+	// 尝试解析图片
+	decode, decodeErr := imaging.Decode(strings.NewReader(storeAvatarRequest.Avatar))
+	if decodeErr != nil {
+		facades.Log.WithContext(ctx).Error("[AvatarController][Store] 解析图片失败: ", decodeErr.Error())
+		ctx.Response().Json(http.StatusInternalServerError, http.Json{
+			"code":    500,
+			"message": "系统内部错误",
+		})
+		return
+	}
+
+	// 判断图片长宽是否符合要求
+	if decode.Bounds().Dx() != decode.Bounds().Dy() {
+		ctx.Response().Json(http.StatusUnprocessableEntity, http.Json{
+			"code":    422,
+			"message": "图片长宽必须相等",
+		})
+		return
+	}
+
+	var avatar models.Avatar
+	hash := helpers.MD5(storeAvatarRequest.Avatar)
+	_, err = facades.Orm.Query().Exec(`INSERT INTO "avatars" ("hash", "created_at", "updated_at") VALUES (?, ?, ?) ON CONFLICT DO NOTHING`, hash, carbon.DateTime{Carbon: carbon.Now()}, carbon.DateTime{Carbon: carbon.Now()})
+	if err != nil {
+		facades.Log.WithContext(ctx).Error("[AvatarController][Store] 初始化查询用户头像失败: ", err.Error())
+		ctx.Response().Json(http.StatusInternalServerError, http.Json{
+			"code":    500,
+			"message": "系统内部错误",
+		})
+		return
+	}
+	err = facades.Orm.Query().Where("hash", hash).First(&avatar)
+	if err != nil {
+		facades.Log.WithContext(ctx).Error("[AvatarController][Store] 查询用户头像失败: ", err.Error())
+		ctx.Response().Json(http.StatusInternalServerError, http.Json{
+			"code":    500,
+			"message": "系统内部错误",
+		})
+		return
+	}
+
+	saveErr := facades.Storage.Put("upload/default/"+hash[:2]+"/"+hash, storeAvatarRequest.Avatar)
+	if saveErr != nil {
+		facades.Log.WithContext(ctx).Error("[AvatarController][Store] 保存用户头像失败: ", saveErr.Error())
+		ctx.Response().Json(http.StatusInternalServerError, http.Json{
+			"code":    500,
+			"message": "系统内部错误",
+		})
+		return
+	}
+
+	avatar.UserID = &user.ID
+	avatar.Raw = &storeAvatarRequest.Raw
+	avatar.Ban = false
+	avatar.Checked = false
+	err = facades.Orm.Query().Save(&avatar)
+	if err != nil {
+		facades.Log.WithContext(ctx).Error("[AvatarController][Store] 添加用户头像失败: ", err.Error())
+		ctx.Response().Json(http.StatusInternalServerError, http.Json{
+			"code":    500,
+			"message": "系统内部错误",
+		})
+		delErr := facades.Storage.Delete("upload/default/" + hash[:2] + "/" + hash)
+		if delErr != nil {
+			facades.Log.WithContext(ctx).Error("[AvatarController][Store] 删除用户头像失败: ", delErr.Error())
+		}
+		return
+	}
+
+	ctx.Response().Json(http.StatusOK, http.Json{
+		"code":    0,
+		"message": "添加成功",
+	})
 }
 
 // Update 更新头像
 func (r *AvatarController) Update(ctx http.Context) {
+	user, ok := ctx.Value("user").(models.User)
+	if !ok {
+		ctx.Request().AbortWithStatusJson(http.StatusUnauthorized, http.Json{
+			"code":    401,
+			"message": "登录已过期",
+		})
+		return
+	}
 
+	var updateAvatarRequest requests.UpdateAvatarRequest
+	errors, err := ctx.Request().ValidateRequest(&updateAvatarRequest)
+	if err != nil {
+		ctx.Response().Json(http.StatusUnprocessableEntity, http.Json{
+			"code":    422,
+			"message": err.Error(),
+		})
+		return
+	}
+	if errors != nil {
+		ctx.Response().Json(http.StatusUnprocessableEntity, http.Json{
+			"code":    422,
+			"message": errors.All(),
+		})
+		return
+	}
+
+	var avatar models.Avatar
+	err = facades.Orm.Query().Where("hash", updateAvatarRequest.Hash).Where("user_id", user.ID).First(&avatar)
+	if err != nil {
+		facades.Log.WithContext(ctx).Error("[AvatarController][Update] 查询用户头像失败: ", err.Error())
+		ctx.Response().Json(http.StatusInternalServerError, http.Json{
+			"code":    500,
+			"message": "系统内部错误",
+		})
+		return
+	}
+
+	if avatar.Hash == nil {
+		ctx.Response().Json(http.StatusNotFound, http.Json{
+			"code":    404,
+			"message": "头像不存在",
+		})
+		return
+	}
+
+	avatar.Checked = false
+	avatar.Ban = false
+	err = facades.Orm.Query().Save(&avatar)
+	if err != nil {
+		facades.Log.WithContext(ctx).Error("[AvatarController][Update] 更新用户头像失败: ", err.Error())
+		ctx.Response().Json(http.StatusInternalServerError, http.Json{
+			"code":    500,
+			"message": "系统内部错误",
+		})
+		return
+	}
+
+	saveErr := facades.Storage.Put("upload/default/"+updateAvatarRequest.Hash[:2]+"/"+updateAvatarRequest.Hash, updateAvatarRequest.Avatar)
+	if saveErr != nil {
+		facades.Log.WithContext(ctx).Error("[AvatarController][Store] 保存用户头像失败: ", saveErr.Error())
+		ctx.Response().Json(http.StatusInternalServerError, http.Json{
+			"code":    500,
+			"message": "系统内部错误",
+		})
+		return
+	}
+
+	ctx.Response().Json(http.StatusOK, http.Json{
+		"code":    0,
+		"message": "更新成功",
+	})
 }
 
 // Destroy 删除头像
 func (r *AvatarController) Destroy(ctx http.Context) {
+	user, ok := ctx.Value("user").(models.User)
+	if !ok {
+		ctx.Request().AbortWithStatusJson(http.StatusUnauthorized, http.Json{
+			"code":    401,
+			"message": "登录已过期",
+		})
+		return
+	}
 
+	var destroyAvatarRequest requests.DestroyAvatarRequest
+	errors, err := ctx.Request().ValidateRequest(&destroyAvatarRequest)
+	if err != nil {
+		ctx.Response().Json(http.StatusUnprocessableEntity, http.Json{
+			"code":    422,
+			"message": err.Error(),
+		})
+		return
+	}
+	if errors != nil {
+		ctx.Response().Json(http.StatusUnprocessableEntity, http.Json{
+			"code":    422,
+			"message": errors.All(),
+		})
+		return
+	}
+
+	var avatar models.Avatar
+	err = facades.Orm.Query().Where("hash", destroyAvatarRequest.Hash).Where("user_id", user.ID).First(&avatar)
+	if err != nil {
+		facades.Log.WithContext(ctx).Error("[AvatarController][Destroy] 查询用户头像失败: ", err.Error())
+		ctx.Response().Json(http.StatusInternalServerError, http.Json{
+			"code":    500,
+			"message": "系统内部错误",
+		})
+		return
+	}
+
+	if avatar.Hash == nil {
+		ctx.Response().Json(http.StatusNotFound, http.Json{
+			"code":    404,
+			"message": "头像不存在",
+		})
+		return
+	}
+
+	avatar.Checked = false
+	avatar.Ban = false
+	avatar.UserID = nil
+	err = facades.Orm.Query().Save(&avatar)
+	if err != nil {
+		facades.Log.WithContext(ctx).Error("[AvatarController][Destroy] 删除用户头像失败: ", err.Error())
+		ctx.Response().Json(http.StatusInternalServerError, http.Json{
+			"code":    500,
+			"message": "系统内部错误",
+		})
+		return
+	}
+
+	delErr := facades.Storage.Delete("upload/default/" + destroyAvatarRequest.Hash[:2] + "/" + destroyAvatarRequest.Hash)
+	if delErr != nil {
+		facades.Log.WithContext(ctx).Error("[AvatarController][Destroy] 删除用户头像失败: ", delErr.Error())
+		ctx.Response().Json(http.StatusInternalServerError, http.Json{
+			"code":    500,
+			"message": "系统内部错误",
+		})
+		return
+	}
+
+	ctx.Response().Json(http.StatusOK, http.Json{
+		"code":    0,
+		"message": "删除成功",
+	})
 }
 
 // CheckBind 检查绑定
 func (r *AvatarController) CheckBind(ctx http.Context) {
+	raw := ctx.Request().Input("hash", "12345")
+	hash := helpers.MD5(raw)
 
+	var avatar models.Avatar
+	err := facades.Orm.Query().Where("hash", hash).First(&avatar)
+	if err != nil {
+		facades.Log.WithContext(ctx).Error("[AvatarController][CheckBind] 查询用户头像失败: ", err.Error())
+		ctx.Response().Json(http.StatusInternalServerError, http.Json{
+			"code":    500,
+			"message": "系统内部错误",
+		})
+		return
+	}
+
+	if avatar.UserID == nil {
+		ctx.Response().Json(http.StatusOK, http.Json{
+			"code":    0,
+			"message": "头像未绑定",
+		})
+		return
+	}
+
+	ctx.Response().Json(http.StatusOK, http.Json{
+		"code":    0,
+		"message": "头像已绑定",
+	})
 }
