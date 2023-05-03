@@ -89,8 +89,8 @@ func (r *AvatarImpl) Sanitize(ctx http.Context) (string, string, string, int, bo
 	defaultAvatarSlices := []string{"404", "mp", "mm", "mystery", "identicon", "monsterid", "wavatar", "retro", "robohash", "blank", "letter"}
 	if !slices.Contains(defaultAvatarSlices, defaultAvatar) {
 		// 如果不是预设的默认头像，则检查是否是合法的 URL
-		parsedURL, err := url.Parse(forceDefault)
-		if err != nil || (parsedURL.Scheme != "http" && parsedURL.Scheme != "https") {
+		parsedURL, parseErr := url.Parse(defaultAvatar)
+		if parseErr != nil || (parsedURL.Scheme != "http" && parsedURL.Scheme != "https") || len(parsedURL.Host) == 0 || strings.Contains(parsedURL.Host, "weavatar.com") || len(parsedURL.RawQuery) != 0 {
 			defaultAvatar = ""
 		}
 	}
@@ -363,7 +363,28 @@ func (r *AvatarImpl) getDefaultAvatar(defaultAvatar string, option []string) (im
 		return img, nil
 	}
 
-	return nil, nil
+	client := req.C().SetUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36 Edg/112.0.1722.34")
+	resp, reqErr := client.R().Get(defaultAvatar)
+	if reqErr != nil || !resp.IsSuccessState() {
+		img, imgErr := imaging.Open(facades.Storage.Path("default/default.png"))
+		if imgErr != nil {
+			return nil, imgErr
+		}
+
+		return img, nil
+	}
+
+	// 检查图片是否正常
+	reader := strings.NewReader(resp.String())
+	img, imgErr := imaging.Decode(reader)
+	if imgErr != nil {
+		img, imgErr = imaging.Open(facades.Storage.Path("default/default.png"))
+		if imgErr != nil {
+			return nil, imgErr
+		}
+	}
+
+	return img, nil
 }
 
 // GetDefaultAvatarByType 通过默认头像类型获取头像
@@ -391,7 +412,7 @@ func (r *AvatarImpl) GetDefaultAvatarByType(avatarType string, option []string) 
 	case "letter":
 		avatar, err = r.getDefaultAvatar("letter", option)
 	default:
-		avatar, err = r.getDefaultAvatar("", option)
+		avatar, err = r.getDefaultAvatar(avatarType, option)
 	}
 
 	return avatar, err
@@ -444,7 +465,7 @@ func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, 
 				return banImg, from, nil
 			} else {
 				// 如果不是封禁状态，则检查是否有对应的头像
-				img, imgErr = imaging.Open(facades.Storage.Path("upload/default/" + strconv.Itoa(int(appAvatar.AppID)) + "/" + hash[:2] + "/" + hash))
+				img, imgErr = imaging.Open(facades.Storage.Path("upload/default/" + hash[:2] + "/" + hash))
 			}
 		}
 

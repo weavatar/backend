@@ -133,7 +133,7 @@ func (receiver *ProcessAvatarUpdate) Handle(args ...any) error {
 		// 更新数据库
 		var avatar models.Avatar
 		err := facades.Orm.Query().Where("hash", hash).First(&avatar)
-		if err != nil {
+		if err != nil || avatar.Hash == nil {
 			facades.Log.Error("头像更新[数据库查询失败] " + err.Error())
 			return err
 		}
