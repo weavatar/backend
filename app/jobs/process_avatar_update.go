@@ -89,7 +89,7 @@ func (receiver *ProcessAvatarUpdate) Handle(args ...any) error {
 			"nk": qq.Qq,
 			"s":  "640",
 		}).Get("http://q1.qlogo.cn/g")
-		if !resp.IsSuccessState() {
+		if reqErr != nil || !resp.IsSuccessState() {
 			return nil
 		}
 
@@ -101,7 +101,7 @@ func (receiver *ProcessAvatarUpdate) Handle(args ...any) error {
 				"nk": qq.Qq,
 				"s":  "100",
 			}).Get("http://q1.qlogo.cn/g")
-			if !resp.IsSuccessState() {
+			if reqErr != nil || !resp.IsSuccessState() {
 				return nil
 			}
 		}
