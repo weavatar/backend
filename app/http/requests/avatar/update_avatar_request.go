@@ -6,7 +6,6 @@ import (
 )
 
 type UpdateAvatarRequest struct {
-	Hash   string `form:"hash" json:"hash"`
 	Avatar string `form:"avatar" json:"avatar"`
 
 	CaptchaID string `form:"captcha_id" json:"captcha_id"`
@@ -19,7 +18,6 @@ func (r *UpdateAvatarRequest) Authorize(ctx http.Context) error {
 
 func (r *UpdateAvatarRequest) Rules(ctx http.Context) map[string]string {
 	return map[string]string{
-		"hash":       "required|string|len:32",
 		"avatar":     "required|image",
 		"captcha_id": "required|string",
 		"captcha":    "required|len:6|number|captcha",
@@ -28,9 +26,6 @@ func (r *UpdateAvatarRequest) Rules(ctx http.Context) map[string]string {
 
 func (r *UpdateAvatarRequest) Messages(ctx http.Context) map[string]string {
 	return map[string]string{
-		"hash.required":       "头像哈希不能为空",
-		"hash.string":         "头像哈希必须为字符串",
-		"hash.len":            "头像哈希长度必须为 32 位",
 		"avatar.required":     "头像不能为空",
 		"avatar.image":        "头像必须为图片",
 		"captcha_id.required": "图形验证码 ID 不能为空",
