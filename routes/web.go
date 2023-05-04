@@ -30,6 +30,7 @@ func Web() {
 		userController := controllers.NewUserController()
 		route.Post("oauthLogin", userController.OauthLogin)
 		route.Post("oauthCallback", userController.OauthCallback)
+		route.Middleware(middleware.Jwt()).Get("info", userController.Info)
 		route.Middleware(middleware.Jwt()).Post("updateNickname", userController.UpdateNickname)
 		route.Middleware(middleware.Jwt()).Post("logout", userController.Logout)
 		route.Middleware(middleware.Jwt()).Post("refresh", userController.Refresh)

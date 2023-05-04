@@ -135,6 +135,28 @@ func (r *UserController) OauthCallback(ctx http.Context) {
 	})
 }
 
+func (r *UserController) Info(ctx http.Context) {
+	// 取出用户信息
+	user, ok := ctx.Value("user").(models.User)
+	if !ok {
+		ctx.Request().AbortWithStatusJson(http.StatusUnauthorized, http.Json{
+			"code":    401,
+			"message": "登录已过期",
+		})
+		return
+	}
+
+	ctx.Response().Success().Json(http.Json{
+		"code":    0,
+		"message": "获取成功",
+		"data": http.Json{
+			"id":         user.ID,
+			"nickname":   user.Nickname,
+			"created_at": user.CreatedAt,
+		},
+	})
+}
+
 func (r *UserController) UpdateNickname(ctx http.Context) {
 	var updateNicknameRequest requests.UpdateNicknameRequest
 	errors, err := ctx.Request().ValidateRequest(&updateNicknameRequest)
