@@ -26,7 +26,7 @@ func (r *EmailRequest) Authorize(ctx http.Context) error {
 func (r *EmailRequest) Rules(ctx http.Context) map[string]string {
 	return map[string]string{
 		"email":      "required|email",
-		"use_for":    "required|in:register,login,reset_password,update_phone,update_email,update_password",
+		"use_for":    "required|in:avatar",
 		"captcha_id": "required|string",
 		"captcha":    "required|len:6|number|captcha",
 	}

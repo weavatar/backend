@@ -26,7 +26,7 @@ func (r *SmsRequest) Authorize(ctx http.Context) error {
 func (r *SmsRequest) Rules(ctx http.Context) map[string]string {
 	return map[string]string{
 		"phone":      "required|len:11|number|phone",
-		"use_for":    "required|in:register,login,reset_password,update_phone,update_email,update_password",
+		"use_for":    "required|in:avatar",
 		"captcha_id": "required|string",
 		"captcha":    "required|len:6|number|captcha",
 	}
