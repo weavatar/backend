@@ -39,11 +39,11 @@ func NewAvatarImpl() *AvatarImpl {
 }
 
 // Sanitize 消毒头像请求
-func (r *AvatarImpl) Sanitize(ctx http.Context) (uint, string, string, int, bool, string) {
+func (r *AvatarImpl) Sanitize(ctx http.Context) (string, string, string, int, bool, string) {
 	// 从 URL 中获取 Hash 和图片格式
 	hashExt := strings.Split(ctx.Request().Input("hash", ""), ".")
 	// 从查询字符串中获取 APPID
-	appid := ctx.Request().InputInt("appid", 0)
+	appid := ctx.Request().Input("appid", "0")
 
 	hash := strings.ToLower(hashExt[0]) // Hash 转小写
 	imageExt := "png"                   // 默认为 PNG 格式
@@ -100,7 +100,7 @@ func (r *AvatarImpl) Sanitize(ctx http.Context) (uint, string, string, int, bool
 		forceDefaultBool = true
 	}
 
-	return uint(appid), hash, imageExt, size, forceDefaultBool, defaultAvatar
+	return appid, hash, imageExt, size, forceDefaultBool, defaultAvatar
 }
 
 // getQqAvatar 通过 QQ 号获取头像
@@ -419,7 +419,7 @@ func (r *AvatarImpl) GetDefaultAvatarByType(avatarType string, option []string) 
 }
 
 // GetAvatar 获取头像
-func (r *AvatarImpl) GetAvatar(appid uint, hash string, defaultAvatar string, option []string) (image.Image, string, error) {
+func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, option []string) (image.Image, string, error) {
 	var avatar models.Avatar
 	var appAvatar models.AppAvatar
 	var err error
