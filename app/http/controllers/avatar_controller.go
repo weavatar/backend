@@ -239,7 +239,7 @@ func (r *AvatarController) Store(ctx http.Context) {
 	}
 
 	var avatar models.Avatar
-	hash := helpers.MD5(storeAvatarRequest.Avatar)
+	hash := helpers.MD5(storeAvatarRequest.Raw)
 	_, err = facades.Orm.Query().Exec(`INSERT INTO "avatars" ("hash", "created_at", "updated_at") VALUES (?, ?, ?) ON CONFLICT DO NOTHING`, hash, carbon.DateTime{Carbon: carbon.Now()}, carbon.DateTime{Carbon: carbon.Now()})
 	if err != nil {
 		facades.Log.WithContext(ctx).Error("[AvatarController][Store] 初始化查询用户头像失败: ", err.Error())
@@ -289,7 +289,7 @@ func (r *AvatarController) Store(ctx http.Context) {
 
 	ctx.Response().Json(http.StatusOK, http.Json{
 		"code":    0,
-		"message": "添加成功",
+		"message": "添加成功，10 分钟内全网生效",
 	})
 }
 
@@ -415,7 +415,7 @@ func (r *AvatarController) Update(ctx http.Context) {
 
 	ctx.Response().Json(http.StatusOK, http.Json{
 		"code":    0,
-		"message": "更新成功",
+		"message": "更新成功，10 分钟内全网生效",
 	})
 }
 
@@ -485,7 +485,7 @@ func (r *AvatarController) Destroy(ctx http.Context) {
 
 	ctx.Response().Json(http.StatusOK, http.Json{
 		"code":    0,
-		"message": "删除成功",
+		"message": "删除成功，10 分钟内全网生效",
 	})
 }
 
