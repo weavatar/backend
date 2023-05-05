@@ -16,6 +16,7 @@ import (
 	requests "weavatar/app/http/requests/avatar"
 	"weavatar/app/models"
 	"weavatar/app/services"
+	packagecdn "weavatar/packages/cdn"
 	"weavatar/packages/helpers"
 )
 
@@ -287,6 +288,12 @@ func (r *AvatarController) Store(ctx http.Context) {
 		return
 	}
 
+	// 刷新缓存
+	go func() {
+		cdn := packagecdn.NewCDN()
+		cdn.RefreshUrl([]string{"https://weavatar.com/avatar/" + hash + "*", "http://weavatar.com/avatar/" + hash + "*"})
+	}()
+
 	ctx.Response().Json(http.StatusOK, http.Json{
 		"code":    0,
 		"message": "添加成功，10 分钟内全网生效",
@@ -413,6 +420,12 @@ func (r *AvatarController) Update(ctx http.Context) {
 		return
 	}
 
+	// 刷新缓存
+	go func() {
+		cdn := packagecdn.NewCDN()
+		cdn.RefreshUrl([]string{"https://weavatar.com/avatar/" + hash + "*", "http://weavatar.com/avatar/" + hash + "*"})
+	}()
+
 	ctx.Response().Json(http.StatusOK, http.Json{
 		"code":    0,
 		"message": "更新成功，10 分钟内全网生效",
@@ -482,6 +495,12 @@ func (r *AvatarController) Destroy(ctx http.Context) {
 		})
 		return
 	}
+
+	// 刷新缓存
+	go func() {
+		cdn := packagecdn.NewCDN()
+		cdn.RefreshUrl([]string{"https://weavatar.com/avatar/" + hash + "*", "http://weavatar.com/avatar/" + hash + "*"})
+	}()
 
 	ctx.Response().Json(http.StatusOK, http.Json{
 		"code":    0,
