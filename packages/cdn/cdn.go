@@ -58,3 +58,8 @@ func (cdn *CDN) RefreshUrl(urls []string) bool {
 func (cdn *CDN) RefreshPath(paths []string) bool {
 	return cdn.Driver.RefreshPath(paths)
 }
+
+// GetUsage 获取CDN使用情况
+func (cdn *CDN) GetUsage(domain, startTime, endTime string) uint {
+	return cdn.Driver.GetUsage(domain, startTime, endTime)
+}
