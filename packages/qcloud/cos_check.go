@@ -72,7 +72,7 @@ func (cc *CosChecker) Check(url string) (bool, error) {
 		return false, err
 	}
 
-	if checkResponse.Result != 0 {
+	if checkResponse.Result == 1 {
 		return false, nil
 	}
 
