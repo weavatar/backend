@@ -2,13 +2,13 @@ package controllers
 
 import (
 	"bytes"
-	"github.com/golang-module/carbon/v2"
 	"image"
 	"os"
 	"strings"
 
 	"github.com/chai2010/webp"
 	"github.com/disintegration/imaging"
+	"github.com/golang-module/carbon/v2"
 	"github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/facades"
 	_ "golang.org/x/image/webp"
@@ -505,35 +505,5 @@ func (r *AvatarController) Destroy(ctx http.Context) {
 	ctx.Response().Json(http.StatusOK, http.Json{
 		"code":    0,
 		"message": "删除成功，10 分钟内全网生效",
-	})
-}
-
-// CheckBind 检查绑定
-func (r *AvatarController) CheckBind(ctx http.Context) {
-	raw := ctx.Request().Input("hash", "12345")
-	hash := helpers.MD5(raw)
-
-	var avatar models.Avatar
-	err := facades.Orm.Query().Where("hash", hash).First(&avatar)
-	if err != nil {
-		facades.Log.WithContext(ctx).Error("[AvatarController][CheckBind] 查询用户头像失败: ", err.Error())
-		ctx.Response().Json(http.StatusInternalServerError, http.Json{
-			"code":    500,
-			"message": "系统内部错误",
-		})
-		return
-	}
-
-	if avatar.UserID == nil {
-		ctx.Response().Json(http.StatusOK, http.Json{
-			"code":    0,
-			"message": "地址未被其他用户绑定",
-		})
-		return
-	}
-
-	ctx.Response().Json(http.StatusOK, http.Json{
-		"code":    0,
-		"message": "地址已被其他用户绑定",
 	})
 }

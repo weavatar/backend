@@ -7,7 +7,9 @@ import (
 	"github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/facades"
 
+	"weavatar/app/models"
 	packagecdn "weavatar/packages/cdn"
+	"weavatar/packages/helpers"
 )
 
 type SystemController struct {
@@ -62,5 +64,41 @@ func (r *SystemController) CdnUsage(ctx http.Context) {
 		"code":    0,
 		"message": "获取成功",
 		"data":    usage,
+	})
+}
+
+// CheckBind 检查绑定
+func (r *SystemController) CheckBind(ctx http.Context) {
+	raw := ctx.Request().Input("raw", "12345")
+	hash := helpers.MD5(raw)
+
+	var avatar models.Avatar
+	err := facades.Orm.Query().Where("hash", hash).First(&avatar)
+	if err != nil {
+		facades.Log.WithContext(ctx).Error("[AvatarController][CheckBind] 查询用户头像失败: ", err.Error())
+		ctx.Response().Json(http.StatusInternalServerError, http.Json{
+			"code":    500,
+			"message": "系统内部错误",
+		})
+		return
+	}
+
+	if avatar.UserID == nil {
+		ctx.Response().Json(http.StatusOK, http.Json{
+			"code":    0,
+			"message": "地址未被其他用户绑定",
+			"data": http.Json{
+				"bind": false,
+			},
+		})
+		return
+	}
+
+	ctx.Response().Json(http.StatusOK, http.Json{
+		"code":    0,
+		"message": "地址已被其他用户绑定",
+		"data": http.Json{
+			"bind": true,
+		},
 	})
 }
