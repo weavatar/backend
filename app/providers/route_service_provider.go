@@ -26,20 +26,34 @@ func (receiver *RouteServiceProvider) Boot() {
 func (receiver *RouteServiceProvider) configureRateLimiting() {
 	facades.RateLimiter.For("global", func(ctx contractshttp.Context) contractshttp.Limit {
 		return limit.PerMinute(1000).Response(func(ctx contractshttp.Context) {
-			ctx.Response().Json(contractshttp.StatusTooManyRequests, contractshttp.Json{
+			ctx.Request().AbortWithStatusJson(contractshttp.StatusTooManyRequests, contractshttp.Json{
 				"code":    contractshttp.StatusTooManyRequests,
 				"message": "达到请求上限，请稍后再试",
 			})
-			return
 		})
 	})
 	facades.RateLimiter.ForWithLimits("verify_code", func(ctx contractshttp.Context) []contractshttp.Limit {
 		return []contractshttp.Limit{
-			limit.PerMinute(5),
-			limit.PerDay(50).By(ctx.Request().Ip()),
+			limit.PerMinute(5).Response(func(ctx contractshttp.Context) {
+				ctx.Request().AbortWithStatusJson(contractshttp.StatusTooManyRequests, contractshttp.Json{
+					"code":    contractshttp.StatusTooManyRequests,
+					"message": "达到请求上限，请稍后再试",
+				})
+			}),
+			limit.PerDay(50).By(ctx.Request().Ip()).Response(func(ctx contractshttp.Context) {
+				ctx.Request().AbortWithStatusJson(contractshttp.StatusTooManyRequests, contractshttp.Json{
+					"code":    contractshttp.StatusTooManyRequests,
+					"message": "达到请求上限，请稍后再试",
+				})
+			}),
 		}
 	})
 	facades.RateLimiter.For("captcha", func(ctx contractshttp.Context) contractshttp.Limit {
-		return limit.PerMinute(60)
+		return limit.PerMinute(60).Response(func(ctx contractshttp.Context) {
+			ctx.Request().AbortWithStatusJson(contractshttp.StatusTooManyRequests, contractshttp.Json{
+				"code":    contractshttp.StatusTooManyRequests,
+				"message": "达到请求上限，请稍后再试",
+			})
+		})
 	})
 }
