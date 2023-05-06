@@ -43,7 +43,6 @@ func Web() {
 		route.Middleware(middleware.Jwt()).Put("avatars/{id}", avatarController.Update)
 		route.Middleware(middleware.Jwt()).Patch("avatars/{id}", avatarController.Update)
 		route.Middleware(middleware.Jwt()).Delete("avatars/{id}", avatarController.Destroy)
-		route.Middleware(middleware.Jwt()).Post("avatars/checkBind", avatarController.CheckBind)
 	})
 	facades.Route.Middleware(frameworkmiddleware.Throttle("global")).Group(func(route route.Route) {
 		appController := controllers.NewAppController()
@@ -58,6 +57,7 @@ func Web() {
 
 	facades.Route.Prefix("system").Middleware(frameworkmiddleware.Throttle("global")).Group(func(route route.Route) {
 		systemController := controllers.NewSystemController()
+		route.Middleware(middleware.Jwt()).Get("checkBind", systemController.CheckBind)
 		route.Get("cdnUsage", systemController.CdnUsage)
 	})
 }
