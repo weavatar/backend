@@ -22,9 +22,9 @@ func Web() {
 
 	facades.Route.Prefix("captcha").Middleware(frameworkmiddleware.Throttle("global")).Group(func(route route.Route) {
 		captchaController := controllers.NewCaptchaController()
-		route.Get("image", captchaController.Image)
-		route.Post("sms", captchaController.Sms)
-		route.Post("email", captchaController.Email)
+		route.Middleware(frameworkmiddleware.Throttle("captcha")).Get("image", captchaController.Image)
+		route.Middleware(frameworkmiddleware.Throttle("verify_code")).Post("sms", captchaController.Sms)
+		route.Middleware(frameworkmiddleware.Throttle("verify_code")).Post("email", captchaController.Email)
 	})
 	facades.Route.Prefix("user").Middleware(frameworkmiddleware.Throttle("global")).Group(func(route route.Route) {
 		userController := controllers.NewUserController()
@@ -54,5 +54,10 @@ func Web() {
 		route.Middleware(middleware.Jwt()).Put("apps/{id}", appController.Update)
 		route.Middleware(middleware.Jwt()).Patch("apps/{id}", appController.Update)
 		route.Middleware(middleware.Jwt()).Delete("apps/{id}", appController.Destroy)
+	})
+
+	facades.Route.Prefix("system").Middleware(frameworkmiddleware.Throttle("global")).Group(func(route route.Route) {
+		systemController := controllers.NewSystemController()
+		route.Get("cdnUsage", systemController.CdnUsage)
 	})
 }

@@ -1,7 +1,9 @@
 package providers
 
 import (
+	contractshttp "github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/facades"
+	"github.com/goravel/framework/http/limit"
 
 	"weavatar/app/http"
 	"weavatar/routes"
@@ -22,5 +24,22 @@ func (receiver *RouteServiceProvider) Boot() {
 }
 
 func (receiver *RouteServiceProvider) configureRateLimiting() {
-
+	facades.RateLimiter.For("global", func(ctx contractshttp.Context) contractshttp.Limit {
+		return limit.PerMinute(1000).Response(func(ctx contractshttp.Context) {
+			ctx.Response().Json(contractshttp.StatusTooManyRequests, contractshttp.Json{
+				"code":    contractshttp.StatusTooManyRequests,
+				"message": "达到请求上限，请稍后再试",
+			})
+			return
+		})
+	})
+	facades.RateLimiter.ForWithLimits("verify_code", func(ctx contractshttp.Context) []contractshttp.Limit {
+		return []contractshttp.Limit{
+			limit.PerMinute(5),
+			limit.PerDay(50).By(ctx.Request().Ip()),
+		}
+	})
+	facades.RateLimiter.For("captcha", func(ctx contractshttp.Context) contractshttp.Limit {
+		return limit.PerMinute(60)
+	})
 }

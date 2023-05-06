@@ -14,9 +14,15 @@ type DDunClean struct {
 	Data map[string]string `json:"data"`
 }
 
-type DDunResponse struct {
-	Code    int    `json:"code"`
+type DDunRefreshResponse struct {
+	Code    uint   `json:"code"`
 	Message string `json:"msg"`
+}
+
+type DDunUsageResponse struct {
+	Code    uint      `json:"code"`
+	Data    [][2]uint `json:"data"`
+	Message string    `json:"msg"`
 }
 
 // RefreshUrl 刷新URL
@@ -31,7 +37,7 @@ func (d *DDun) RefreshUrl(urls []string) bool {
 		}
 	}
 
-	var resp DDunResponse
+	var resp DDunRefreshResponse
 
 	_, err := client.R().SetBody(data).SetSuccessResult(&resp).SetErrorResult(&resp).SetHeaders(map[string]string{
 		"api-key":    d.apiKey,
@@ -61,7 +67,7 @@ func (d *DDun) RefreshPath(paths []string) bool {
 		}
 	}
 
-	var resp DDunResponse
+	var resp DDunRefreshResponse
 
 	post, err := client.R().SetBody(data).SetSuccessResult(&resp).SetErrorResult(&resp).SetHeaders(map[string]string{
 		"api-key":    d.apiKey,
@@ -80,4 +86,38 @@ func (d *DDun) RefreshPath(paths []string) bool {
 	}
 
 	return true
+}
+
+// GetUsage 获取用量
+func (d *DDun) GetUsage(domain, startTime, endTime string) uint {
+	client := req.C()
+
+	var resp DDunUsageResponse
+
+	// 由于cdnfly这个非标准querystring，所以只能手动把参数拼接到url上了
+	post, err := client.R().SetSuccessResult(&resp).SetErrorResult(&resp).SetHeaders(map[string]string{
+		"api-key":    d.apiKey,
+		"api-secret": d.apiSecret,
+	}).Get("http://cdn.ddunyun.com/v1/monitor/site/realtime?type=req&start=" + startTime + "%2000:00:00" + "&end=" + endTime + "%2000:00:00" + "&domain=" + domain + "&server_post=")
+
+	facades.Log.Info("CDN[盾云][获取用量] " + post.String())
+
+	if err != nil {
+		return 0
+	}
+	if !post.IsSuccessState() {
+		return 0
+	}
+
+	if resp.Code != 0 {
+		facades.Log.Error("CDN[盾云][获取用量失败] " + resp.Message)
+		return 0
+	}
+
+	sum := uint(0)
+	for _, data := range resp.Data {
+		sum += data[1]
+	}
+
+	return sum
 }

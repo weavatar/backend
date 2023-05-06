@@ -133,3 +133,8 @@ func (y *YunDun) RefreshPath(paths []string) bool {
 
 	return false
 }
+
+// GetUsage 获取使用量
+func (y *YunDun) GetUsage(domain, startTime, endTime string) uint {
+	return 0
+}
