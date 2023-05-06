@@ -29,7 +29,7 @@ func (r *SystemController) CdnUsage(ctx http.Context) {
 	// 取今日0点时间
 	today := carbon.Now().StartOfDay().ToDateString()
 	// 域名
-	domain := facades.Config.GetString("http.host")
+	domain := "weavatar.com"
 
 	// 先判断下有没有缓存
 	usage := facades.Cache.GetInt64("cdn_usage", -1)
