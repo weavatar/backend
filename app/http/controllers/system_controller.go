@@ -35,7 +35,9 @@ func (r *SystemController) CdnUsage(ctx http.Context) {
 		ctx.Response().Json(http.StatusOK, http.Json{
 			"code":    0,
 			"message": "获取成功",
-			"data":    usage,
+			"data": http.Json{
+				"usage": usage,
+			},
 		})
 		return
 	}
