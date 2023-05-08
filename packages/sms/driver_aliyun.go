@@ -3,12 +3,11 @@ package sms
 import (
 	"encoding/json"
 
-	"github.com/goravel/framework/facades"
-
 	openapi "github.com/alibabacloud-go/darabonba-openapi/v2/client"
 	dysmsapi20170525 "github.com/alibabacloud-go/dysmsapi-20170525/v3/client"
 	util "github.com/alibabacloud-go/tea-utils/v2/service"
 	"github.com/alibabacloud-go/tea/tea"
+	"github.com/goravel/framework/facades"
 )
 
 type Aliyun struct {
@@ -18,14 +17,13 @@ type Aliyun struct {
 func (a *Aliyun) Send(phone string, message Message, config map[string]string) bool {
 	client, err := CreateClient(tea.String(config["access_key_id"]), tea.String(config["access_key_secret"]))
 	if err != nil {
-		facades.Log.Error("短信[阿里云]", "解析绑定错误", err.Error())
+		facades.Log.Error("短信[阿里云] ", " 解析绑定错误 ", err.Error())
 		return false
 	}
-	facades.Log.Info("短信[阿里云]", "配置信息", config)
 
 	param, err := json.Marshal(message.Data)
 	if err != nil {
-		facades.Log.Error("短信[阿里云]", "短信模板参数解析错误", err.Error())
+		facades.Log.Error("短信[阿里云] ", " 短信模板参数解析错误 ", err.Error())
 		return false
 	}
 
@@ -52,18 +50,17 @@ func (a *Aliyun) Send(phone string, message Message, config map[string]string) b
 		var r dysmsapi20170525.SendSmsResponseBody
 		err = json.Unmarshal([]byte(*errs.Data), &r)
 		if err != nil {
-			facades.Log.Error("短信[阿里云]", "解析JSON失败", errs)
+			facades.Log.Error("短信[阿里云] ", " 解析JSON失败 ", errs)
 		}
 
 		return false
 	}
 
 	if tea.StringValue(_result.Body.Message) != "OK" {
-		facades.Log.Error("短信[阿里云]", "发送失败", _result.Body)
+		facades.Log.Error("短信[阿里云] ", " 发送失败 ", _result.Body)
 		return false
 	}
 
-	facades.Log.Info("短信[阿里云]", "发信成功", "")
 	return true
 }
 

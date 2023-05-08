@@ -55,7 +55,7 @@ func GetToken(code string) (map[string]string, error) {
 		"redirect_uri":  redirectURI,
 	}).Get(facades.Config.GetString("haozi.account.base_url") + "/api/oauth/token")
 	if err != nil {
-		facades.Log.Warning("耗子通行证[获取Token失败]", err.Error())
+		facades.Log.Warning("耗子通行证 ", " [获取Token失败] ", err.Error())
 		return nil, err
 	}
 
@@ -86,7 +86,7 @@ func GetUserInfo(accessToken string) (map[string]string, error) {
 		"access_token": accessToken,
 	}).Get(facades.Config.GetString("haozi.account.base_url") + "/api/oauth/getBasicInfo")
 	if err != nil {
-		facades.Log.Warning("耗子通行证[获取用户信息失败]", err.Error())
+		facades.Log.Warning("耗子通行证 ", " [获取用户信息失败] ", err.Error())
 	}
 
 	var basicInfo BasicInfo

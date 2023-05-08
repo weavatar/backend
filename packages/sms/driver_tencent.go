@@ -14,8 +14,6 @@ type Tencent struct{}
 
 // Send 实现 sms.Driver interface 的 Send 方法
 func (s *Tencent) Send(phone string, message Message, config map[string]string) bool {
-	facades.Log.Info("短信[腾讯云]", "配置信息", config)
-
 	credential := common.NewCredential(
 		config["access_key"],
 		config["secret_key"],
@@ -34,11 +32,10 @@ func (s *Tencent) Send(phone string, message Message, config map[string]string) 
 	response, err := client.SendSms(request)
 
 	if _, ok := err.(*errors.TencentCloudSDKError); ok {
-		facades.Log.Info("短信[腾讯云]", "调用接口错误", err.Error())
 		return false
 	}
 	if err != nil {
-		facades.Log.Info("短信[腾讯云]", "服务商返回错误", err.Error())
+		facades.Log.Info("短信[腾讯云] ", " 服务商返回错误", err.Error())
 		return false
 	}
 
@@ -46,10 +43,9 @@ func (s *Tencent) Send(phone string, message Message, config map[string]string) 
 	statusSet := response.Response.SendStatusSet
 	code := *statusSet[0].Code
 	if code == "Ok" {
-		facades.Log.Info("短信[腾讯云]", "发信成功", response.ToJsonString())
 		return true
 	} else {
-		facades.Log.Info("短信[腾讯云]", "发信失败", response.ToJsonString())
+		facades.Log.Info("短信[腾讯云] ", " 发信失败 ", response.ToJsonString())
 		return false
 	}
 
