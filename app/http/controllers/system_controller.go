@@ -75,7 +75,7 @@ func (r *SystemController) CheckBind(ctx http.Context) {
 	var avatar models.Avatar
 	err := facades.Orm.Query().Where("hash", hash).First(&avatar)
 	if err != nil {
-		facades.Log.WithContext(ctx).Error("[AvatarController][CheckBind] 查询用户头像失败: ", err.Error())
+		facades.Log.WithContext(ctx).Error("[AvatarController][CheckBind] 查询用户头像失败 ", err.Error())
 		ctx.Response().Json(http.StatusInternalServerError, http.Json{
 			"code":    500,
 			"message": "系统内部错误",

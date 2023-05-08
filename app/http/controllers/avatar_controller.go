@@ -119,7 +119,7 @@ func (r *AvatarController) Index(ctx http.Context) {
 	var avatars []models.Avatar
 	err := facades.Orm.Query().Where("user_id", user.ID).Find(&avatars)
 	if err != nil {
-		facades.Log.WithContext(ctx).Error("[AvatarController][Index] 查询用户头像失败: ", err.Error())
+		facades.Log.WithContext(ctx).Error("[AvatarController][Index] 查询用户头像失败 ", err.Error())
 		ctx.Response().Json(http.StatusInternalServerError, http.Json{
 			"code":    500,
 			"message": "系统内部错误",
@@ -148,7 +148,7 @@ func (r *AvatarController) Show(ctx http.Context) {
 	var avatar models.Avatar
 	err := facades.Orm.Query().Where("user_id", user.ID).Where("hash", ctx.Request().Input("id")).First(&avatar)
 	if err != nil {
-		facades.Log.WithContext(ctx).Error("[AvatarController][Show] 查询用户头像失败: ", err.Error())
+		facades.Log.WithContext(ctx).Error("[AvatarController][Show] 查询用户头像失败 ", err.Error())
 		ctx.Response().Json(http.StatusInternalServerError, http.Json{
 			"code":    500,
 			"message": "系统内部错误",
@@ -202,7 +202,7 @@ func (r *AvatarController) Store(ctx http.Context) {
 	// 尝试解析图片
 	upload, uploadErr := ctx.Request().File("avatar")
 	if uploadErr != nil {
-		facades.Log.Error("[AvatarController][Store] 解析上传失败: ", uploadErr.Error())
+		facades.Log.Error("[AvatarController][Store] 解析上传失败 ", uploadErr.Error())
 		ctx.Response().Json(http.StatusInternalServerError, http.Json{
 			"code":    500,
 			"message": "系统内部错误",
@@ -212,7 +212,7 @@ func (r *AvatarController) Store(ctx http.Context) {
 
 	file, fileErr := os.ReadFile(upload.File())
 	if fileErr != nil {
-		facades.Log.Error("[AvatarController][Store] 读取上传失败: ", fileErr.Error())
+		facades.Log.Error("[AvatarController][Store] 读取上传失败 ", fileErr.Error())
 		ctx.Response().Json(http.StatusInternalServerError, http.Json{
 			"code":    500,
 			"message": "系统内部错误",
@@ -222,7 +222,7 @@ func (r *AvatarController) Store(ctx http.Context) {
 
 	decode, decodeErr := imaging.Decode(bytes.NewReader(file))
 	if decodeErr != nil {
-		facades.Log.Error("[AvatarController][Store] 解析图片失败: ", decodeErr.Error())
+		facades.Log.Error("[AvatarController][Store] 解析图片失败 ", decodeErr.Error())
 		ctx.Response().Json(http.StatusInternalServerError, http.Json{
 			"code":    500,
 			"message": "系统内部错误",
@@ -243,7 +243,7 @@ func (r *AvatarController) Store(ctx http.Context) {
 	hash := helpers.MD5(storeAvatarRequest.Raw)
 	_, err = facades.Orm.Query().Exec(`INSERT INTO "avatars" ("hash", "created_at", "updated_at") VALUES (?, ?, ?) ON CONFLICT DO NOTHING`, hash, carbon.DateTime{Carbon: carbon.Now()}, carbon.DateTime{Carbon: carbon.Now()})
 	if err != nil {
-		facades.Log.WithContext(ctx).Error("[AvatarController][Store] 初始化查询用户头像失败: ", err.Error())
+		facades.Log.WithContext(ctx).Error("[AvatarController][Store] 初始化查询用户头像失败 ", err.Error())
 		ctx.Response().Json(http.StatusInternalServerError, http.Json{
 			"code":    500,
 			"message": "系统内部错误",
@@ -252,7 +252,7 @@ func (r *AvatarController) Store(ctx http.Context) {
 	}
 	err = facades.Orm.Query().Where("hash", hash).First(&avatar)
 	if err != nil {
-		facades.Log.WithContext(ctx).Error("[AvatarController][Store] 查询用户头像失败: ", err.Error())
+		facades.Log.WithContext(ctx).Error("[AvatarController][Store] 查询用户头像失败 ", err.Error())
 		ctx.Response().Json(http.StatusInternalServerError, http.Json{
 			"code":    500,
 			"message": "系统内部错误",
@@ -262,7 +262,7 @@ func (r *AvatarController) Store(ctx http.Context) {
 
 	saveErr := facades.Storage.Put("upload/default/"+hash[:2]+"/"+hash, string(file))
 	if saveErr != nil {
-		facades.Log.WithContext(ctx).Error("[AvatarController][Store] 保存用户头像失败: ", saveErr.Error())
+		facades.Log.WithContext(ctx).Error("[AvatarController][Store] 保存用户头像失败 ", saveErr.Error())
 		ctx.Response().Json(http.StatusInternalServerError, http.Json{
 			"code":    500,
 			"message": "系统内部错误",
@@ -276,14 +276,14 @@ func (r *AvatarController) Store(ctx http.Context) {
 	avatar.Checked = false
 	err = facades.Orm.Query().Save(&avatar)
 	if err != nil {
-		facades.Log.WithContext(ctx).Error("[AvatarController][Store] 添加用户头像失败: ", err.Error())
+		facades.Log.WithContext(ctx).Error("[AvatarController][Store] 添加用户头像失败 ", err.Error())
 		ctx.Response().Json(http.StatusInternalServerError, http.Json{
 			"code":    500,
 			"message": "系统内部错误",
 		})
 		delErr := facades.Storage.Delete("upload/default/" + hash[:2] + "/" + hash)
 		if delErr != nil {
-			facades.Log.WithContext(ctx).Error("[AvatarController][Store] 删除用户头像失败: ", delErr.Error())
+			facades.Log.WithContext(ctx).Error("[AvatarController][Store] 删除用户头像失败 ", delErr.Error())
 		}
 		return
 	}
@@ -342,7 +342,7 @@ func (r *AvatarController) Update(ctx http.Context) {
 	var avatar models.Avatar
 	err = facades.Orm.Query().Where("hash", hash).Where("user_id", user.ID).First(&avatar)
 	if err != nil {
-		facades.Log.WithContext(ctx).Error("[AvatarController][Update] 查询用户头像失败: ", err.Error())
+		facades.Log.WithContext(ctx).Error("[AvatarController][Update] 查询用户头像失败 ", err.Error())
 		ctx.Response().Json(http.StatusInternalServerError, http.Json{
 			"code":    500,
 			"message": "系统内部错误",
@@ -361,7 +361,7 @@ func (r *AvatarController) Update(ctx http.Context) {
 	// 尝试解析图片
 	upload, uploadErr := ctx.Request().File("avatar")
 	if uploadErr != nil {
-		facades.Log.Error("[AvatarController][Update] 解析上传失败: ", uploadErr.Error())
+		facades.Log.Error("[AvatarController][Update] 解析上传失败 ", uploadErr.Error())
 		ctx.Response().Json(http.StatusInternalServerError, http.Json{
 			"code":    500,
 			"message": "系统内部错误",
@@ -371,7 +371,7 @@ func (r *AvatarController) Update(ctx http.Context) {
 
 	file, fileErr := os.ReadFile(upload.File())
 	if fileErr != nil {
-		facades.Log.Error("[AvatarController][Update] 读取上传失败: ", fileErr.Error())
+		facades.Log.Error("[AvatarController][Update] 读取上传失败 ", fileErr.Error())
 		ctx.Response().Json(http.StatusInternalServerError, http.Json{
 			"code":    500,
 			"message": "系统内部错误",
@@ -381,7 +381,7 @@ func (r *AvatarController) Update(ctx http.Context) {
 
 	decode, decodeErr := imaging.Decode(bytes.NewReader(file))
 	if decodeErr != nil {
-		facades.Log.Error("[AvatarController][Update] 解析图片失败: ", decodeErr.Error())
+		facades.Log.Error("[AvatarController][Update] 解析图片失败 ", decodeErr.Error())
 		ctx.Response().Json(http.StatusInternalServerError, http.Json{
 			"code":    500,
 			"message": "系统内部错误",
@@ -402,7 +402,7 @@ func (r *AvatarController) Update(ctx http.Context) {
 	avatar.Ban = false
 	err = facades.Orm.Query().Save(&avatar)
 	if err != nil {
-		facades.Log.WithContext(ctx).Error("[AvatarController][Update] 更新用户头像失败: ", err.Error())
+		facades.Log.WithContext(ctx).Error("[AvatarController][Update] 更新用户头像失败 ", err.Error())
 		ctx.Response().Json(http.StatusInternalServerError, http.Json{
 			"code":    500,
 			"message": "系统内部错误",
@@ -412,7 +412,7 @@ func (r *AvatarController) Update(ctx http.Context) {
 
 	saveErr := facades.Storage.Put("upload/default/"+hash[:2]+"/"+hash, string(file))
 	if saveErr != nil {
-		facades.Log.WithContext(ctx).Error("[AvatarController][Update] 保存用户头像失败: ", saveErr.Error())
+		facades.Log.WithContext(ctx).Error("[AvatarController][Update] 保存用户头像失败 ", saveErr.Error())
 		ctx.Response().Json(http.StatusInternalServerError, http.Json{
 			"code":    500,
 			"message": "系统内部错误",
@@ -457,7 +457,7 @@ func (r *AvatarController) Destroy(ctx http.Context) {
 	var avatar models.Avatar
 	err := facades.Orm.Query().Where("hash", hash).Where("user_id", user.ID).First(&avatar)
 	if err != nil {
-		facades.Log.WithContext(ctx).Error("[AvatarController][Destroy] 查询用户头像失败: ", err.Error())
+		facades.Log.WithContext(ctx).Error("[AvatarController][Destroy] 查询用户头像失败 ", err.Error())
 		ctx.Response().Json(http.StatusInternalServerError, http.Json{
 			"code":    500,
 			"message": "系统内部错误",
@@ -478,7 +478,7 @@ func (r *AvatarController) Destroy(ctx http.Context) {
 	avatar.UserID = nil
 	err = facades.Orm.Query().Save(&avatar)
 	if err != nil {
-		facades.Log.WithContext(ctx).Error("[AvatarController][Destroy] 删除用户头像失败: ", err.Error())
+		facades.Log.WithContext(ctx).Error("[AvatarController][Destroy] 删除用户头像失败 ", err.Error())
 		ctx.Response().Json(http.StatusInternalServerError, http.Json{
 			"code":    500,
 			"message": "系统内部错误",
@@ -488,7 +488,7 @@ func (r *AvatarController) Destroy(ctx http.Context) {
 
 	delErr := facades.Storage.Delete("upload/default/" + hash[:2] + "/" + hash)
 	if delErr != nil {
-		facades.Log.WithContext(ctx).Error("[AvatarController][Destroy] 删除用户头像失败: ", delErr.Error())
+		facades.Log.WithContext(ctx).Error("[AvatarController][Destroy] 删除用户头像失败 ", delErr.Error())
 		ctx.Response().Json(http.StatusInternalServerError, http.Json{
 			"code":    500,
 			"message": "系统内部错误",
