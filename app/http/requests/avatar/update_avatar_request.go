@@ -8,8 +8,7 @@ import (
 type UpdateAvatarRequest struct {
 	Avatar string `form:"avatar" json:"avatar"`
 
-	CaptchaID string `form:"captcha_id" json:"captcha_id"`
-	Captcha   string `form:"captcha" json:"captcha"`
+	Captcha string `form:"captcha" json:"captcha"`
 }
 
 func (r *UpdateAvatarRequest) Authorize(ctx http.Context) error {
@@ -18,22 +17,17 @@ func (r *UpdateAvatarRequest) Authorize(ctx http.Context) error {
 
 func (r *UpdateAvatarRequest) Rules(ctx http.Context) map[string]string {
 	return map[string]string{
-		"avatar":     "required|image",
-		"captcha_id": "required|string",
-		"captcha":    "required|len:6|number|captcha",
+		"avatar":  "required|image",
+		"captcha": "required|recaptcha:avatar",
 	}
 }
 
 func (r *UpdateAvatarRequest) Messages(ctx http.Context) map[string]string {
 	return map[string]string{
-		"avatar.required":     "头像不能为空",
-		"avatar.image":        "头像必须为图片",
-		"captcha_id.required": "图形验证码 ID 不能为空",
-		"captcha_id.string":   "图形验证码 ID 必须为字符串",
-		"captcha.required":    "图形验证码不能为空",
-		"captcha.len":         "图形验证码长度必须为 6 位",
-		"captcha.number":      "图形验证码必须为数字",
-		"captcha.captcha":     "图形验证码错误",
+		"avatar.required":   "头像不能为空",
+		"avatar.image":      "头像必须为图片",
+		"captcha.required":  "reCAPTCHA不能为空",
+		"captcha.recaptcha": "reCAPTCHA校验失败（更换网络环境或稍后再试）",
 	}
 }
 
@@ -42,5 +36,6 @@ func (r *UpdateAvatarRequest) Attributes(ctx http.Context) map[string]string {
 }
 
 func (r *UpdateAvatarRequest) PrepareForValidation(ctx http.Context, data validation.Data) error {
+	_ = data.Set("ip", ctx.Request().Ip())
 	return nil
 }

@@ -59,7 +59,7 @@ func (r *AvatarController) Avatar(ctx http.Context) {
 	}
 
 	if err != nil || avatar == nil {
-		facades.Log.Error("WeAvatar[获取头像错误]", err, avatar)
+		facades.Log.Error("WeAvatar[获取头像错误] ", err, avatar)
 		ctx.Response().String(http.StatusInternalServerError, "WeAvatar 服务出现错误")
 		return
 	}
@@ -67,7 +67,7 @@ func (r *AvatarController) Avatar(ctx http.Context) {
 	img := imaging.Resize(avatar, size, size, imaging.Lanczos)
 	imageData, imgErr := r.encodeImage(img, imageExt)
 	if imgErr != nil {
-		facades.Log.Error("WeAvatar[生成头像错误]", imgErr.Error())
+		facades.Log.Error("WeAvatar[生成头像错误] ", imgErr.Error())
 		ctx.Response().String(http.StatusInternalServerError, "WeAvatar 服务出现错误")
 		return
 	}

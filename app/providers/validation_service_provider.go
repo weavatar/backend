@@ -27,5 +27,6 @@ func (receiver *ValidationServiceProvider) rules() []validation.Rule {
 		&rules.Captcha{},
 		&rules.Phone{},
 		&rules.VerifyCode{},
+		&rules.ReCaptcha{},
 	}
 }

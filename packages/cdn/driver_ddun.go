@@ -48,7 +48,7 @@ func (d *DDun) RefreshUrl(urls []string) bool {
 	}
 
 	if resp.Code != 0 {
-		facades.Log.Error("CDN[盾云][URL缓存刷新失败] " + resp.Message)
+		facades.Log.Error("CDN[盾云] ", " [URL缓存刷新失败] "+resp.Message)
 		return false
 	}
 
@@ -81,7 +81,7 @@ func (d *DDun) RefreshPath(paths []string) bool {
 	}
 
 	if resp.Code != 0 {
-		facades.Log.Error("CDN[盾云][目录缓存刷新失败] " + resp.Message)
+		facades.Log.Error("CDN[盾云] ", " [目录缓存刷新失败] "+resp.Message)
 		return false
 	}
 
@@ -100,8 +100,6 @@ func (d *DDun) GetUsage(domain, startTime, endTime string) uint {
 		"api-secret": d.apiSecret,
 	}).Get("http://cdn.ddunyun.com/v1/monitor/site/realtime?type=req&start=" + startTime + "%2000:00:00" + "&end=" + endTime + "%2000:00:00" + "&domain=" + domain + "&server_post=")
 
-	facades.Log.Info("CDN[盾云][获取用量] " + post.String())
-
 	if err != nil {
 		return 0
 	}
@@ -110,7 +108,7 @@ func (d *DDun) GetUsage(domain, startTime, endTime string) uint {
 	}
 
 	if resp.Code != 0 {
-		facades.Log.Error("CDN[盾云][获取用量失败] " + resp.Message)
+		facades.Log.Error("CDN[盾云] ", " [获取用量失败] "+resp.Message)
 		return 0
 	}
 
