@@ -3,6 +3,7 @@ package cdn
 import (
 	"sync"
 
+	"github.com/golang-module/carbon/v2"
 	"github.com/goravel/framework/facades"
 	"github.com/spf13/cast"
 )
@@ -24,6 +25,17 @@ func NewCDN() *CDN {
 	config := make(map[string]string)
 
 	switch driver {
+	case "starshield":
+		config = cast.ToStringMapString(facades.Config.Get("cdn.starshield"))
+		once.Do(func() {
+			internalCDN = &CDN{
+				Driver: &StarShield{
+					AccessKey: config["access_key"],
+					SecretKey: config["secret_key"],
+					ZoneID:    config["zone_id"],
+				},
+			}
+		})
 	case "ddun":
 		config = cast.ToStringMapString(facades.Config.Get("cdn.ddun"))
 		once.Do(func() {
@@ -60,6 +72,6 @@ func (cdn *CDN) RefreshPath(paths []string) bool {
 }
 
 // GetUsage 获取CDN使用情况
-func (cdn *CDN) GetUsage(domain, startTime, endTime string) uint {
+func (cdn *CDN) GetUsage(domain string, startTime, endTime carbon.Carbon) uint {
 	return cdn.Driver.GetUsage(domain, startTime, endTime)
 }

@@ -25,9 +25,9 @@ func NewSystemController() *SystemController {
 // CdnUsage 获取CDN使用情况
 func (r *SystemController) CdnUsage(ctx http.Context) {
 	// 取昨日0点时间
-	yesterday := carbon.Now().SubDay().StartOfDay().ToDateString()
+	yesterday := carbon.Now().SubDay().StartOfDay()
 	// 取今日0点时间
-	today := carbon.Now().StartOfDay().ToDateString()
+	today := carbon.Now().StartOfDay()
 	// 域名
 	domain := "weavatar.com"
 

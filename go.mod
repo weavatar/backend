@@ -19,6 +19,7 @@ require (
 	github.com/imroc/req/v3 v3.33.2
 	github.com/ipsn/go-adorable v1.0.0
 	github.com/issue9/identicon/v2 v2.1.1
+	github.com/jdcloud-api/jdcloud-sdk-go v1.59.1-0.20230509063929-717afbbf7f50
 	github.com/mojocn/base64Captcha v1.3.5
 	github.com/o1egl/govatar v0.4.1
 	github.com/pkg/errors v0.9.1
@@ -97,6 +98,7 @@ require (
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20210107165309-348f09dbbbc0 // indirect
 	github.com/goccy/go-json v0.10.0 // indirect
+	github.com/gofrs/uuid v4.4.0+incompatible // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt/v4 v4.4.2 // indirect
 	github.com/golang-migrate/migrate/v4 v4.15.3-0.20230111075136-dc26c41ac9da // indirect
