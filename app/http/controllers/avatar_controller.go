@@ -291,7 +291,7 @@ func (r *AvatarController) Store(ctx http.Context) {
 	// 刷新缓存
 	go func() {
 		cdn := packagecdn.NewCDN()
-		cdn.RefreshUrl([]string{"https://weavatar.com/avatar/" + hash + "*", "http://weavatar.com/avatar/" + hash + "*"})
+		cdn.RefreshUrl([]string{"weavatar.com/avatar/" + hash + "*"})
 	}()
 
 	ctx.Response().Json(http.StatusOK, http.Json{
@@ -423,7 +423,7 @@ func (r *AvatarController) Update(ctx http.Context) {
 	// 刷新缓存
 	go func() {
 		cdn := packagecdn.NewCDN()
-		cdn.RefreshUrl([]string{"https://weavatar.com/avatar/" + hash + "*", "http://weavatar.com/avatar/" + hash + "*"})
+		cdn.RefreshUrl([]string{"weavatar.com/avatar/" + hash + "*"})
 	}()
 
 	ctx.Response().Json(http.StatusOK, http.Json{
@@ -499,7 +499,7 @@ func (r *AvatarController) Destroy(ctx http.Context) {
 	// 刷新缓存
 	go func() {
 		cdn := packagecdn.NewCDN()
-		cdn.RefreshUrl([]string{"https://weavatar.com/avatar/" + hash + "*", "http://weavatar.com/avatar/" + hash + "*"})
+		cdn.RefreshUrl([]string{"weavatar.com/avatar/" + hash + "*"})
 	}()
 
 	ctx.Response().Json(http.StatusOK, http.Json{

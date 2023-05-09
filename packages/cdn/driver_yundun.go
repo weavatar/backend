@@ -135,6 +135,6 @@ func (y *YunDun) RefreshPath(paths []string) bool {
 }
 
 // GetUsage 获取使用量
-func (y *YunDun) GetUsage(domain, startTime, endTime string) uint {
+func (y *YunDun) GetUsage(domain string, startTime, endTime carbon.Carbon) uint {
 	return 0
 }

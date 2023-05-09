@@ -1,6 +1,7 @@
 package cdn
 
 import (
+	"github.com/golang-module/carbon/v2"
 	"github.com/goravel/framework/facades"
 	"github.com/imroc/req/v3"
 )
@@ -89,7 +90,7 @@ func (d *DDun) RefreshPath(paths []string) bool {
 }
 
 // GetUsage 获取用量
-func (d *DDun) GetUsage(domain, startTime, endTime string) uint {
+func (d *DDun) GetUsage(domain string, startTime, endTime carbon.Carbon) uint {
 	client := req.C()
 
 	var resp DDunUsageResponse
@@ -98,7 +99,7 @@ func (d *DDun) GetUsage(domain, startTime, endTime string) uint {
 	post, err := client.R().SetSuccessResult(&resp).SetErrorResult(&resp).SetHeaders(map[string]string{
 		"api-key":    d.apiKey,
 		"api-secret": d.apiSecret,
-	}).Get("http://cdn.ddunyun.com/v1/monitor/site/realtime?type=req&start=" + startTime + "%2000:00:00" + "&end=" + endTime + "%2000:00:00" + "&domain=" + domain + "&server_post=")
+	}).Get("http://cdn.ddunyun.com/v1/monitor/site/realtime?type=req&start=" + startTime.ToDateString() + "%2000:00:00" + "&end=" + endTime.ToDateString() + "%2000:00:00" + "&domain=" + domain + "&server_post=")
 
 	if err != nil {
 		return 0

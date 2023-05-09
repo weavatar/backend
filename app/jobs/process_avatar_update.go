@@ -134,7 +134,12 @@ func (receiver *ProcessAvatarUpdate) Handle(args ...any) error {
 		var avatar models.Avatar
 		err := facades.Orm.Query().Where("hash", hash).First(&avatar)
 		if err != nil || avatar.Hash == nil {
-			facades.Log.Error("头像更新[数据库查询失败] " + err.Error())
+			if err != nil {
+				facades.Log.Error("头像更新[数据库查询失败] " + err.Error())
+			} else {
+				facades.Log.Error("头像更新[数据库查询失败] HASH:" + hash)
+			}
+
 			return err
 		}
 
@@ -148,7 +153,7 @@ func (receiver *ProcessAvatarUpdate) Handle(args ...any) error {
 
 		// 刷新缓存
 		cdn := packagecdn.NewCDN()
-		cdn.RefreshUrl([]string{"https://weavatar.com/avatar/" + hash + "*", "http://weavatar.com/avatar/" + hash + "*"})
+		cdn.RefreshUrl([]string{"weavatar.com/avatar/" + hash + "*"})
 	}
 
 	return nil
