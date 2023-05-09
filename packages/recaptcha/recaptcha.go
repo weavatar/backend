@@ -41,7 +41,7 @@ const recaptchaServer = "https://recaptcha.net/recaptcha/api/siteverify"
 
 // check 内部使用的检查方法
 func (re *Recaptcha) check(remoteIp, response string) (r recaptchaResponse, err error) {
-	client := req.C().DevMode()
+	client := req.C()
 	var resp recaptchaResponse
 
 	_, err = client.R().SetFormData(map[string]string{
