@@ -129,7 +129,7 @@ func (receiver *ProcessAvatarUpdate) Handle(args ...any) error {
 	}
 
 	// 检查图片是否变化
-	if fileHash != helpers.MD5(resp.String()) {
+	if fileHash == helpers.MD5(resp.String()) {
 		// 更新数据库
 		var avatar models.Avatar
 		err := facades.Orm.Query().Where("hash", hash).First(&avatar)
@@ -153,7 +153,7 @@ func (receiver *ProcessAvatarUpdate) Handle(args ...any) error {
 
 		// 刷新缓存
 		cdn := packagecdn.NewCDN()
-		cdn.RefreshUrl([]string{"weavatar.com/avatar/" + hash + "*"})
+		cdn.RefreshUrl([]string{"https://weavatar.com/avatar/" + hash + "*", "http://weavatar.com/avatar/" + hash + "*"})
 	}
 
 	return nil
