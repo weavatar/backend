@@ -36,6 +36,15 @@ func NewCDN() *CDN {
 				},
 			}
 		})
+	case "upyun":
+		config = cast.ToStringMapString(facades.Config.Get("cdn.upyun"))
+		once.Do(func() {
+			internalCDN = &CDN{
+				Driver: &UpYun{
+					Token: config["token"],
+				},
+			}
+		})
 	case "ddun":
 		config = cast.ToStringMapString(facades.Config.Get("cdn.ddun"))
 		once.Do(func() {
