@@ -1,6 +1,7 @@
 package jobs
 
 import (
+	"errors"
 	"strconv"
 	"strings"
 
@@ -129,18 +130,21 @@ func (receiver *ProcessAvatarUpdate) Handle(args ...any) error {
 	}
 
 	// 检查图片是否变化
-	if fileHash == helpers.MD5(resp.String()) {
+	if fileHash != helpers.MD5(resp.String()) {
 		// 更新数据库
 		var avatar models.Avatar
 		err := facades.Orm.Query().Where("hash", hash).First(&avatar)
-		if err != nil || avatar.Hash == nil {
+		if err != nil || avatar.Hash == nil || avatar.UserID != nil {
 			if err != nil {
 				facades.Log.Error("头像更新[数据库查询失败] " + err.Error())
+				return err
 			} else {
-				facades.Log.Error("头像更新[数据库查询失败] HASH:" + hash)
+				// 这里有2种可能：1.数据库中没有这个头像，但是缓存中有，所以需要删除缓存 2.用户已经上传了头像，不再需要缓存，所以也需要删除缓存
+				facades.Log.Error("头像更新[数据库查询为空] HASH:" + hash)
+				_ = facades.Storage.Delete("cache/" + from + "/" + hash[:2] + "/" + hash)
 			}
 
-			return err
+			return errors.New("头像更新[数据库查询为空] HASH:" + hash)
 		}
 
 		avatar.Checked = false
