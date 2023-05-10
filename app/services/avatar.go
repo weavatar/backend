@@ -46,13 +46,14 @@ func (r *AvatarImpl) Sanitize(ctx http.Context) (string, string, string, int, bo
 	appid := ctx.Request().Input("appid", "0")
 
 	hash := strings.ToLower(hashExt[0]) // Hash 转小写
-	imageExt := "png"                   // 默认为 PNG 格式
+	imageExt := "webp"                  // 默认为 WEBP 格式
 
 	// 如果浏览器支持 WEBP 格式，则默认使用 WEBP 格式
-	accept := ctx.Request().Header("Accept", "")
+	// 目前检查放到 CDN 上了，所以这里注释掉
+	/*accept := ctx.Request().Header("Accept", "")
 	if strings.Contains(accept, "image/webp") || strings.Contains(accept, "image/*") {
 		imageExt = "webp"
-	}
+	}*/
 	// 如果提供了图片格式，则使用提供的图片格式
 	if len(hashExt) > 1 {
 		imageExt = hashExt[1]
@@ -60,11 +61,15 @@ func (r *AvatarImpl) Sanitize(ctx http.Context) (string, string, string, int, bo
 	// 检查图片格式是否支持
 	imageSlices := []string{"png", "jpg", "jpeg", "gif", "webp"}
 	if !slices.Contains(imageSlices, imageExt) {
-		imageExt = "png"
+		imageExt = "webp"
 	}
 
 	// 从 URL 中获取图片大小
-	size, err := strconv.Atoi(ctx.Request().Input("s", "80"))
+	sizeStr := ctx.Request().Input("s", "")
+	if len(sizeStr) == 0 {
+		sizeStr = ctx.Request().Input("size", "80")
+	}
+	size, err := strconv.Atoi(sizeStr)
 	if err != nil {
 		size = 80
 	}
@@ -77,7 +82,10 @@ func (r *AvatarImpl) Sanitize(ctx http.Context) (string, string, string, int, bo
 	}
 
 	// 从 URL 中获取是否强制使用默认头像
-	forceDefault := ctx.Request().Input("f", "n")
+	forceDefault := ctx.Request().Input("f", "")
+	if len(forceDefault) == 0 {
+		forceDefault = ctx.Request().Input("forcedefault", "n")
+	}
 	forceDefaultBool := false
 	forceDefaultSlices := []string{"y", "yes"}
 	if slices.Contains(forceDefaultSlices, forceDefault) {
@@ -86,6 +94,9 @@ func (r *AvatarImpl) Sanitize(ctx http.Context) (string, string, string, int, bo
 
 	// 从 URL 中获取默认头像
 	defaultAvatar := ctx.Request().Input("d", "")
+	if len(defaultAvatar) == 0 {
+		defaultAvatar = ctx.Request().Input("default", "")
+	}
 	defaultAvatarSlices := []string{"404", "mp", "mm", "mystery", "identicon", "monsterid", "wavatar", "retro", "robohash", "blank", "letter"}
 	if !slices.Contains(defaultAvatarSlices, defaultAvatar) {
 		// 如果不是预设的默认头像，则检查是否是合法的 URL

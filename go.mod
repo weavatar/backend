@@ -19,7 +19,7 @@ require (
 	github.com/imroc/req/v3 v3.33.2
 	github.com/ipsn/go-adorable v1.0.0
 	github.com/issue9/identicon/v2 v2.1.1
-	github.com/jdcloud-api/jdcloud-sdk-go v1.59.1-0.20230509063929-717afbbf7f50
+	github.com/jdcloud-api/jdcloud-sdk-go v1.60.0
 	github.com/mojocn/base64Captcha v1.3.5
 	github.com/o1egl/govatar v0.4.1
 	github.com/pkg/errors v0.9.1
@@ -186,6 +186,7 @@ require (
 	github.com/tjfoc/gmsm v1.3.2 // indirect
 	github.com/ugorji/go/codec v1.2.9 // indirect
 	github.com/unrolled/secure v1.13.0 // indirect
+	github.com/upyun/go-sdk/v3 v3.0.4 // indirect
 	github.com/urfave/cli/v2 v2.25.1 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
 	github.com/xdg-go/scram v1.0.2 // indirect
