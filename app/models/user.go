@@ -10,7 +10,7 @@ type User struct {
 	OpenID    string          `gorm:"type:char(32);not null;unique" json:"open_id"`
 	UnionID   string          `gorm:"type:char(32);not null;unique" json:"union_id"`
 	Nickname  string          `gorm:"type:varchar(255);not null;index" json:"nickname"`
-	Avatar    string          `gorm:"type:varchar(255);default:null" json:"avatar"`
+	Avatar    string          `gorm:"type:varchar(255);not null" json:"avatar"`
 	IsAdmin   bool            `gorm:"type:boolean;default:0" json:"is_admin"`
 	RealName  bool            `gorm:"type:boolean;default:0" json:"real_name"`
 	CreatedAt carbon.DateTime `gorm:"column:created_at" json:"created_at"`

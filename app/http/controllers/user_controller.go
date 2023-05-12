@@ -105,7 +105,7 @@ func (r *UserController) OauthCallback(ctx http.Context) {
 
 	// 检查用户是否存在
 	var user models.User
-	userErr := facades.Orm.Query().FirstOrCreate(&user, models.User{OpenID: userInfo["open_id"]}, models.User{ID: userID, UnionID: userInfo["union_id"], Nickname: userInfo["nickname"]})
+	userErr := facades.Orm.Query().FirstOrCreate(&user, models.User{OpenID: userInfo["open_id"]}, models.User{ID: userID, UnionID: userInfo["union_id"], Nickname: userInfo["nickname"], Avatar: "https://weavatar.com/avatar/?d=mp"})
 	if userErr != nil {
 		facades.Log.WithContext(ctx).Error("[UserController][OauthCallback] 查询用户失败 ", userErr)
 		ctx.Response().Json(http.StatusInternalServerError, http.Json{
