@@ -135,7 +135,7 @@ func (r *UserController) OauthCallback(ctx http.Context) {
 	})
 }
 
-func (r *UserController) Info(ctx http.Context) {
+func (r *UserController) GetInfo(ctx http.Context) {
 	// 取出用户信息
 	user, ok := ctx.Value("user").(models.User)
 	if !ok {
@@ -158,9 +158,9 @@ func (r *UserController) Info(ctx http.Context) {
 	})
 }
 
-func (r *UserController) UpdateProfile(ctx http.Context) {
-	var updateProfileRequest requests.UpdateProfileRequest
-	errors, err := ctx.Request().ValidateRequest(&updateProfileRequest)
+func (r *UserController) UpdateInfo(ctx http.Context) {
+	var updateInfoRequest requests.UpdateInfoRequest
+	errors, err := ctx.Request().ValidateRequest(&updateInfoRequest)
 	if err != nil {
 		ctx.Response().Json(http.StatusUnprocessableEntity, http.Json{
 			"code":    422,
@@ -186,8 +186,8 @@ func (r *UserController) UpdateProfile(ctx http.Context) {
 		return
 	}
 
-	user.Nickname = updateProfileRequest.Nickname
-	user.Avatar = updateProfileRequest.Avatar
+	user.Nickname = updateInfoRequest.Nickname
+	user.Avatar = updateInfoRequest.Avatar
 	updateErr := facades.Orm.Query().Save(&user)
 	if updateErr != nil {
 		facades.Log.WithContext(ctx).Error("[UserController][UpdateNickname] 更新用户失败 ", updateErr)
