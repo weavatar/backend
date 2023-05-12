@@ -152,6 +152,7 @@ func (r *UserController) Info(ctx http.Context) {
 		"data": http.Json{
 			"id":         user.ID,
 			"nickname":   user.Nickname,
+			"avatar":     user.Avatar,
 			"created_at": user.CreatedAt,
 		},
 	})
