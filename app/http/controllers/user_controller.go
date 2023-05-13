@@ -71,7 +71,7 @@ func (r *UserController) OauthCallback(ctx http.Context) {
 	}
 
 	// 获取 token
-	tokenMap, tokenErr := oauth.GetToken(oauthCallbackRequest.Code)
+	oauthToken, tokenErr := oauth.GetToken(oauthCallbackRequest.Code)
 	if tokenErr != nil {
 		facades.Log.WithContext(ctx).Error("[UserController][OauthCallback] 获取 access_token 失败 ", tokenErr)
 		ctx.Response().Json(http.StatusInternalServerError, http.Json{
@@ -80,10 +80,9 @@ func (r *UserController) OauthCallback(ctx http.Context) {
 		})
 		return
 	}
-	accessToken := tokenMap["access_token"]
 
 	// 获取用户信息
-	userInfo, userInfoErr := oauth.GetUserInfo(accessToken)
+	userInfo, userInfoErr := oauth.GetUserInfo(oauthToken.AccessToken)
 	if userInfoErr != nil {
 		facades.Log.WithContext(ctx).Error("[UserController][OauthCallback] 获取用户信息失败 ", userInfoErr)
 		ctx.Response().Json(http.StatusInternalServerError, http.Json{
@@ -105,7 +104,7 @@ func (r *UserController) OauthCallback(ctx http.Context) {
 
 	// 检查用户是否存在
 	var user models.User
-	userErr := facades.Orm.Query().FirstOrCreate(&user, models.User{OpenID: userInfo["open_id"]}, models.User{ID: userID, UnionID: userInfo["union_id"], Nickname: userInfo["nickname"], Avatar: "https://weavatar.com/avatar/?d=mp"})
+	userErr := facades.Orm.Query().FirstOrCreate(&user, models.User{OpenID: userInfo.Data.OpenID}, models.User{ID: userID, UnionID: userInfo.Data.UnionID, Nickname: userInfo.Data.Nickname, Avatar: "https://weavatar.com/avatar/?d=mp"})
 	if userErr != nil {
 		facades.Log.WithContext(ctx).Error("[UserController][OauthCallback] 查询用户失败 ", userErr)
 		ctx.Response().Json(http.StatusInternalServerError, http.Json{

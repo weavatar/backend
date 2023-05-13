@@ -3,7 +3,6 @@ package oauth
 import (
 	"encoding/json"
 	"errors"
-	"strconv"
 	"time"
 
 	"github.com/goravel/framework/facades"
@@ -41,10 +40,12 @@ func GetAuthorizationState(ip string) (string, error) {
 }
 
 // GetToken 获取 AccessToken 和 RefreshToken 信息
-func GetToken(code string) (map[string]string, error) {
+func GetToken(code string) (Token, error) {
 	clientID := facades.Config.GetString("haozi.account.client_id")
 	clientSecret := facades.Config.GetString("haozi.account.client_secret")
 	redirectURI := facades.Config.GetString("http.url") + "/oauth/callback"
+
+	var token Token
 
 	client := req.C()
 	resp, err := client.R().SetQueryParams(map[string]string{
@@ -56,31 +57,27 @@ func GetToken(code string) (map[string]string, error) {
 	}).Get(facades.Config.GetString("haozi.account.base_url") + "/api/oauth/token")
 	if err != nil {
 		facades.Log.Warning("耗子通行证 ", " [获取Token失败] ", err.Error())
-		return nil, err
+		return token, err
 	}
 
 	// 解析Token
-	var token Token
 	err = json.Unmarshal([]byte(resp.String()), &token)
 	if err != nil {
-		return nil, err
+		return token, err
 	}
 
 	// 判断ExpiresIn是否为0
 	if token.ExpiresIn == 0 {
-		return nil, errors.New("获取Token失败")
+		return token, errors.New("获取Token失败")
 	}
 
-	retMap := make(map[string]string)
-	retMap["access_token"] = token.AccessToken
-	retMap["refresh_token"] = token.RefreshToken
-	retMap["expires_in"] = strconv.Itoa(token.ExpiresIn)
-
-	return retMap, nil
+	return token, nil
 }
 
 // GetUserInfo 获取用户信息
-func GetUserInfo(accessToken string) (map[string]string, error) {
+func GetUserInfo(accessToken string) (BasicInfo, error) {
+	var basicInfo BasicInfo
+
 	client := req.C()
 	resp, err := client.R().SetQueryParams(map[string]string{
 		"access_token": accessToken,
@@ -89,20 +86,14 @@ func GetUserInfo(accessToken string) (map[string]string, error) {
 		facades.Log.Warning("耗子通行证 ", " [获取用户信息失败] ", err.Error())
 	}
 
-	var basicInfo BasicInfo
 	err = json.Unmarshal([]byte(resp.String()), &basicInfo)
 	if err != nil {
-		return nil, err
+		return basicInfo, err
 	}
 
 	if basicInfo.Code != 0 {
-		return nil, errors.New(basicInfo.Message)
+		return basicInfo, errors.New(basicInfo.Message)
 	}
 
-	retMap := make(map[string]string)
-	retMap["nickname"] = basicInfo.Data.Nickname
-	retMap["open_id"] = basicInfo.Data.OpenID
-	retMap["union_id"] = basicInfo.Data.UnionID
-
-	return retMap, nil
+	return basicInfo, nil
 }
