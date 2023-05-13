@@ -21,7 +21,10 @@ func (receiver *Exists) Passes(_ validation.Data, val any, options ...any) bool 
 	// 第二个参数，字段名称，如 id
 	fieldName := options[1].(string)
 	// 用户请求过来的数据
-	requestValue := val.(string)
+	requestValue, ok := val.(string)
+	if !ok {
+		return false
+	}
 
 	// 判断是否为空
 	if len(requestValue) == 0 {
