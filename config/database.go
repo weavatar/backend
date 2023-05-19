@@ -16,10 +16,10 @@ func init() {
 			"mysql": map[string]any{
 				"driver": "mysql",
 				"read": []database.Config{
-					{Host: config.Env("DB_HOST", "127.0.0.1").(string), Port: config.Env("DB_PORT_READ", 4000).(int), Database: config.Env("DB_DATABASE", "forge").(string), Username: config.Env("DB_USERNAME", "root").(string), Password: config.Env("DB_PASSWORD", "root").(string)},
+					{Host: config.Env("DB_HOST", "127.0.0.1").(string), Port: 4000, Database: config.Env("DB_DATABASE", "forge").(string), Username: config.Env("DB_USERNAME", "root").(string), Password: config.Env("DB_PASSWORD", "root").(string)},
 				},
 				"write": []database.Config{
-					{Host: config.Env("DB_HOST", "127.0.0.1").(string), Port: config.Env("DB_PORT_WRITE", 4001).(int), Database: config.Env("DB_DATABASE", "forge").(string), Username: config.Env("DB_USERNAME", "root").(string), Password: config.Env("DB_PASSWORD", "root").(string)},
+					{Host: config.Env("DB_HOST", "127.0.0.1").(string), Port: 4001, Database: config.Env("DB_DATABASE", "forge").(string), Username: config.Env("DB_USERNAME", "root").(string), Password: config.Env("DB_PASSWORD", "root").(string)},
 				},
 				"host":     config.Env("DB_HOST", "127.0.0.1"),
 				"port":     config.Env("DB_PORT", 4000),
