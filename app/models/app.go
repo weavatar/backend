@@ -6,7 +6,7 @@ import (
 
 type App struct {
 	ID        uint            `gorm:"primaryKey" json:"id"`
-	UserID    uint            `gorm:"type:int;not null;index" json:"user_id"`
+	UserID    uint            `gorm:"type:bigint(20);not null;index" json:"user_id"`
 	Name      string          `gorm:"type:varchar(255);not null" json:"name"`
 	Secret    string          `gorm:"type:varchar(255);not null" json:"-"`
 	CreatedAt carbon.DateTime `gorm:"column:created_at" json:"created_at"`
