@@ -1,12 +1,13 @@
 package commands
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 
 	"github.com/gookit/color"
 	"github.com/goravel/framework/contracts/console"
 	"github.com/goravel/framework/contracts/console/command"
-	"github.com/goravel/framework/facades"
 	"github.com/spf13/cast"
 
 	"weavatar/packages/helpers"
@@ -47,25 +48,29 @@ func (receiver *HashMake) Handle(ctx console.Context) error {
 	end := cast.ToInt(ctx.Option("sum"))
 
 	color.Warnf("号最大值: %d\n", end)
-
-	_, err := facades.Orm.Connection("hash").Query().Exec(`DROP TABLE IF EXISTS qq_mails;`)
-	if err != nil {
-		panic(err)
-	}
-	_, err = facades.Orm.Connection("hash").Query().Exec(`CREATE TABLE qq_mails (hash CHAR(32) NOT NULL, qq BIGINT NOT NULL, PRIMARY KEY ( hash ) CLUSTERED);`)
-	if err != nil {
-		panic(err)
-	}
-
-	color.Greenf("建表完成\n")
-	color.Warnf("正在导入数据\n")
+	color.Warnf("开始生成\n")
 
 	// 生成 MD5 值并写入数据库
+	file, err := os.OpenFile("hash.csv", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		panic(err)
+	}
+	writer := bufio.NewWriterSize(file, 4096*256)
+
 	for num := start; num <= end; num++ {
+		if writer.Available() <= 4096 || num == end {
+			err = writer.Flush()
+			if err != nil {
+				panic(err)
+			}
+			color.Greenf("当前: %d - %d\n", num, end)
+		}
+
+		// 写入 MD5 值到对应的 writer
 		md5Sum := helpers.MD5(fmt.Sprintf("%d@qq.com", num))
-		_, insertErr := facades.Orm.Connection("hash").Query().Exec(fmt.Sprintf(`INSERT INTO qq_mails (hash, qq) VALUES ('%s', '%d');`, md5Sum, num))
-		if insertErr != nil {
-			panic(insertErr)
+		_, err = fmt.Fprintf(writer, "%s,%d\n", md5Sum, num)
+		if err != nil {
+			panic(err)
 		}
 	}
 
