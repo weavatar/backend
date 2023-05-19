@@ -63,7 +63,7 @@ func (receiver *HashInsert) Handle(ctx console.Context) error {
 		if err != nil {
 			panic(err)
 		}
-		sql = fmt.Sprintf(`CREATE TABLE qq_%d (hash CHAR(32) NOT NULL, qq BIGINT NOT NULL);`, i)
+		sql = fmt.Sprintf(`CREATE TABLE qq_%d (hash CHAR(32) NOT NULL, qq BIGINT NOT NULL, PRIMARY KEY ( hash ) CLUSTERED);`, i)
 		color.Greenf("正在创建表: %d\n", i)
 		_, err = facades.Orm.Connection("hash").Query().Exec(sql)
 		if err != nil {
@@ -75,7 +75,7 @@ func (receiver *HashInsert) Handle(ctx console.Context) error {
 	color.Warnf("正在导入数据\n")
 
 	for i := 1; i <= table; i++ {
-		_, err := facades.Orm.Connection("hash").Query().Exec(fmt.Sprintf(`COPY qq_%d FROM '%s/%d.csv' WITH DELIMITER ',';`, i, dir, i))
+		_, err := facades.Orm.Connection("hash").Query().Exec(fmt.Sprintf(`LOAD DATA INFILE '%s/%d.csv' INTO TABLE qq_%d FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n';`, i, dir, i))
 		if err != nil {
 			panic(err)
 		}
@@ -84,18 +84,6 @@ func (receiver *HashInsert) Handle(ctx console.Context) error {
 		_ = os.Remove(fmt.Sprintf("%s/%d.csv", dir, i))
 	}
 
-	color.Warnf("导入完成\n")
-	color.Warnf("正在创建索引\n")
-
-	for i := 1; i <= table; i++ {
-
-		_, err := facades.Orm.Connection("hash").Query().Exec(fmt.Sprintf(`CREATE INDEX hash_%d ON qq_%d USING hash (hash);`, i, i))
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	color.Warnf("索引创建完成\n")
 	color.Warnf("运行结束\n")
 
 	return nil

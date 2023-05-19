@@ -15,9 +15,11 @@ type BasicInfo struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 	Data    struct {
-		Nickname string `json:"nickname"`
-		OpenID   string `json:"open_id"`
-		UnionID  string `json:"union_id"`
+		Nickname  string `json:"nickname"`
+		OpenID    string `json:"open_id"`
+		UnionID   string `json:"union_id"`
+		PhoneBind bool   `json:"phone_bind"`
+		RealName  bool   `json:"real_name"`
 	} `json:"data"`
 }
 

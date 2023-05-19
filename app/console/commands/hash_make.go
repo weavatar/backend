@@ -87,7 +87,7 @@ func (receiver *HashMake) Handle(ctx console.Context) error {
 	// 生成 MD5 值并写入对应的文件
 	for num := start; num <= end; num++ {
 		md5Sum := helpers.MD5(fmt.Sprintf("%d@qq.com", num))
-		hashIndex, hashErr := strconv.ParseInt(md5Sum, 16, 64)
+		hashIndex, hashErr := strconv.ParseInt(md5Sum[:10], 16, 64)
 		if hashErr != nil {
 			return hashErr
 		}
