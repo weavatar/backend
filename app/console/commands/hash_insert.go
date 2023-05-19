@@ -52,7 +52,7 @@ func (receiver *HashInsert) Handle(ctx console.Context) error {
 	color.Greenf("建表完成\n")
 
 	color.Warnf("正在导入数据\n")
-	_, err = facades.Orm.Connection("hash").Query().Exec(fmt.Sprintf(`LOAD DATA INFILE '%s' INTO TABLE qq_mails FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n';`, file))
+	_, err = facades.Orm.Connection("hash").Query().Exec(fmt.Sprintf(`LOAD DATA LOCAL INFILE '%s' INTO TABLE qq_mails FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n';`, file))
 	if err != nil {
 		panic(err)
 	}
