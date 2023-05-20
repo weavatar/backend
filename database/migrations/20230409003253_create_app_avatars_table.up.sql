@@ -1,7 +1,7 @@
 CREATE TABLE app_avatars
 (
-    id          BIGINT PRIMARY KEY NOT NULL COMMENT 'ID',
-    app_id      BIGINT NOT NULL COMMENT '应用ID',
+    id          BIGINT UNSIGNED PRIMARY KEY NOT NULL COMMENT 'ID',
+    app_id      BIGINT UNSIGNED NOT NULL COMMENT '应用ID',
     avatar_hash CHAR(32) NOT NULL COMMENT '头像哈希',
     ban         TINYINT(1) DEFAULT '0' COMMENT '禁用',
     checked     TINYINT(1) DEFAULT '0' COMMENT '已检查',
