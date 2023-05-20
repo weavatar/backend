@@ -69,6 +69,7 @@ func (s *StarShield) GetUsage(domain string, startTime, endTime carbon.Carbon) u
 	client := NewStarshieldClient(credentials)
 	client.DisableLogger()
 	request := NewZoneRequestSumRequest(s.ZoneID, "all", domain, startTime.ToIso8601MilliString(), endTime.ToIso8601MilliString())
+	request.AddHeader("x-jdcloud-account-id", s.ZoneID)
 
 	resp, err := client.ZoneRequestSum(request)
 	if err != nil {
