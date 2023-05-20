@@ -8,7 +8,7 @@
 
 - Nginx >= 1.18
 - Go >= 1.20
-- PostgreSQL >= 15
+- TiDB >= 6.5
 - libwebp-dev（用于处理WEBP图像）
 
 ## 部署
