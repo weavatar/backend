@@ -241,7 +241,7 @@ func (r *AvatarController) Store(ctx http.Context) {
 
 	var avatar models.Avatar
 	hash := helpers.MD5(storeAvatarRequest.Raw)
-	_, err = facades.Orm.Query().Exec(`INSERT INTO "avatars" ("hash", "created_at", "updated_at") VALUES (?, ?, ?) ON CONFLICT DO NOTHING`, hash, carbon.DateTime{Carbon: carbon.Now()}, carbon.DateTime{Carbon: carbon.Now()})
+	_, err = facades.Orm.Query().Exec(`INSERT INTO avatars (hash, created_at, updated_at) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE updated_at=VALUES(updated_at)`, hash, carbon.DateTime{Carbon: carbon.Now()}, carbon.DateTime{Carbon: carbon.Now()})
 	if err != nil {
 		facades.Log.WithContext(ctx).Error("[AvatarController][Store] 初始化查询用户头像失败 ", err.Error())
 		ctx.Response().Json(http.StatusInternalServerError, http.Json{
