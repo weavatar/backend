@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/goravel/framework/contracts/database"
 	"github.com/goravel/framework/facades"
 )
 
@@ -8,31 +9,37 @@ func init() {
 	config := facades.Config
 	config.Add("database", map[string]any{
 		// Default database connection name, only support Mysql now.
-		"default": config.Env("DB_CONNECTION", "postgresql"),
+		"default": config.Env("DB_CONNECTION", "mysql"),
 
 		// Database connections
 		"connections": map[string]any{
-			"postgresql": map[string]any{
-				"driver":   "postgresql",
+			"mysql": map[string]any{
+				"driver": "mysql",
+				"read": []database.Config{
+					{Host: config.Env("DB_HOST", "127.0.0.1").(string), Port: 4000, Database: config.Env("DB_DATABASE", "forge").(string), Username: config.Env("DB_USERNAME", "root").(string), Password: config.Env("DB_PASSWORD", "root").(string)},
+				},
+				"write": []database.Config{
+					{Host: config.Env("DB_HOST", "127.0.0.1").(string), Port: 4001, Database: config.Env("DB_DATABASE", "forge").(string), Username: config.Env("DB_USERNAME", "root").(string), Password: config.Env("DB_PASSWORD", "root").(string)},
+				},
 				"host":     config.Env("DB_HOST", "127.0.0.1"),
-				"port":     config.Env("DB_PORT", 5432),
+				"port":     config.Env("DB_PORT", 4000),
 				"database": config.Env("DB_DATABASE", "forge"),
 				"username": config.Env("DB_USERNAME", ""),
 				"password": config.Env("DB_PASSWORD", ""),
-				"sslmode":  "disable",
-				"timezone": "Asia/Shanghai", //Asia/Shanghai
+				"charset":  "utf8mb4",
+				"loc":      "Local",
 				"prefix":   "",
 				"singular": false, // Table name is singular
 			},
 			"hash": map[string]any{
-				"driver":   "postgresql",
+				"driver":   "mysql",
 				"host":     config.Env("DB_HOST_HASH", "127.0.0.1"),
-				"port":     config.Env("DB_PORT_HASH", 5432),
+				"port":     config.Env("DB_PORT_HASH", 4000),
 				"database": config.Env("DB_DATABASE_HASH", "forge"),
 				"username": config.Env("DB_USERNAME_HASH", ""),
 				"password": config.Env("DB_PASSWORD_HASH", ""),
-				"sslmode":  "disable",
-				"timezone": "Asia/Shanghai", //Asia/Shanghai
+				"charset":  "utf8mb4",
+				"loc":      "Local",
 				"prefix":   "",
 				"singular": false, // Table name is singular
 			},

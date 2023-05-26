@@ -65,29 +65,24 @@ func (receiver *ProcessAvatarUpdate) Handle(args ...any) error {
 	if reqErr != nil || !resp.IsSuccessState() {
 		// 如果 Gravatar 下载失败，再从 QQ 下载
 		from = "qq"
-		hashIndex, hashErr := strconv.ParseInt(hash[:10], 16, 64)
-		if hashErr != nil {
-			return nil
-		}
-		tableIndex := (hashIndex % int64(4000)) + 1
 		type qqHash struct {
-			Hash string `gorm:"column:hash"`
-			Qq   string `gorm:"column:qq"`
+			Hash string `gorm:"primaryKey"`
+			Qq   uint   `gorm:"type:bigint;not null"`
 		}
 		var qq qqHash
 
-		err := facades.Orm.Connection("hash").Query().Table("qq_"+strconv.Itoa(int(tableIndex))).Where("hash", hash).First(&qq)
+		err := facades.Orm.Connection("hash").Query().Table("qq_mails").Where("hash", hash).First(&qq)
 		if err != nil {
 			return nil
 		}
 
-		if qq.Qq == "" {
+		if qq.Qq == 0 {
 			return nil
 		}
 
 		resp, reqErr = client.R().SetQueryParams(map[string]string{
 			"b":  "qq",
-			"nk": qq.Qq,
+			"nk": strconv.Itoa(int(qq.Qq)),
 			"s":  "640",
 		}).Get("http://q1.qlogo.cn/g")
 		if reqErr != nil || !resp.IsSuccessState() {
@@ -99,7 +94,7 @@ func (receiver *ProcessAvatarUpdate) Handle(args ...any) error {
 			// 如果图片小于 6400 字节，则尝试获取 100 尺寸的图片
 			resp, reqErr = client.R().SetQueryParams(map[string]string{
 				"b":  "qq",
-				"nk": qq.Qq,
+				"nk": strconv.Itoa(int(qq.Qq)),
 				"s":  "100",
 			}).Get("http://q1.qlogo.cn/g")
 			if reqErr != nil || !resp.IsSuccessState() {

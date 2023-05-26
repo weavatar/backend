@@ -116,14 +116,9 @@ func (r *AvatarImpl) Sanitize(ctx http.Context) (string, string, string, int, bo
 
 // getQqAvatar 通过 QQ 号获取头像
 func (r *AvatarImpl) getQqAvatar(hash string) (image.Image, error) {
-	hashIndex, hashErr := strconv.ParseInt(hash[:10], 16, 64)
-	if hashErr != nil {
-		return nil, hashErr
-	}
-	tableIndex := (hashIndex % int64(4000)) + 1
 	type qqHash struct {
-		Hash string `gorm:"column:hash"`
-		Qq   string `gorm:"column:qq"`
+		Hash string `gorm:"primaryKey"`
+		Qq   uint   `gorm:"type:bigint;not null"`
 	}
 	var qq qqHash
 
@@ -136,19 +131,19 @@ func (r *AvatarImpl) getQqAvatar(hash string) (image.Image, error) {
 
 		return img, nil
 	} else {
-		err := facades.Orm.Connection("hash").Query().Table("qq_"+strconv.Itoa(int(tableIndex))).Where("hash", hash).First(&qq)
+		err := facades.Orm.Connection("hash").Query().Table("qq_mails").Where("hash", hash).First(&qq)
 		if err != nil {
 			return nil, err
 		}
 
-		if qq.Qq == "" {
+		if qq.Qq == 0 {
 			return nil, errors.New("未找到对应的 QQ 号")
 		}
 
 		client := req.C().SetUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36 Edg/112.0.1722.34")
 		resp, reqErr := client.R().SetQueryParams(map[string]string{
 			"b":  "qq",
-			"nk": qq.Qq,
+			"nk": strconv.Itoa(int(qq.Qq)),
 			"s":  "640",
 		}).Get("http://q1.qlogo.cn/g")
 		if !resp.IsSuccessState() {
@@ -164,7 +159,7 @@ func (r *AvatarImpl) getQqAvatar(hash string) (image.Image, error) {
 			// 如果图片小于 6400 字节，则尝试获取 100 尺寸的图片
 			resp, reqErr = client.R().SetQueryParams(map[string]string{
 				"b":  "qq",
-				"nk": qq.Qq,
+				"nk": strconv.Itoa(int(qq.Qq)),
 				"s":  "100",
 			}).Get("http://q1.qlogo.cn/g")
 			if !resp.IsSuccessState() {
@@ -445,7 +440,7 @@ func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, 
 	}
 
 	// 取头像数据
-	_, err = facades.Orm.Query().Exec(`INSERT INTO "avatars" ("hash", "created_at", "updated_at") VALUES (?, ?, ?) ON CONFLICT DO NOTHING`, hash, carbon.DateTime{Carbon: carbon.Now()}, carbon.DateTime{Carbon: carbon.Now()})
+	_, err = facades.Orm.Query().Exec(`INSERT INTO avatars (hash, created_at, updated_at) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE updated_at=VALUES(updated_at)`, hash, carbon.DateTime{Carbon: carbon.Now()}, carbon.DateTime{Carbon: carbon.Now()})
 	if err != nil {
 		facades.Log.Error("WeAvatar[数据库错误] ", err.Error())
 		return nil, from, err
