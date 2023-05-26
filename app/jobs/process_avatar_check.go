@@ -49,9 +49,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 		return err
 	}
 
-	avatar.Checked = true
-	avatar.Ban = !isSafe
-	err = facades.Orm.Query().Save(&avatar)
+	err = facades.Orm.Query().UpdateOrCreate(&avatar, models.Avatar{Hash: avatar.Hash}, models.Avatar{Checked: true, Ban: !isSafe})
 	if err != nil {
 		facades.Log.Error("COS审核[数据库更新失败] " + err.Error())
 		return err

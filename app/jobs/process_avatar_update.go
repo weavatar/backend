@@ -142,9 +142,7 @@ func (receiver *ProcessAvatarUpdate) Handle(args ...any) error {
 			return errors.New("头像更新[数据库查询为空] HASH:" + hash)
 		}
 
-		avatar.Checked = false
-		avatar.Ban = false
-		err = facades.Orm.Query().Save(&avatar)
+		err = facades.Orm.Query().UpdateOrCreate(&avatar, models.Avatar{Hash: avatar.Hash}, models.Avatar{Checked: false, Ban: false})
 		if err != nil {
 			facades.Log.Error("头像更新[数据库更新失败] " + err.Error())
 			return err
