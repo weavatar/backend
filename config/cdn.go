@@ -10,9 +10,10 @@ func init() {
 		"driver": config.Env("CDN_DRIVER", "starshield"),
 		// 星盾
 		"starshield": map[string]any{
-			"access_key": config.Env("CDN_STARSHIELD_ACCESS_KEY", ""),
-			"secret_key": config.Env("CDN_STARSHIELD_SECRET_KEY", ""),
-			"zone_id":    config.Env("CDN_STARSHIELD_ZONE_ID", ""),
+			"access_key":  config.Env("CDN_STARSHIELD_ACCESS_KEY", ""),
+			"secret_key":  config.Env("CDN_STARSHIELD_SECRET_KEY", ""),
+			"instance_id": config.Env("CDN_STARSHIELD_INSTANCE_ID", ""),
+			"zone_id":     config.Env("CDN_STARSHIELD_ZONE_ID", ""),
 		},
 		// 又拍云
 		"upyun": map[string]any{
