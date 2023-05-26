@@ -30,9 +30,10 @@ func NewCDN() *CDN {
 		once.Do(func() {
 			internalCDN = &CDN{
 				Driver: &StarShield{
-					AccessKey: config["access_key"],
-					SecretKey: config["secret_key"],
-					ZoneID:    config["zone_id"],
+					AccessKey:  config["access_key"],
+					SecretKey:  config["secret_key"],
+					InstanceID: config["instance_id"],
+					ZoneID:     config["zone_id"],
 				},
 			}
 		})

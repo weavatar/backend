@@ -152,7 +152,7 @@ func (receiver *ProcessAvatarUpdate) Handle(args ...any) error {
 
 		// 刷新缓存
 		cdn := packagecdn.NewCDN()
-		cdn.RefreshUrl([]string{"https://weavatar.com/avatar/" + hash + "*", "http://weavatar.com/avatar/" + hash + "*"})
+		cdn.RefreshUrl([]string{"weavatar.com/avatar/" + hash})
 	}
 
 	return nil

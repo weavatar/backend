@@ -10,6 +10,7 @@ import (
 
 type StarShield struct {
 	AccessKey, SecretKey string // 密钥
+	InstanceID           string // 实例ID
 	ZoneID               string // 域名标识
 }
 
@@ -35,10 +36,15 @@ func (s *StarShield) RefreshUrl(urls []string) bool {
 	client := NewStarshieldClient(credentials)
 	client.DisableLogger()
 	request := NewPurgeFilesByCache_TagsAndHostOrPrefixRequest(s.ZoneID)
+	request.AddHeader("x-jdcloud-account-id", s.InstanceID)
 	request.SetPrefixes(urls)
 
 	resp, err := client.PurgeFilesByCache_TagsAndHostOrPrefix(request)
 	if err != nil {
+		facades.Log.Error("CDN[星盾] ", " [URL缓存刷新失败] RequestID: "+resp.RequestID, " ", resp.Error.Message)
+		return false
+	}
+	if resp.Error.Code != 0 {
 		facades.Log.Error("CDN[星盾] ", " [URL缓存刷新失败] RequestID: "+resp.RequestID, " ", resp.Error.Message)
 		return false
 	}
@@ -52,10 +58,15 @@ func (s *StarShield) RefreshPath(paths []string) bool {
 	client := NewStarshieldClient(credentials)
 	client.DisableLogger()
 	request := NewPurgeFilesByCache_TagsAndHostOrPrefixRequest(s.ZoneID)
+	request.AddHeader("x-jdcloud-account-id", s.InstanceID)
 	request.SetPrefixes(paths)
 
 	resp, err := client.PurgeFilesByCache_TagsAndHostOrPrefix(request)
 	if err != nil {
+		facades.Log.Error("CDN[星盾] ", " [目录缓存刷新失败] RequestID: "+resp.RequestID, " ", resp.Error.Message)
+		return false
+	}
+	if resp.Error.Code != 0 {
 		facades.Log.Error("CDN[星盾] ", " [目录缓存刷新失败] RequestID: "+resp.RequestID, " ", resp.Error.Message)
 		return false
 	}
@@ -68,11 +79,15 @@ func (s *StarShield) GetUsage(domain string, startTime, endTime carbon.Carbon) u
 	credentials := NewCredentials(s.AccessKey, s.SecretKey)
 	client := NewStarshieldClient(credentials)
 	client.DisableLogger()
-	request := NewZoneRequestSumRequest(s.ZoneID, "all", domain, startTime.ToIso8601MilliString(), endTime.ToIso8601MilliString())
-	request.AddHeader("x-jdcloud-account-id", s.ZoneID)
+	request := NewZoneRequestSumRequest(s.ZoneID, "all", domain, "T00:00:00.000Z", endTime.ToDateString()+"T00:00:00.000Z")
+	request.AddHeader("x-jdcloud-account-id", s.InstanceID)
 
 	resp, err := client.ZoneRequestSum(request)
 	if err != nil {
+		facades.Log.Error("CDN[星盾] ", " [获取用量失败] RequestID: "+resp.RequestID, " ", resp.Error.Message)
+		return 0
+	}
+	if resp.Error.Code != 0 {
 		facades.Log.Error("CDN[星盾] ", " [获取用量失败] RequestID: "+resp.RequestID, " ", resp.Error.Message)
 		return 0
 	}
