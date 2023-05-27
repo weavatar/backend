@@ -42,8 +42,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 	}
 
 	// 更新数据库
-	var avatar models.Avatar
-	err = facades.Orm.Query().UpdateOrCreate(&avatar, models.Avatar{Hash: avatar.Hash}, models.Avatar{Checked: true, Ban: !isSafe})
+	_, err = facades.Orm.Query().Model(&models.Avatar{}).Where("hash", hash).Update(models.Avatar{Checked: true, Ban: !isSafe})
 	if err != nil {
 		facades.Log.Error("COS审核[数据库更新失败] " + err.Error())
 		return err
