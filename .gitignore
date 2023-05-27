@@ -3,7 +3,6 @@ tmp
 .history
 
 # Golang #
-go.sum
 # `go test -c` 生成的二进制文件
 *.test
 # go coverage 工具
