@@ -35,7 +35,6 @@ golangci_lint:
     - apk add --no-cache libwebp-dev
     - apk add --no-cache build-base
   script:
-    - go mod download
     - golangci-lint run --timeout 30m
 
 unit_test:
@@ -47,7 +46,6 @@ unit_test:
     - apk add --no-cache libwebp-dev
     - apk add --no-cache build-base
   script:
-    - go mod download
     - go test -v -coverprofile=coverage.txt -covermode=atomic ./...
 
 build:
