@@ -103,7 +103,6 @@ func (receiver *ProcessAvatarUpdate) Handle(args ...any) error {
 		}
 	}
 
-	// 检查图片是否正常
 	reader := strings.NewReader(resp.String())
 	_, imgErr = imaging.Decode(reader)
 	if imgErr != nil {
@@ -111,22 +110,18 @@ func (receiver *ProcessAvatarUpdate) Handle(args ...any) error {
 		return nil
 	}
 
-	// 删除原有头像
 	delErr := facades.Storage.Delete(path)
 	if delErr != nil {
 		facades.Log.Error("头像更新[删除原有头像失败] " + path)
 		return nil
 	}
 
-	// 保存图片
 	saveErr := facades.Storage.Put("cache/"+from+"/"+hash[:2]+"/"+hash, resp.String())
 	if saveErr != nil {
 		return nil
 	}
 
-	// 检查图片是否变化
 	if fileHash != helpers.MD5(resp.String()) {
-		// 更新数据库
 		var avatar models.Avatar
 		err := facades.Orm.Query().Where("hash", hash).First(&avatar)
 		if err != nil || avatar.Hash == nil || avatar.UserID != nil {
@@ -142,13 +137,14 @@ func (receiver *ProcessAvatarUpdate) Handle(args ...any) error {
 			return errors.New("头像更新[数据库查询为空] HASH:" + hash)
 		}
 
-		err = facades.Orm.Query().UpdateOrCreate(&avatar, models.Avatar{Hash: avatar.Hash}, models.Avatar{Checked: false, Ban: false})
+		avatar.Checked = false
+		avatar.Ban = false
+		err = facades.Orm.Query().Save(&avatar)
 		if err != nil {
 			facades.Log.Error("头像更新[数据库更新失败] " + err.Error())
 			return err
 		}
 
-		// 刷新缓存
 		cdn := packagecdn.NewCDN()
 		cdn.RefreshUrl([]string{"weavatar.com/avatar/" + hash})
 	}

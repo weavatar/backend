@@ -23,7 +23,6 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 		return nil
 	}
 
-	// 断言参数
 	hash, ok := args[0].(string)
 	if !ok {
 		facades.Log.Error("COS审核[队列参数断言失败] HASH:" + hash)
@@ -35,21 +34,26 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 	bucket := facades.Config.GetString("qcloud.cos_check.bucket")
 	checker := qcloud.NewCreator(accessKey, secretKey, bucket)
 
-	// 检查图片是否违规
 	isSafe, err := checker.Check("https://weavatar.com/avatar/" + hash + ".png?s=400&d=404")
 	if err != nil {
 		return err
 	}
 
-	// 更新数据库
 	var avatar models.Avatar
-	err = facades.Orm.Query().UpdateOrCreate(&avatar, models.Avatar{Hash: avatar.Hash}, models.Avatar{Checked: true, Ban: !isSafe})
+	err = facades.Orm.Query().Where("hash", hash).First(&avatar)
+	if err != nil {
+		facades.Log.Error("COS审核[数据库查询失败] " + err.Error())
+		return err
+	}
+
+	avatar.Checked = true
+	avatar.Ban = !isSafe
+	err = facades.Orm.Query().Save(&avatar)
 	if err != nil {
 		facades.Log.Error("COS审核[数据库更新失败] " + err.Error())
 		return err
 	}
 
-	// 刷新缓存
 	cdn := packagecdn.NewCDN()
 	cdn.RefreshUrl([]string{"weavatar.com/avatar/" + hash})
 
