@@ -16,7 +16,7 @@ type EmailRequest struct {
 }
 
 func (r *EmailRequest) Authorize(ctx http.Context) error {
-	if facades.Cache.Has("verify_code:" + r.Email) {
+	if facades.Cache().Has("verify_code:" + r.Email) {
 		return errors.New("发送过于频繁，请稍后再试")
 	}
 	return nil

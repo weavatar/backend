@@ -24,7 +24,7 @@ func NewUserController() *UserController {
 func (r *UserController) OauthLogin(ctx http.Context) {
 	state, stateErr := oauth.GetAuthorizationState(ctx.Request().Ip())
 	if stateErr != nil {
-		facades.Log.WithContext(ctx).Error("[UserController][OauthLogin] 获取State失败 ", stateErr)
+		facades.Log().Error("[UserController][OauthLogin] 获取State失败 ", stateErr)
 		ctx.Response().Json(http.StatusInternalServerError, http.Json{
 			"code":    500,
 			"message": stateErr.Error(),
@@ -32,7 +32,7 @@ func (r *UserController) OauthLogin(ctx http.Context) {
 		return
 	}
 
-	url := facades.Config.GetString("haozi.account.base_url") + "/oauth/authorize?client_id=" + facades.Config.GetString("haozi.account.client_id") + "&redirect_uri=" + facades.Config.GetString("http.url") + "/oauth/callback&response_type=code&scope=basic&state=" + state
+	url := facades.Config().GetString("haozi.account.base_url") + "/oauth/authorize?client_id=" + facades.Config().GetString("haozi.account.client_id") + "&redirect_uri=" + facades.Config().GetString("http.url") + "/oauth/callback&response_type=code&scope=basic&state=" + state
 
 	ctx.Response().Success().Json(http.Json{
 		"code":    0,
@@ -62,7 +62,7 @@ func (r *UserController) OauthCallback(ctx http.Context) {
 	}
 
 	// 验证 state
-	if facades.Cache.GetString("oauth_state:"+oauthCallbackRequest.State, "1.1.1.1") != ctx.Request().Ip() {
+	if facades.Cache().GetString("oauth_state:"+oauthCallbackRequest.State, "1.1.1.1") != ctx.Request().Ip() {
 		ctx.Response().Json(http.StatusUnprocessableEntity, http.Json{
 			"code":    422,
 			"message": "状态码不存在或已过期",
@@ -73,7 +73,7 @@ func (r *UserController) OauthCallback(ctx http.Context) {
 	// 获取 token
 	oauthToken, tokenErr := oauth.GetToken(oauthCallbackRequest.Code)
 	if tokenErr != nil {
-		facades.Log.WithContext(ctx).Error("[UserController][OauthCallback] 获取 access_token 失败 ", tokenErr)
+		facades.Log().Error("[UserController][OauthCallback] 获取 access_token 失败 ", tokenErr)
 		ctx.Response().Json(http.StatusInternalServerError, http.Json{
 			"code":    500,
 			"message": "获取 access_token 失败",
@@ -84,7 +84,7 @@ func (r *UserController) OauthCallback(ctx http.Context) {
 	// 获取用户信息
 	userInfo, userInfoErr := oauth.GetUserInfo(oauthToken.AccessToken)
 	if userInfoErr != nil {
-		facades.Log.WithContext(ctx).Error("[UserController][OauthCallback] 获取用户信息失败 ", userInfoErr)
+		facades.Log().Error("[UserController][OauthCallback] 获取用户信息失败 ", userInfoErr)
 		ctx.Response().Json(http.StatusInternalServerError, http.Json{
 			"code":    500,
 			"message": "获取用户信息失败",
@@ -94,7 +94,7 @@ func (r *UserController) OauthCallback(ctx http.Context) {
 
 	userID, idErr := id.NewRatID().Generate()
 	if idErr != nil {
-		facades.Log.WithContext(ctx).Error("[UserController][OauthCallback] 生成用户ID失败 ", idErr)
+		facades.Log().Error("[UserController][OauthCallback] 生成用户ID失败 ", idErr)
 		ctx.Response().Json(http.StatusInternalServerError, http.Json{
 			"code":    500,
 			"message": "系统内部错误",
@@ -104,9 +104,9 @@ func (r *UserController) OauthCallback(ctx http.Context) {
 
 	// 检查用户是否存在
 	var user models.User
-	userErr := facades.Orm.Query().FirstOrCreate(&user, models.User{OpenID: userInfo.Data.OpenID}, models.User{ID: userID, UnionID: userInfo.Data.UnionID, Nickname: userInfo.Data.Nickname, Avatar: "https://weavatar.com/avatar/?d=mp"})
+	userErr := facades.Orm().Query().FirstOrCreate(&user, models.User{OpenID: userInfo.Data.OpenID}, models.User{ID: userID, UnionID: userInfo.Data.UnionID, Nickname: userInfo.Data.Nickname, Avatar: "https://weavatar.com/avatar/?d=mp"})
 	if userErr != nil {
-		facades.Log.WithContext(ctx).Error("[UserController][OauthCallback] 查询用户失败 ", userErr)
+		facades.Log().Error("[UserController][OauthCallback] 查询用户失败 ", userErr)
 		ctx.Response().Json(http.StatusInternalServerError, http.Json{
 			"code":    500,
 			"message": "系统内部错误",
@@ -115,9 +115,9 @@ func (r *UserController) OauthCallback(ctx http.Context) {
 	}
 
 	// 登录
-	token, loginErr := facades.Auth.LoginUsingID(ctx, user.ID)
+	token, loginErr := facades.Auth().LoginUsingID(ctx, user.ID)
 	if loginErr != nil {
-		facades.Log.WithContext(ctx).Error("[UserController][OauthCallback] 登录失败 ", err)
+		facades.Log().Error("[UserController][OauthCallback] 登录失败 ", err)
 		ctx.Response().Json(http.StatusInternalServerError, http.Json{
 			"code":    500,
 			"message": loginErr.Error(),
@@ -187,9 +187,9 @@ func (r *UserController) UpdateInfo(ctx http.Context) {
 
 	user.Nickname = updateInfoRequest.Nickname
 	user.Avatar = updateInfoRequest.Avatar
-	updateErr := facades.Orm.Query().Save(&user)
+	updateErr := facades.Orm().Query().Save(&user)
 	if updateErr != nil {
-		facades.Log.WithContext(ctx).Error("[UserController][UpdateNickname] 更新用户失败 ", updateErr)
+		facades.Log().Error("[UserController][UpdateNickname] 更新用户失败 ", updateErr)
 		ctx.Response().Json(http.StatusInternalServerError, http.Json{
 			"code":    500,
 			"message": "系统内部错误",
@@ -204,9 +204,9 @@ func (r *UserController) UpdateInfo(ctx http.Context) {
 }
 
 func (r *UserController) Logout(ctx http.Context) {
-	err := facades.Auth.Logout(ctx)
+	err := facades.Auth().Logout(ctx)
 	if err != nil {
-		facades.Log.WithContext(ctx).Error("[UserController][Logout] 登出失败 ", err)
+		facades.Log().Error("[UserController][Logout] 登出失败 ", err)
 		ctx.Response().Json(http.StatusInternalServerError, http.Json{
 			"code":    500,
 			"message": err.Error(),
@@ -218,9 +218,9 @@ func (r *UserController) Logout(ctx http.Context) {
 }
 
 func (r *UserController) Refresh(ctx http.Context) {
-	token, err := facades.Auth.Refresh(ctx)
+	token, err := facades.Auth().Refresh(ctx)
 	if err != nil {
-		facades.Log.WithContext(ctx).Error("[UserController][Refresh] 刷新令牌失败 ", err)
+		facades.Log().Error("[UserController][Refresh] 刷新令牌失败 ", err)
 		ctx.Response().Json(http.StatusInternalServerError, http.Json{
 			"code":    500,
 			"message": err.Error(),

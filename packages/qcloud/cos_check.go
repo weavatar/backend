@@ -46,7 +46,7 @@ func NewCreator(accessKey, secretKey, bucket string) *CosChecker {
 func (cc *CosChecker) Check(url string) (bool, error) {
 	authorization, err := cc.getAuthorization("GET", "/", 0)
 	if err != nil {
-		facades.Log.Error("COS审核 ", " [获取签名失败] "+err.Error())
+		facades.Log().Error("COS审核 ", " [获取签名失败] "+err.Error())
 		return false, err
 	}
 
@@ -57,10 +57,10 @@ func (cc *CosChecker) Check(url string) (bool, error) {
 	}).SetHeader("Authorization", authorization).Get("https://" + cc.bucket + "/")
 	if !resp.IsSuccessState() {
 		if reqErr != nil {
-			facades.Log.Error("COS审核 ", " [请求失败] URL:"+url+" "+reqErr.Error())
+			facades.Log().Error("COS审核 ", " [请求失败] URL:"+url+" "+reqErr.Error())
 			return false, reqErr
 		} else {
-			facades.Log.Error("COS审核 ", " [请求失败] URL:"+url+" "+resp.String())
+			facades.Log().Error("COS审核 ", " [请求失败] URL:"+url+" "+resp.String())
 			return false, errors.New("COS审核[请求失败]")
 		}
 	}
@@ -68,7 +68,7 @@ func (cc *CosChecker) Check(url string) (bool, error) {
 	var checkResponse CheckResponse
 	err = xml.Unmarshal(resp.Bytes(), &checkResponse)
 	if err != nil {
-		facades.Log.Error("COS审核 ", " [响应解析失败] "+err.Error())
+		facades.Log().Error("COS审核 ", " [响应解析失败] "+err.Error())
 		return false, err
 	}
 

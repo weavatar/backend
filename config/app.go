@@ -4,7 +4,7 @@ import (
 	"github.com/goravel/framework/auth"
 	"github.com/goravel/framework/cache"
 	"github.com/goravel/framework/console"
-	"github.com/goravel/framework/contracts"
+	"github.com/goravel/framework/contracts/foundation"
 	"github.com/goravel/framework/crypt"
 	"github.com/goravel/framework/database"
 	"github.com/goravel/framework/facades"
@@ -16,6 +16,7 @@ import (
 	"github.com/goravel/framework/queue"
 	"github.com/goravel/framework/route"
 	"github.com/goravel/framework/schedule"
+	"github.com/goravel/framework/support/carbon"
 	"github.com/goravel/framework/validation"
 
 	"weavatar/app/providers"
@@ -25,7 +26,7 @@ import (
 func Boot() {}
 
 func init() {
-	config := facades.Config
+	config := facades.Config()
 	config.Add("app", map[string]any{
 		// Application Name
 		//
@@ -49,7 +50,7 @@ func init() {
 		// Here you may specify the default timezone for your application, which
 		// will be used by the PHP date and date-time functions. We have gone
 		// ahead and set this to a sensible default for you out of the box.
-		"timezone": "UTC",
+		"timezone": carbon.PRC,
 
 		// Encryption Key
 		//
@@ -62,7 +63,7 @@ func init() {
 		// The service providers listed here will be automatically loaded on the
 		// request to your application. Feel free to add your own services to
 		// this array to grant expanded functionality to your applications.
-		"providers": []contracts.ServiceProvider{
+		"providers": []foundation.ServiceProvider{
 			&log.ServiceProvider{},
 			&console.ServiceProvider{},
 			&database.ServiceProvider{},

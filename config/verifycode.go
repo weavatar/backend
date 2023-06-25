@@ -5,7 +5,7 @@ import (
 )
 
 func init() {
-	config := facades.Config
+	config := facades.Config()
 	config.Add("verifycode", map[string]any{
 		// 验证码的长度
 		"code_length": 6,

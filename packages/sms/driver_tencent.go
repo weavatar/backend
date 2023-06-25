@@ -35,7 +35,7 @@ func (s *Tencent) Send(phone string, message Message, config map[string]string) 
 		return false
 	}
 	if err != nil {
-		facades.Log.Info("短信[腾讯云] ", " 服务商返回错误", err.Error())
+		facades.Log().Info("短信[腾讯云] ", " 服务商返回错误", err.Error())
 		return false
 	}
 
@@ -45,7 +45,7 @@ func (s *Tencent) Send(phone string, message Message, config map[string]string) 
 	if code == "Ok" {
 		return true
 	} else {
-		facades.Log.Info("短信[腾讯云] ", " 发信失败 ", response.ToJsonString())
+		facades.Log().Info("短信[腾讯云] ", " 发信失败 ", response.ToJsonString())
 		return false
 	}
 

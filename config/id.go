@@ -5,7 +5,7 @@ import (
 )
 
 func init() {
-	config := facades.Config
+	config := facades.Config()
 	config.Add("id", map[string]any{
 		// 默认的节点 ID
 		"node": config.Env("APP_NODE", "0"),

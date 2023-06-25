@@ -5,7 +5,7 @@ import (
 )
 
 func init() {
-	config := facades.Config
+	config := facades.Config()
 	config.Add("sms", map[string]any{
 		// 默认的短信驱动
 		"driver": "tencent",

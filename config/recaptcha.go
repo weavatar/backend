@@ -5,7 +5,7 @@ import (
 )
 
 func init() {
-	config := facades.Config
+	config := facades.Config()
 	config.Add("recaptcha", map[string]any{
 		"secret": config.Env("RECAPTCHA_SECRET"),
 	})

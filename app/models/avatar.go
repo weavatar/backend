@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/golang-module/carbon/v2"
+	"github.com/goravel/framework/support/carbon"
 )
 
 type Avatar struct {

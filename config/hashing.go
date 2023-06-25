@@ -5,13 +5,13 @@ import (
 )
 
 func init() {
-	config := facades.Config
+	config := facades.Config()
 	config.Add("hashing", map[string]any{
 		// Hashing Driver
 		//
 		// This option controls the default diver that gets used
 		// by the framework hash facade.
-		// Default driver is "argon2id", because it is the most secure.
+		// Default driver is "bcrypt".
 		//
 		// Supported Drivers: "argon2id", "bcrypt"
 		"driver": "argon2id",

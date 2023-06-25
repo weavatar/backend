@@ -40,7 +40,7 @@ func (vc *VerifyCode) SendSMS(phone string, useFor string) bool {
 	code := vc.generateVerifyCode(phone, useFor)
 
 	// 方便本地和 API 自动测试
-	if facades.Config.GetBool("app.debug") {
+	if facades.Config().GetBool("app.debug") {
 		return true
 	}
 
@@ -57,14 +57,14 @@ func (vc *VerifyCode) SendEmail(email string, useFor string) bool {
 	code := vc.generateVerifyCode(email, useFor)
 
 	// 方便本地和 API 自动测试
-	if facades.Config.GetBool("app.debug") {
+	if facades.Config().GetBool("app.debug") {
 		return true
 	}
 
 	content := fmt.Sprintf("<h1>您的 Email 验证码是 %v </h1>", code)
 	// 发送邮件
-	err := facades.Mail.To([]string{email}).
-		Content(mail.Content{Subject: facades.Config.GetString("app.name") + " - 验证码", Html: content}).
+	err := facades.Mail().To([]string{email}).
+		Content(mail.Content{Subject: facades.Config().GetString("app.name") + " - 验证码", Html: content}).
 		Send()
 
 	return err == nil
@@ -80,11 +80,11 @@ func (vc *VerifyCode) Check(key string, answer string, useFor string, clear bool
 func (vc *VerifyCode) generateVerifyCode(key string, useFor string) string {
 
 	// 生成随机码
-	code := helpers.RandomNumber(facades.Config.GetInt("verifycode.code_length"))
+	code := helpers.RandomNumber(facades.Config().GetInt("verifycode.code_length"))
 
 	// 为方便开发，本地环境使用固定验证码
-	if facades.Config.GetBool("app.debug") {
-		code = facades.Config.GetString("verifycode.debug_code")
+	if facades.Config().GetBool("app.debug") {
+		code = facades.Config().GetString("verifycode.debug_code")
 	}
 
 	// 存储验证码

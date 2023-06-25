@@ -1,7 +1,8 @@
 package models
 
 import (
-	"github.com/golang-module/carbon/v2"
+	"github.com/goravel/framework/support/carbon"
+
 	"gorm.io/gorm"
 )
 

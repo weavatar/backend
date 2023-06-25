@@ -1,8 +1,8 @@
 package cdn
 
 import (
-	"github.com/golang-module/carbon/v2"
 	"github.com/goravel/framework/facades"
+	"github.com/goravel/framework/support/carbon"
 	. "github.com/jdcloud-api/jdcloud-sdk-go/core"
 	. "github.com/jdcloud-api/jdcloud-sdk-go/services/starshield/apis"
 	. "github.com/jdcloud-api/jdcloud-sdk-go/services/starshield/client"
@@ -41,11 +41,11 @@ func (s *StarShield) RefreshUrl(urls []string) bool {
 
 	resp, err := client.PurgeFilesByCache_TagsAndHostOrPrefix(request)
 	if err != nil {
-		facades.Log.Error("CDN[星盾] ", " [URL缓存刷新失败] RequestID: "+resp.RequestID, " ", resp.Error.Message)
+		facades.Log().Error("CDN[星盾] ", " [URL缓存刷新失败] RequestID: "+resp.RequestID, " ", resp.Error.Message)
 		return false
 	}
 	if resp.Error.Code != 0 {
-		facades.Log.Error("CDN[星盾] ", " [URL缓存刷新失败] RequestID: "+resp.RequestID, " ", resp.Error.Message)
+		facades.Log().Error("CDN[星盾] ", " [URL缓存刷新失败] RequestID: "+resp.RequestID, " ", resp.Error.Message)
 		return false
 	}
 
@@ -63,11 +63,11 @@ func (s *StarShield) RefreshPath(paths []string) bool {
 
 	resp, err := client.PurgeFilesByCache_TagsAndHostOrPrefix(request)
 	if err != nil {
-		facades.Log.Error("CDN[星盾] ", " [目录缓存刷新失败] RequestID: "+resp.RequestID, " ", resp.Error.Message)
+		facades.Log().Error("CDN[星盾] ", " [目录缓存刷新失败] RequestID: "+resp.RequestID, " ", resp.Error.Message)
 		return false
 	}
 	if resp.Error.Code != 0 {
-		facades.Log.Error("CDN[星盾] ", " [目录缓存刷新失败] RequestID: "+resp.RequestID, " ", resp.Error.Message)
+		facades.Log().Error("CDN[星盾] ", " [目录缓存刷新失败] RequestID: "+resp.RequestID, " ", resp.Error.Message)
 		return false
 	}
 
@@ -84,11 +84,11 @@ func (s *StarShield) GetUsage(domain string, startTime, endTime carbon.Carbon) u
 
 	resp, err := client.ZoneRequestSum(request)
 	if err != nil {
-		facades.Log.Error("CDN[星盾] ", " [获取用量失败] RequestID: "+resp.RequestID, " ", resp.Error.Message)
+		facades.Log().Error("CDN[星盾] ", " [获取用量失败] RequestID: "+resp.RequestID, " ", resp.Error.Message)
 		return 0
 	}
 	if resp.Error.Code != 0 {
-		facades.Log.Error("CDN[星盾] ", " [获取用量失败] RequestID: "+resp.RequestID, " ", resp.Error.Message)
+		facades.Log().Error("CDN[星盾] ", " [获取用量失败] RequestID: "+resp.RequestID, " ", resp.Error.Message)
 		return 0
 	}
 

@@ -31,7 +31,7 @@ func (receiver *HashMake) Extend() command.Extend {
 	return command.Extend{
 		Category: "hash",
 		Flags: []command.Flag{
-			{
+			&command.StringFlag{
 				Name:    "sum",
 				Value:   "4000000000",
 				Aliases: []string{"s"},

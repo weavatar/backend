@@ -16,7 +16,7 @@ type SmsRequest struct {
 }
 
 func (r *SmsRequest) Authorize(ctx http.Context) error {
-	if facades.Cache.Has("verify_code:" + r.Phone) {
+	if facades.Cache().Has("verify_code:" + r.Phone) {
 		return errors.New("发送过于频繁，请稍后再试")
 	}
 	return nil

@@ -1,9 +1,10 @@
 package cdn
 
 import (
-	"github.com/golang-module/carbon/v2"
-	"github.com/goravel/framework/facades"
 	"github.com/imroc/req/v3"
+
+	"github.com/goravel/framework/facades"
+	"github.com/goravel/framework/support/carbon"
 )
 
 type UpYun struct {
@@ -64,19 +65,19 @@ func (u *UpYun) RefreshUrl(urls []string) bool {
 
 	_, err := client.R().SetBody(data).SetSuccessResult(&successResp).SetErrorResult(&errorResp).SetBearerAuthToken(u.Token).Post("https://api.upyun.com/buckets/purge/batch")
 	if err != nil {
-		facades.Log.Error("CDN[又拍云] ", " [URL缓存刷新错误] ", err.Error())
+		facades.Log().Error("CDN[又拍云] ", " [URL缓存刷新错误] ", err.Error())
 		return false
 	}
 
 	for _, resp := range successResp {
 		if resp.Code != 1 {
-			facades.Log.Error("CDN[又拍云] ", " [URL缓存刷新失败] ", resp.Code, " ", resp.Status, " ", errorResp.ErrorCode, " ", errorResp.Message)
+			facades.Log().Error("CDN[又拍云] ", " [URL缓存刷新失败] ", resp.Code, " ", resp.Status, " ", errorResp.ErrorCode, " ", errorResp.Message)
 			return false
 		}
 	}
 
 	if errorResp.ErrorCode != 0 {
-		facades.Log.Error("CDN[又拍云] ", " [URL缓存刷新错误] ", errorResp.ErrorCode, " ", errorResp.Message, " ", errorResp.Request)
+		facades.Log().Error("CDN[又拍云] ", " [URL缓存刷新错误] ", errorResp.ErrorCode, " ", errorResp.Message, " ", errorResp.Request)
 		return false
 	}
 
@@ -102,19 +103,19 @@ func (u *UpYun) RefreshPath(paths []string) bool {
 
 	_, err := client.R().SetBody(data).SetSuccessResult(&successResp).SetErrorResult(&errorResp).SetBearerAuthToken(u.Token).Post("https://api.upyun.com/buckets/purge/batch")
 	if err != nil {
-		facades.Log.Error("CDN[又拍云] ", " [路径缓存刷新错误] ", err)
+		facades.Log().Error("CDN[又拍云] ", " [路径缓存刷新错误] ", err)
 		return false
 	}
 
 	for _, resp := range successResp {
 		if resp.Code != 1 {
-			facades.Log.Error("CDN[又拍云] ", " [路径缓存刷新失败] ", resp.Code, " ", resp.Status, " ", errorResp.ErrorCode, " ", errorResp.Message)
+			facades.Log().Error("CDN[又拍云] ", " [路径缓存刷新失败] ", resp.Code, " ", resp.Status, " ", errorResp.ErrorCode, " ", errorResp.Message)
 			return false
 		}
 	}
 
 	if errorResp.ErrorCode != 0 {
-		facades.Log.Error("CDN[又拍云] ", " [URL缓存刷新错误] ", errorResp.ErrorCode, " ", errorResp.Message, " ", errorResp.Request)
+		facades.Log().Error("CDN[又拍云] ", " [URL缓存刷新错误] ", errorResp.ErrorCode, " ", errorResp.Message, " ", errorResp.Request)
 		return false
 	}
 
@@ -138,12 +139,12 @@ func (u *UpYun) GetUsage(domain string, startTime, endTime carbon.Carbon) uint {
 	}).Get("https://api.upyun.com/flow/common_data")
 
 	if err != nil {
-		facades.Log.Error("CDN[又拍云] ", " [获取用量错误] ", err)
+		facades.Log().Error("CDN[又拍云] ", " [获取用量错误] ", err)
 		return 0
 	}
 
 	if errorResp.ErrorCode != 0 {
-		facades.Log.Error("CDN[又拍云] ", " [获取用量失败] ", errorResp.ErrorCode, " ", errorResp.Message, " ", errorResp.Request)
+		facades.Log().Error("CDN[又拍云] ", " [获取用量失败] ", errorResp.ErrorCode, " ", errorResp.Message, " ", errorResp.Request)
 		return 0
 	}
 

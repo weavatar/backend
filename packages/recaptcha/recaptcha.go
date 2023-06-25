@@ -31,7 +31,7 @@ var internalRecaptcha *Recaptcha
 func NewRecaptcha() *Recaptcha {
 	once.Do(func() {
 		internalRecaptcha = &Recaptcha{
-			secret: facades.Config.GetString("recaptcha.secret"),
+			secret: facades.Config().GetString("recaptcha.secret"),
 		}
 	})
 	return internalRecaptcha
@@ -50,7 +50,7 @@ func (re *Recaptcha) check(remoteIp, response string) (r recaptchaResponse, err 
 		"response": response,
 	}).SetSuccessResult(&resp).SetErrorResult(&resp).Post(recaptchaServer)
 	if err != nil {
-		facades.Log.Error("[Recaptcha] ", " HTTP请求失败 "+err.Error())
+		facades.Log().Error("[Recaptcha] ", " HTTP请求失败 "+err.Error())
 		return resp, err
 	}
 

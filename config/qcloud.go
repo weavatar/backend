@@ -5,7 +5,7 @@ import (
 )
 
 func init() {
-	config := facades.Config
+	config := facades.Config()
 	config.Add("qcloud", map[string]any{
 		// 头像审核COS配置
 		"cos_check": map[string]interface{}{

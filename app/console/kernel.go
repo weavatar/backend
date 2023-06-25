@@ -12,7 +12,7 @@ type Kernel struct {
 
 func (kernel *Kernel) Schedule() []schedule.Event {
 	return []schedule.Event{
-		facades.Schedule.Command("avatar:update-expired").Hourly().SkipIfStillRunning(),
+		facades.Schedule().Command("avatar:update-expired").Hourly().SkipIfStillRunning(),
 	}
 }
 

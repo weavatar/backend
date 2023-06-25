@@ -33,7 +33,7 @@ func (receiver *NotExists) Passes(_ validation.Data, val any, options ...any) bo
 
 	// 判断是否存在
 	var count int64
-	query := facades.Orm.Query().Table(tableName).Where(fieldName, requestValue)
+	query := facades.Orm().Query().Table(tableName).Where(fieldName, requestValue)
 	// 判断第三个参数及之后的参数是否存在
 	if len(options) > 2 {
 		for i := 2; i < len(options); i++ {
