@@ -5,7 +5,7 @@ import (
 )
 
 func init() {
-	config := facades.Config
+	config := facades.Config()
 	config.Add("captcha", map[string]any{
 		// 验证码图片高度
 		"height": 60,

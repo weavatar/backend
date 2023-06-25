@@ -1,15 +1,16 @@
 package cdn
 
 import (
-	"encoding/json"
 	"fmt"
 	"math/rand"
 	"strconv"
 	"time"
 
-	"github.com/golang-module/carbon/v2"
-	"github.com/goravel/framework/facades"
+	"github.com/bytedance/sonic"
 	"github.com/imroc/req/v3"
+
+	"github.com/goravel/framework/facades"
+	"github.com/goravel/framework/support/carbon"
 
 	"weavatar/packages/helpers"
 )
@@ -31,7 +32,7 @@ func (y *YunDun) RefreshUrl(urls []string) bool {
 	// 先获取登录 Token
 	_, err := client.R().Get(attachURL)
 	if err != nil {
-		facades.Log.Error("CDN[云盾] ", " [获取登录Token失败] "+err.Error())
+		facades.Log().Error("CDN[云盾] ", " [获取登录Token失败] "+err.Error())
 		return false
 	}
 
@@ -43,7 +44,7 @@ func (y *YunDun) RefreshUrl(urls []string) bool {
 	}
 	_, err = client.R().SetFormData(loginParams).Post(loginURL)
 	if err != nil {
-		facades.Log.Error("CDN[云盾] ", " [账号登录失败] "+err.Error())
+		facades.Log().Error("CDN[云盾] ", " [账号登录失败] "+err.Error())
 		return false
 	}
 
@@ -55,15 +56,15 @@ func (y *YunDun) RefreshUrl(urls []string) bool {
 
 	resp, err := client.R().SetBody(data).Post(refreshURL)
 	if err != nil {
-		facades.Log.Error("CDN[云盾] ", " [URL刷新失败] "+err.Error())
+		facades.Log().Error("CDN[云盾] ", " [URL刷新失败] "+err.Error())
 		return false
 	}
 
 	// 判断是否刷新成功
 	var refreshResponse map[string]interface{}
-	err = json.Unmarshal(resp.Bytes(), &refreshResponse)
+	err = sonic.Unmarshal(resp.Bytes(), &refreshResponse)
 	if err != nil {
-		facades.Log.Error("CDN[云盾] ", " [JSON解析失败] "+err.Error())
+		facades.Log().Error("CDN[云盾] ", " [JSON解析失败] "+err.Error())
 		return false
 	}
 
@@ -89,7 +90,7 @@ func (y *YunDun) RefreshPath(paths []string) bool {
 	// 先获取登录 Token
 	_, err := client.R().Get(attachURL)
 	if err != nil {
-		facades.Log.Error("CDN[云盾] ", " [获取登录Token失败] "+err.Error())
+		facades.Log().Error("CDN[云盾] ", " [获取登录Token失败] "+err.Error())
 		return false
 	}
 
@@ -101,7 +102,7 @@ func (y *YunDun) RefreshPath(paths []string) bool {
 	}
 	_, err = client.R().SetFormData(loginParams).Post(loginURL)
 	if err != nil {
-		facades.Log.Error("CDN[云盾] ", " [账号登录失败] "+err.Error())
+		facades.Log().Error("CDN[云盾] ", " [账号登录失败] "+err.Error())
 		return false
 	}
 
@@ -113,15 +114,15 @@ func (y *YunDun) RefreshPath(paths []string) bool {
 
 	resp, err := client.R().SetBody(data).Post(refreshURL)
 	if err != nil {
-		facades.Log.Error("CDN[云盾] ", " [URL刷新失败] "+err.Error())
+		facades.Log().Error("CDN[云盾] ", " [URL刷新失败] "+err.Error())
 		return false
 	}
 
 	// 判断是否刷新成功
 	var refreshResponse map[string]interface{}
-	err = json.Unmarshal(resp.Bytes(), &refreshResponse)
+	err = sonic.Unmarshal(resp.Bytes(), &refreshResponse)
 	if err != nil {
-		facades.Log.Error("CDN[云盾] ", " [JSON解析失败] "+err.Error())
+		facades.Log().Error("CDN[云盾] ", " [JSON解析失败] "+err.Error())
 		return false
 	}
 

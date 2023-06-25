@@ -1,12 +1,13 @@
 package oauth
 
 import (
-	"encoding/json"
 	"errors"
 	"time"
 
-	"github.com/goravel/framework/facades"
+	"github.com/bytedance/sonic"
 	"github.com/imroc/req/v3"
+
+	"github.com/goravel/framework/facades"
 
 	"weavatar/packages/helpers"
 )
@@ -34,7 +35,7 @@ type Token struct {
 // GetAuthorizationState 获取授权状态码
 func GetAuthorizationState(ip string) (string, error) {
 	state := helpers.RandomString(32)
-	err := facades.Cache.Put("oauth_state:"+state, ip, 10*time.Minute)
+	err := facades.Cache().Put("oauth_state:"+state, ip, 10*time.Minute)
 	if err != nil {
 		return "", err
 	}
@@ -43,9 +44,9 @@ func GetAuthorizationState(ip string) (string, error) {
 
 // GetToken 获取 AccessToken 和 RefreshToken 信息
 func GetToken(code string) (Token, error) {
-	clientID := facades.Config.GetString("haozi.account.client_id")
-	clientSecret := facades.Config.GetString("haozi.account.client_secret")
-	redirectURI := facades.Config.GetString("http.url") + "/oauth/callback"
+	clientID := facades.Config().GetString("haozi.account.client_id")
+	clientSecret := facades.Config().GetString("haozi.account.client_secret")
+	redirectURI := facades.Config().GetString("http.url") + "/oauth/callback"
 
 	var token Token
 
@@ -56,14 +57,14 @@ func GetToken(code string) (Token, error) {
 		"client_secret": clientSecret,
 		"code":          code,
 		"redirect_uri":  redirectURI,
-	}).Get(facades.Config.GetString("haozi.account.base_url") + "/api/oauth/token")
+	}).Get(facades.Config().GetString("haozi.account.base_url") + "/api/oauth/token")
 	if err != nil {
-		facades.Log.Warning("耗子通行证 ", " [获取Token失败] ", err.Error())
+		facades.Log().Warning("耗子通行证 ", " [获取Token失败] ", err.Error())
 		return token, err
 	}
 
 	// 解析Token
-	err = json.Unmarshal([]byte(resp.String()), &token)
+	err = sonic.Unmarshal([]byte(resp.String()), &token)
 	if err != nil {
 		return token, err
 	}
@@ -83,12 +84,12 @@ func GetUserInfo(accessToken string) (BasicInfo, error) {
 	client := req.C()
 	resp, err := client.R().SetQueryParams(map[string]string{
 		"access_token": accessToken,
-	}).Get(facades.Config.GetString("haozi.account.base_url") + "/api/oauth/getBasicInfo")
+	}).Get(facades.Config().GetString("haozi.account.base_url") + "/api/oauth/getBasicInfo")
 	if err != nil {
-		facades.Log.Warning("耗子通行证 ", " [获取用户信息失败] ", err.Error())
+		facades.Log().Warning("耗子通行证 ", " [获取用户信息失败] ", err.Error())
 	}
 
-	err = json.Unmarshal([]byte(resp.String()), &basicInfo)
+	err = sonic.Unmarshal([]byte(resp.String()), &basicInfo)
 	if err != nil {
 		return basicInfo, err
 	}

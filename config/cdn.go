@@ -5,7 +5,7 @@ import (
 )
 
 func init() {
-	config := facades.Config
+	config := facades.Config()
 	config.Add("cdn", map[string]any{
 		"driver": config.Env("CDN_DRIVER", "starshield"),
 		// 星盾

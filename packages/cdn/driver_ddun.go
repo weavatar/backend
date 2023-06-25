@@ -1,9 +1,10 @@
 package cdn
 
 import (
-	"github.com/golang-module/carbon/v2"
-	"github.com/goravel/framework/facades"
 	"github.com/imroc/req/v3"
+
+	"github.com/goravel/framework/facades"
+	"github.com/goravel/framework/support/carbon"
 )
 
 type DDun struct {
@@ -49,7 +50,7 @@ func (d *DDun) RefreshUrl(urls []string) bool {
 	}
 
 	if resp.Code != 0 {
-		facades.Log.Error("CDN[盾云] ", " [URL缓存刷新失败] "+resp.Message)
+		facades.Log().Error("CDN[盾云] ", " [URL缓存刷新失败] "+resp.Message)
 		return false
 	}
 
@@ -82,7 +83,7 @@ func (d *DDun) RefreshPath(paths []string) bool {
 	}
 
 	if resp.Code != 0 {
-		facades.Log.Error("CDN[盾云] ", " [目录缓存刷新失败] "+resp.Message)
+		facades.Log().Error("CDN[盾云] ", " [目录缓存刷新失败] "+resp.Message)
 		return false
 	}
 
@@ -109,7 +110,7 @@ func (d *DDun) GetUsage(domain string, startTime, endTime carbon.Carbon) uint {
 	}
 
 	if resp.Code != 0 {
-		facades.Log.Error("CDN[盾云] ", " [获取用量失败] "+resp.Message)
+		facades.Log().Error("CDN[盾云] ", " [获取用量失败] "+resp.Message)
 		return 0
 	}
 

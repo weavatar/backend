@@ -29,12 +29,12 @@ var internalSMS *SMS
 
 // NewSMS 单例模式获取
 func NewSMS() *SMS {
-	driver := facades.Config.Get("sms.driver")
+	driver := facades.Config().Get("sms.driver")
 	config := make(map[string]string)
 	switch driver {
 	case "aliyun":
-		config = cast.ToStringMapString(facades.Config.Get("sms.aliyun"))
-		config["expire_time"] = facades.Config.GetString("verifycode.expire_time")
+		config = cast.ToStringMapString(facades.Config().Get("sms.aliyun"))
+		config["expire_time"] = facades.Config().GetString("verifycode.expire_time")
 		once.Do(func() {
 			internalSMS = &SMS{
 				Driver: &Tencent{},
@@ -42,8 +42,8 @@ func NewSMS() *SMS {
 			}
 		})
 	case "tencent":
-		config = cast.ToStringMapString(facades.Config.Get("sms.tencent"))
-		config["expire_time"] = facades.Config.GetString("verifycode.expire_time")
+		config = cast.ToStringMapString(facades.Config().Get("sms.tencent"))
+		config["expire_time"] = facades.Config().GetString("verifycode.expire_time")
 		once.Do(func() {
 			internalSMS = &SMS{
 				Driver: &Tencent{},

@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/golang-module/carbon/v2"
 	"github.com/goravel/framework/facades"
+	"github.com/goravel/framework/support/carbon"
 )
 
 /**
@@ -27,7 +27,7 @@ type RatID struct {
 // NewRatID 创建一个RatID实例
 func NewRatID() *RatID {
 	return &RatID{
-		nodeID:        facades.Config.GetInt("id.node"),
+		nodeID:        facades.Config().GetInt("id.node"),
 		sequence:      0,
 		lastTimestamp: 0,
 	}

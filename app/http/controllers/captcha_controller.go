@@ -24,7 +24,7 @@ func (r *CaptchaController) Image(ctx http.Context) {
 	// 生成验证码
 	id, b64s, err := captcha.NewCaptcha().GenerateCaptcha()
 	if err != nil {
-		facades.Log.WithContext(ctx).Error("[CaptchaController][Image] 生成图片验证码失败 ", err)
+		facades.Log().Error("[CaptchaController][Image] 生成图片验证码失败 ", err)
 		ctx.Response().Json(http.StatusInternalServerError, http.Json{
 			"code":    500,
 			"message": "生成失败",
@@ -61,7 +61,7 @@ func (r *CaptchaController) Sms(ctx http.Context) {
 	}
 
 	if ok := verifycode.NewVerifyCode().SendSMS(smsRequest.Phone, smsRequest.UseFor); !ok {
-		facades.Log.WithContext(ctx).Error("[CaptchaController][Sms] 发送短信验证码失败 ", err)
+		facades.Log().Error("[CaptchaController][Sms] 发送短信验证码失败 ", err)
 		ctx.Response().Json(http.StatusInternalServerError, http.Json{
 			"code":    500,
 			"message": "发送失败",
@@ -95,7 +95,7 @@ func (r *CaptchaController) Email(ctx http.Context) {
 	}
 
 	if ok := verifycode.NewVerifyCode().SendEmail(emailRequest.Email, emailRequest.UseFor); !ok {
-		facades.Log.WithContext(ctx).Error("[CaptchaController][Email] 发送邮箱验证码失败 ", err)
+		facades.Log().Error("[CaptchaController][Email] 发送邮箱验证码失败 ", err)
 		ctx.Response().Json(http.StatusInternalServerError, http.Json{
 			"code":    500,
 			"message": "发送失败",

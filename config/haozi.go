@@ -5,7 +5,7 @@ import (
 )
 
 func init() {
-	config := facades.Config
+	config := facades.Config()
 	config.Add("haozi", map[string]any{
 		// 通行证配置
 		"account": map[string]interface{}{

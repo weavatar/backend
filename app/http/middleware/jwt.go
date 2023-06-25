@@ -23,9 +23,9 @@ func Jwt() http.Middleware {
 		}
 
 		// JWT 鉴权
-		if _, err := facades.Auth.Parse(ctx, token); err != nil {
+		if _, err := facades.Auth().Parse(ctx, token); err != nil {
 			if errors.Is(err, auth.ErrorTokenExpired) {
-				token, err = facades.Auth.Refresh(ctx)
+				token, err = facades.Auth().Refresh(ctx)
 				if err != nil {
 					// Refresh time exceeded
 					ctx.Request().AbortWithStatusJson(http.StatusUnauthorized, http.Json{
@@ -47,7 +47,7 @@ func Jwt() http.Middleware {
 
 		// 取出用户信息
 		var user models.User
-		if err := facades.Auth.User(ctx, &user); err != nil {
+		if err := facades.Auth().User(ctx, &user); err != nil {
 			ctx.Request().AbortWithStatusJson(http.StatusForbidden, http.Json{
 				"code":    403,
 				"message": "用户不存在",

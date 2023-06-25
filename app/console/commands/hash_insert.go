@@ -28,11 +28,11 @@ func (receiver *HashInsert) Extend() command.Extend {
 // Handle Execute the console command.
 func (receiver *HashInsert) Handle(ctx console.Context) error {
 
-	_, err := facades.Orm.Connection("hash").Query().Exec(`DROP TABLE IF EXISTS qq_mails;`)
+	_, err := facades.Orm().Connection("hash").Query().Exec(`DROP TABLE IF EXISTS qq_mails;`)
 	if err != nil {
 		panic(err)
 	}
-	_, err = facades.Orm.Connection("hash").Query().Exec(`CREATE TABLE qq_mails (hash CHAR(32) NOT NULL, qq BIGINT NOT NULL, PRIMARY KEY ( hash ) CLUSTERED);`)
+	_, err = facades.Orm().Connection("hash").Query().Exec(`CREATE TABLE qq_mails (hash CHAR(32) NOT NULL, qq BIGINT NOT NULL, PRIMARY KEY ( hash ) CLUSTERED);`)
 	if err != nil {
 		panic(err)
 	}

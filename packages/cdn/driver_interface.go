@@ -1,6 +1,6 @@
 package cdn
 
-import "github.com/golang-module/carbon/v2"
+import "github.com/goravel/framework/support/carbon"
 
 type Driver interface {
 	RefreshUrl(urls []string) bool

@@ -1,6 +1,7 @@
 package providers
 
 import (
+	"github.com/goravel/framework/contracts/foundation"
 	contractshttp "github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/facades"
 	"github.com/goravel/framework/http/limit"
@@ -12,19 +13,19 @@ import (
 type RouteServiceProvider struct {
 }
 
-func (receiver *RouteServiceProvider) Register() {
+func (receiver *RouteServiceProvider) Register(app foundation.Application) {
 	//Add HTTP middlewares
-	facades.Route.GlobalMiddleware(http.Kernel{}.Middleware()...)
+	facades.Route().GlobalMiddleware(http.Kernel{}.Middleware()...)
 }
 
-func (receiver *RouteServiceProvider) Boot() {
+func (receiver *RouteServiceProvider) Boot(app foundation.Application) {
 	receiver.configureRateLimiting()
 
 	routes.Web()
 }
 
 func (receiver *RouteServiceProvider) configureRateLimiting() {
-	facades.RateLimiter.For("global", func(ctx contractshttp.Context) contractshttp.Limit {
+	facades.RateLimiter().For("global", func(ctx contractshttp.Context) contractshttp.Limit {
 		return limit.PerMinute(1000).Response(func(ctx contractshttp.Context) {
 			ctx.Request().AbortWithStatusJson(contractshttp.StatusTooManyRequests, contractshttp.Json{
 				"code":    contractshttp.StatusTooManyRequests,
@@ -32,7 +33,7 @@ func (receiver *RouteServiceProvider) configureRateLimiting() {
 			})
 		})
 	})
-	facades.RateLimiter.ForWithLimits("verify_code", func(ctx contractshttp.Context) []contractshttp.Limit {
+	facades.RateLimiter().ForWithLimits("verify_code", func(ctx contractshttp.Context) []contractshttp.Limit {
 		return []contractshttp.Limit{
 			limit.PerMinute(5).Response(func(ctx contractshttp.Context) {
 				ctx.Request().AbortWithStatusJson(contractshttp.StatusTooManyRequests, contractshttp.Json{
@@ -48,7 +49,7 @@ func (receiver *RouteServiceProvider) configureRateLimiting() {
 			}),
 		}
 	})
-	facades.RateLimiter.For("captcha", func(ctx contractshttp.Context) contractshttp.Limit {
+	facades.RateLimiter().For("captcha", func(ctx contractshttp.Context) contractshttp.Limit {
 		return limit.PerMinute(60).Response(func(ctx contractshttp.Context) {
 			ctx.Request().AbortWithStatusJson(contractshttp.StatusTooManyRequests, contractshttp.Json{
 				"code":    contractshttp.StatusTooManyRequests,

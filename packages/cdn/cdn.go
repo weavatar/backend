@@ -3,9 +3,10 @@ package cdn
 import (
 	"sync"
 
-	"github.com/golang-module/carbon/v2"
-	"github.com/goravel/framework/facades"
 	"github.com/spf13/cast"
+
+	"github.com/goravel/framework/facades"
+	"github.com/goravel/framework/support/carbon"
 )
 
 // CDN CDN操作类
@@ -21,12 +22,12 @@ var internalCDN *CDN
 
 // NewCDN 单例模式获取
 func NewCDN() *CDN {
-	driver := facades.Config.Get("cdn.driver")
+	driver := facades.Config().Get("cdn.driver")
 	config := make(map[string]string)
 
 	switch driver {
 	case "starshield":
-		config = cast.ToStringMapString(facades.Config.Get("cdn.starshield"))
+		config = cast.ToStringMapString(facades.Config().Get("cdn.starshield"))
 		once.Do(func() {
 			internalCDN = &CDN{
 				Driver: &StarShield{
@@ -38,7 +39,7 @@ func NewCDN() *CDN {
 			}
 		})
 	case "upyun":
-		config = cast.ToStringMapString(facades.Config.Get("cdn.upyun"))
+		config = cast.ToStringMapString(facades.Config().Get("cdn.upyun"))
 		once.Do(func() {
 			internalCDN = &CDN{
 				Driver: &UpYun{
@@ -47,7 +48,7 @@ func NewCDN() *CDN {
 			}
 		})
 	case "ddun":
-		config = cast.ToStringMapString(facades.Config.Get("cdn.ddun"))
+		config = cast.ToStringMapString(facades.Config().Get("cdn.ddun"))
 		once.Do(func() {
 			internalCDN = &CDN{
 				Driver: &DDun{
@@ -57,7 +58,7 @@ func NewCDN() *CDN {
 			}
 		})
 	case "yundun":
-		config = cast.ToStringMapString(facades.Config.Get("cdn.yundun"))
+		config = cast.ToStringMapString(facades.Config().Get("cdn.yundun"))
 		once.Do(func() {
 			internalCDN = &CDN{
 				Driver: &YunDun{
