@@ -1,5 +1,13 @@
 package jobs
 
+import (
+	"github.com/goravel/framework/facades"
+
+	"weavatar/app/models"
+	packagecdn "weavatar/packages/cdn"
+	"weavatar/packages/qcloud"
+)
+
 type ProcessAvatarCheck struct {
 }
 
@@ -10,7 +18,7 @@ func (receiver *ProcessAvatarCheck) Signature() string {
 
 // Handle Execute the job.
 func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
-	/*if len(args) < 1 {
+	if len(args) < 1 {
 		facades.Log().Error("COS审核[队列参数不足]")
 		return nil
 	}
@@ -18,6 +26,37 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 	hash, ok := args[0].(string)
 	if !ok {
 		facades.Log().Error("COS审核[队列参数断言失败] HASH:" + hash)
+		return nil
+	}
+
+	var avatar models.Avatar
+	err := facades.Orm().Query().Where("hash", hash).First(&avatar)
+	if err != nil {
+		facades.Log().Error("COS审核[数据库查询失败] " + err.Error())
+		return err
+	}
+
+	type qqHash struct {
+		Hash string `gorm:"primaryKey"`
+		Qq   uint   `gorm:"type:bigint;not null"`
+	}
+	var qq qqHash
+
+	err = facades.Orm().Connection("hash").Query().Table("qq_mails").Where("hash", hash).First(&qq)
+	if err != nil {
+		facades.Log().Error("COS审核[数据库查询失败] " + err.Error())
+		return err
+	}
+
+	if qq.Qq != 0 {
+		avatar.Checked = true
+		avatar.Ban = false
+		err = facades.Orm().Query().Save(&avatar)
+		if err != nil {
+			facades.Log().Error("COS审核[数据库更新失败] " + err.Error())
+			return err
+		}
+
 		return nil
 	}
 
@@ -31,13 +70,6 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 		return err
 	}
 
-	var avatar models.Avatar
-	err = facades.Orm().Query().Where("hash", hash).First(&avatar)
-	if err != nil {
-		facades.Log().Error("COS审核[数据库查询失败] " + err.Error())
-		return err
-	}
-
 	avatar.Checked = true
 	avatar.Ban = !isSafe
 	err = facades.Orm().Query().Save(&avatar)
@@ -47,7 +79,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 	}
 
 	cdn := packagecdn.NewCDN()
-	cdn.RefreshUrl([]string{"weavatar.com/avatar/" + hash})*/
+	cdn.RefreshUrl([]string{"weavatar.com/avatar/" + hash})
 
 	return nil
 }
