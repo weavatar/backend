@@ -1,13 +1,5 @@
 package jobs
 
-import (
-	"github.com/goravel/framework/facades"
-
-	"weavatar/app/models"
-	packagecdn "weavatar/packages/cdn"
-	"weavatar/packages/qcloud"
-)
-
 type ProcessAvatarCheck struct {
 }
 
@@ -18,7 +10,7 @@ func (receiver *ProcessAvatarCheck) Signature() string {
 
 // Handle Execute the job.
 func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
-	if len(args) < 1 {
+	/*if len(args) < 1 {
 		facades.Log().Error("COS审核[队列参数不足]")
 		return nil
 	}
@@ -55,7 +47,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 	}
 
 	cdn := packagecdn.NewCDN()
-	cdn.RefreshUrl([]string{"weavatar.com/avatar/" + hash})
+	cdn.RefreshUrl([]string{"weavatar.com/avatar/" + hash})*/
 
 	return nil
 }
