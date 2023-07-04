@@ -37,6 +37,9 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 		facades.Log().Error("COS审核[数据库查询失败] " + err.Error())
 		return nil
 	}
+	if avatar.Checked {
+		return nil
+	}
 
 	// 首先标记为已审核，因为请求审核的时候会再次访问头像触发审核流程导致套娃
 	avatar.Checked = true
