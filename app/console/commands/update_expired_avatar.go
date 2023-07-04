@@ -62,11 +62,13 @@ func (receiver *UpdateExpiredAvatar) Handle(ctx console.Context) error {
 
 			// 修改时间超过7天或者强制更新
 			if (modTime.DiffAbsInSeconds(carbon.Now()) > 604800 || cast.ToBool(ctx.Option("force"))) && len(filename) == 32 {
-				facades.Log().Info("更新过期头像[文件] " + filename)
-				_ = facades.Queue().Job(&jobs.ProcessAvatarUpdate{}, []queue.Arg{
+				err = facades.Queue().Job(&jobs.ProcessAvatarUpdate{}, []queue.Arg{
 					{Type: "string", Value: filename},
 					{Type: "string", Value: filepath.Join("cache", relPath)},
 				}).Dispatch()
+				if err != nil {
+					facades.Log().Error("更新过期头像[分发任务时出错] ", err.Error())
+				}
 			}
 		}
 
