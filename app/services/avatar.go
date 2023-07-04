@@ -13,16 +13,17 @@ import (
 	"github.com/HaoZi-Team/letteravatar"
 	"github.com/disintegration/imaging"
 	"github.com/golang/freetype/truetype"
-	"github.com/goravel/framework/contracts/http"
-	"github.com/goravel/framework/contracts/queue"
-	"github.com/goravel/framework/facades"
-	"github.com/goravel/framework/support/carbon"
 	"github.com/imroc/req/v3"
 	"github.com/ipsn/go-adorable"
 	"github.com/issue9/identicon/v2"
 	"github.com/o1egl/govatar"
 	"golang.org/x/exp/slices"
 	_ "golang.org/x/image/webp"
+
+	"github.com/goravel/framework/contracts/http"
+	"github.com/goravel/framework/contracts/queue"
+	"github.com/goravel/framework/facades"
+	"github.com/goravel/framework/support/carbon"
 
 	"weavatar/app/jobs"
 	"weavatar/app/models"
@@ -114,8 +115,8 @@ func (r *AvatarImpl) Sanitize(ctx http.Context) (string, string, string, int, bo
 	return appid, hash, imageExt, size, forceDefaultBool, defaultAvatar
 }
 
-// getQqAvatar 通过 QQ 号获取头像
-func (r *AvatarImpl) getQqAvatar(hash string) (image.Image, error) {
+// GetQqAvatar 通过 QQ 号获取头像
+func (r *AvatarImpl) GetQqAvatar(hash string) (image.Image, error) {
 	type qqHash struct {
 		Hash string `gorm:"primaryKey"`
 		Qq   uint   `gorm:"type:bigint;not null"`
@@ -140,7 +141,7 @@ func (r *AvatarImpl) getQqAvatar(hash string) (image.Image, error) {
 			return nil, errors.New("未找到对应的 QQ 号")
 		}
 
-		client := req.C().SetUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36 Edg/112.0.1722.34")
+		client := req.C()
 		resp, reqErr := client.R().SetQueryParams(map[string]string{
 			"b":  "qq",
 			"nk": strconv.Itoa(int(qq.Qq)),
@@ -189,8 +190,8 @@ func (r *AvatarImpl) getQqAvatar(hash string) (image.Image, error) {
 	}
 }
 
-// getGravatarAvatar 通过 Gravatar 获取头像
-func (r *AvatarImpl) getGravatarAvatar(hash string) (image.Image, error) {
+// GetGravatarAvatar 通过 Gravatar 获取头像
+func (r *AvatarImpl) GetGravatarAvatar(hash string) (image.Image, error) {
 	var img image.Image
 	var imgErr error
 
@@ -202,7 +203,7 @@ func (r *AvatarImpl) getGravatarAvatar(hash string) (image.Image, error) {
 		}
 	} else {
 		// 不存在则从 Gravatar 获取头像
-		client := req.C().SetUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36 Edg/112.0.1722.34")
+		client := req.C()
 		resp, reqErr := client.R().Get("http://proxy.server/http://0.gravatar.com/avatar/" + hash + ".png?s=1000&r=g&d=404")
 		if reqErr != nil || !resp.IsSuccessState() {
 			return nil, errors.New("获取 Gravatar头像 失败")
@@ -226,8 +227,8 @@ func (r *AvatarImpl) getGravatarAvatar(hash string) (image.Image, error) {
 	return img, nil
 }
 
-// getDefaultAvatar 通过默认参数获取头像
-func (r *AvatarImpl) getDefaultAvatar(defaultAvatar string, option []string) (image.Image, error) {
+// GetDefaultAvatar 通过默认参数获取头像
+func (r *AvatarImpl) GetDefaultAvatar(defaultAvatar string, option []string) (image.Image, error) {
 
 	if defaultAvatar == "404" {
 		return nil, nil
@@ -369,7 +370,7 @@ func (r *AvatarImpl) getDefaultAvatar(defaultAvatar string, option []string) (im
 		return img, nil
 	}
 
-	client := req.C().SetUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36 Edg/112.0.1722.34")
+	client := req.C()
 	resp, reqErr := client.R().Get(defaultAvatar)
 	if reqErr != nil || !resp.IsSuccessState() {
 		img, imgErr := imaging.Open(facades.Storage().Path("default/default.png"))
@@ -400,25 +401,25 @@ func (r *AvatarImpl) GetDefaultAvatarByType(avatarType string, option []string) 
 
 	switch avatarType {
 	case "404":
-		avatar, err = r.getDefaultAvatar("404", option)
+		avatar, err = r.GetDefaultAvatar("404", option)
 	case "mp", "mm", "mystery":
-		avatar, err = r.getDefaultAvatar("mp", option)
+		avatar, err = r.GetDefaultAvatar("mp", option)
 	case "identicon":
-		avatar, err = r.getDefaultAvatar("identicon", option)
+		avatar, err = r.GetDefaultAvatar("identicon", option)
 	case "monsterid":
-		avatar, err = r.getDefaultAvatar("monsterid", option)
+		avatar, err = r.GetDefaultAvatar("monsterid", option)
 	case "wavatar":
-		avatar, err = r.getDefaultAvatar("wavatar", option)
+		avatar, err = r.GetDefaultAvatar("wavatar", option)
 	case "retro":
-		avatar, err = r.getDefaultAvatar("retro", option)
+		avatar, err = r.GetDefaultAvatar("retro", option)
 	case "robohash":
-		avatar, err = r.getDefaultAvatar("robohash", option)
+		avatar, err = r.GetDefaultAvatar("robohash", option)
 	case "blank":
-		avatar, err = r.getDefaultAvatar("blank", option)
+		avatar, err = r.GetDefaultAvatar("blank", option)
 	case "letter":
-		avatar, err = r.getDefaultAvatar("letter", option)
+		avatar, err = r.GetDefaultAvatar("letter", option)
 	default:
-		avatar, err = r.getDefaultAvatar(avatarType, option)
+		avatar, err = r.GetDefaultAvatar(avatarType, option)
 	}
 
 	return avatar, err
@@ -487,11 +488,11 @@ func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, 
 			return banImg, from, nil
 		}
 		// 优先使用 Gravatar 头像
-		img, imgErr = r.getGravatarAvatar(hash)
+		img, imgErr = r.GetGravatarAvatar(hash)
 		from = "gravatar"
 		if imgErr != nil {
 			// 如果 Gravatar 头像获取失败，则使用 QQ 头像
-			img, imgErr = r.getQqAvatar(hash)
+			img, imgErr = r.GetQqAvatar(hash)
 			from = "qq"
 			if imgErr != nil {
 				// 如果 QQ 头像获取失败，则使用默认头像
@@ -502,7 +503,7 @@ func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, 
 	}
 
 	// 审核头像
-	if !avatar.Checked && from != "weavatar" {
+	if !avatar.Checked {
 		go func() {
 			_ = facades.Queue().Job(&jobs.ProcessAvatarCheck{}, []queue.Arg{
 				{Type: "string", Value: hash},

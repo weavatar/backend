@@ -8,13 +8,13 @@ require (
 	github.com/alibabacloud-go/dysmsapi-20170525/v3 v3.0.5
 	github.com/alibabacloud-go/tea v1.2.0
 	github.com/alibabacloud-go/tea-utils/v2 v2.0.1
-	github.com/bytedance/sonic v1.9.1
+	github.com/bytedance/sonic v1.9.2
 	github.com/chai2010/webp v1.1.1
 	github.com/disintegration/imaging v1.6.2
 	github.com/gertd/go-pluralize v0.2.1
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/gookit/color v1.5.3
-	github.com/goravel/framework v1.12.4
+	github.com/goravel/framework v1.12.5
 	github.com/iancoleman/strcase v0.2.0
 	github.com/imroc/req/v3 v3.35.0
 	github.com/ipsn/go-adorable v1.0.0
@@ -29,7 +29,7 @@ require (
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.665
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
 	golang.org/x/image v0.7.0
-	google.golang.org/grpc v1.56.0
+	google.golang.org/grpc v1.56.1
 	gorm.io/gorm v1.25.1
 )
 
@@ -124,7 +124,7 @@ require (
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0 // indirect
 	github.com/klauspost/compress v1.16.5 // indirect
-	github.com/klauspost/cpuid/v2 v2.2.4 // indirect
+	github.com/klauspost/cpuid/v2 v2.2.5 // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect
 	github.com/lestrrat-go/strftime v1.0.6 // indirect
 	github.com/lib/pq v1.10.9 // indirect
