@@ -1,9 +1,11 @@
 package jobs
 
 import (
+	"github.com/disintegration/imaging"
 	"github.com/goravel/framework/facades"
 
 	"weavatar/app/models"
+	"weavatar/app/services"
 	packagecdn "weavatar/packages/cdn"
 	"weavatar/packages/qcloud"
 )
@@ -33,31 +35,26 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 	err := facades.Orm().Query().Where("hash", hash).First(&avatar)
 	if err != nil {
 		facades.Log().Error("COS审核[数据库查询失败] " + err.Error())
-		return err
-	}
-
-	type qqHash struct {
-		Hash string `gorm:"primaryKey"`
-		Qq   uint   `gorm:"type:bigint;not null"`
-	}
-	var qq qqHash
-
-	err = facades.Orm().Connection("hash").Query().Table("qq_mails").Where("hash", hash).First(&qq)
-	if err != nil {
-		facades.Log().Error("COS审核[数据库查询失败] " + err.Error())
-		return err
-	}
-
-	if qq.Qq != 0 {
-		avatar.Checked = true
-		avatar.Ban = false
-		err = facades.Orm().Query().Save(&avatar)
-		if err != nil {
-			facades.Log().Error("COS审核[数据库更新失败] " + err.Error())
-			return err
-		}
-
 		return nil
+	}
+
+	// 首先标记为已审核，因为请求审核的时候会再次访问头像触发审核流程导致套娃
+	avatar.Checked = true
+	err = facades.Orm().Query().Save(&avatar)
+	if err != nil {
+		facades.Log().Error("COS审核[数据库更新失败] " + err.Error())
+		return nil
+	}
+
+	// 检查WeAvatar头像是否存在
+	_, imgErr := imaging.Open(facades.Storage().Path("upload/default/" + hash[:2] + "/" + hash))
+	if imgErr != nil {
+		// 不存在则请求Gravatar头像
+		_, err = services.NewAvatarImpl().GetGravatarAvatar(hash)
+		if err != nil {
+			// 也不存在说明是QQ头像或者默认头像，不需要审核
+			return nil
+		}
 	}
 
 	accessKey := facades.Config().GetString("qcloud.cos_check.access_key")
@@ -67,10 +64,9 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 
 	isSafe, err := checker.Check("https://weavatar.com/avatar/" + hash + ".png?s=400&d=404")
 	if err != nil {
-		return err
+		return nil
 	}
 
-	avatar.Checked = true
 	avatar.Ban = !isSafe
 	err = facades.Orm().Query().Save(&avatar)
 	if err != nil {
@@ -78,8 +74,10 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 		return err
 	}
 
-	cdn := packagecdn.NewCDN()
-	cdn.RefreshUrl([]string{"weavatar.com/avatar/" + hash})
+	if avatar.Ban {
+		cdn := packagecdn.NewCDN()
+		cdn.RefreshUrl([]string{"weavatar.com/avatar/" + hash})
+	}
 
 	return nil
 }
