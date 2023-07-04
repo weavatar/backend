@@ -47,7 +47,7 @@ func (receiver *UpdateExpiredAvatar) Handle(ctx console.Context) error {
 	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			facades.Log().Error("更新过期头像[无法获取文件信息] ", err.Error())
-			return err
+			return nil
 		}
 
 		if !info.IsDir() {
@@ -57,7 +57,7 @@ func (receiver *UpdateExpiredAvatar) Handle(ctx console.Context) error {
 			relPath, relErr := filepath.Rel(dir, path)
 			if relErr != nil {
 				facades.Log().Error("更新过期头像[无法获取相对路径] ", relErr.Error())
-				return err
+				return nil
 			}
 
 			// 修改时间超过7天或者强制更新
@@ -74,9 +74,9 @@ func (receiver *UpdateExpiredAvatar) Handle(ctx console.Context) error {
 
 		return nil
 	})
-
 	if err != nil {
 		facades.Log().Error("更新过期头像[遍历目录时出错] ", err.Error())
 	}
+
 	return nil
 }
