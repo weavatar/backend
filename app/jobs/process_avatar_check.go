@@ -3,9 +3,9 @@ package jobs
 import (
 	"github.com/disintegration/imaging"
 	"github.com/goravel/framework/facades"
+	"github.com/imroc/req/v3"
 
 	"weavatar/app/models"
-	"weavatar/app/services"
 	packagecdn "weavatar/packages/cdn"
 	"weavatar/packages/qcloud"
 )
@@ -53,8 +53,9 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 	_, imgErr := imaging.Open(facades.Storage().Path("upload/default/" + hash[:2] + "/" + hash))
 	if imgErr != nil {
 		// 不存在则请求Gravatar头像
-		_, err = services.NewAvatarImpl().GetGravatarAvatar(hash)
-		if err != nil {
+		client := req.C()
+		resp, reqErr := client.R().Get("http://proxy.server/http://0.gravatar.com/avatar/" + hash + ".png?s=10&r=g&d=404")
+		if reqErr != nil || !resp.IsSuccessState() {
 			// 也不存在说明是QQ头像或者默认头像，不需要审核
 			return nil
 		}
