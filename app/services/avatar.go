@@ -500,6 +500,7 @@ func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, 
 		go func() {
 			_ = facades.Queue().Job(&jobs.ProcessAvatarCheck{}, []queue.Arg{
 				{Type: "string", Value: hash},
+				{Type: "string", Value: appid},
 			}).Dispatch()
 		}()
 	}
