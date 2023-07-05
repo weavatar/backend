@@ -125,27 +125,41 @@ func (r *AvatarImpl) GetQqAvatar(hash string) (image.Image, error) {
 
 	if facades.Storage().Exists("cache/qq/" + hash[:2] + "/" + hash) {
 		img, imgErr := imaging.Open(facades.Storage().Path("cache/qq/" + hash[:2] + "/" + hash))
-		if imgErr != nil {
-			facades.Log().Warning("QQ头像[图片解析出错] ", imgErr.Error())
-			return nil, imgErr
+		if imgErr == nil {
+			return img, nil
 		}
+	}
 
-		return img, nil
-	} else {
-		err := facades.Orm().Connection("hash").Query().Table("qq_mails").Where("hash", hash).First(&qq)
-		if err != nil {
-			return nil, err
+	err := facades.Orm().Connection("hash").Query().Table("qq_mails").Where("hash", hash).First(&qq)
+	if err != nil {
+		return nil, err
+	}
+
+	if qq.Qq == 0 {
+		return nil, errors.New("未找到对应的 QQ 号")
+	}
+
+	client := req.C()
+	resp, reqErr := client.R().SetQueryParams(map[string]string{
+		"b":  "qq",
+		"nk": strconv.Itoa(int(qq.Qq)),
+		"s":  "640",
+	}).Get("http://q1.qlogo.cn/g")
+	if !resp.IsSuccessState() {
+		if reqErr != nil {
+			return nil, reqErr
+		} else {
+			return nil, errors.New("获取 QQ头像 失败")
 		}
+	}
 
-		if qq.Qq == 0 {
-			return nil, errors.New("未找到对应的 QQ 号")
-		}
-
-		client := req.C()
-		resp, reqErr := client.R().SetQueryParams(map[string]string{
+	length, lengthErr := strconv.Atoi(resp.GetHeader("Content-Length"))
+	if length < 6400 || lengthErr != nil {
+		// 如果图片小于 6400 字节，则尝试获取 100 尺寸的图片
+		resp, reqErr = client.R().SetQueryParams(map[string]string{
 			"b":  "qq",
 			"nk": strconv.Itoa(int(qq.Qq)),
-			"s":  "640",
+			"s":  "100",
 		}).Get("http://q1.qlogo.cn/g")
 		if !resp.IsSuccessState() {
 			if reqErr != nil {
@@ -154,40 +168,23 @@ func (r *AvatarImpl) GetQqAvatar(hash string) (image.Image, error) {
 				return nil, errors.New("获取 QQ头像 失败")
 			}
 		}
-
-		length, lengthErr := strconv.Atoi(resp.GetHeader("Content-Length"))
-		if length < 6400 || lengthErr != nil {
-			// 如果图片小于 6400 字节，则尝试获取 100 尺寸的图片
-			resp, reqErr = client.R().SetQueryParams(map[string]string{
-				"b":  "qq",
-				"nk": strconv.Itoa(int(qq.Qq)),
-				"s":  "100",
-			}).Get("http://q1.qlogo.cn/g")
-			if !resp.IsSuccessState() {
-				if reqErr != nil {
-					return nil, reqErr
-				} else {
-					return nil, errors.New("获取 QQ头像 失败")
-				}
-			}
-		}
-
-		// 检查图片是否正常
-		reader := strings.NewReader(resp.String())
-		img, imgErr := imaging.Decode(reader)
-		if err != nil {
-			facades.Log().Warning("QQ头像[图片不正常] ", err.Error())
-			return nil, imgErr
-		}
-
-		// 保存图片
-		err = facades.Storage().Put("cache/qq/"+hash[:2]+"/"+hash, resp.String())
-		if err != nil {
-			return nil, err
-		}
-
-		return img, nil
 	}
+
+	// 检查图片是否正常
+	reader := strings.NewReader(resp.String())
+	img, imgErr := imaging.Decode(reader)
+	if err != nil {
+		facades.Log().Warning("QQ头像[图片不正常] ", err.Error())
+		return nil, imgErr
+	}
+
+	// 保存图片
+	err = facades.Storage().Put("cache/qq/"+hash[:2]+"/"+hash, resp.String())
+	if err != nil {
+		return nil, err
+	}
+
+	return img, nil
 }
 
 // GetGravatarAvatar 通过 Gravatar 获取头像
@@ -197,32 +194,30 @@ func (r *AvatarImpl) GetGravatarAvatar(hash string) (image.Image, error) {
 
 	if facades.Storage().Exists("cache/gravatar/" + hash[:2] + "/" + hash) {
 		img, imgErr = imaging.Open(facades.Storage().Path("cache/gravatar/" + hash[:2] + "/" + hash))
-		if imgErr != nil {
-			facades.Log().Warning("Gravatar[图片解析出错] ", imgErr.Error())
-			return nil, imgErr
+		if imgErr == nil {
+			return img, nil
 		}
-	} else {
-		// 不存在则从 Gravatar 获取头像
-		client := req.C()
-		// 有一些头像请求1000尺寸的大图(http://0.gravatar.com/avatar/1b6a1437577086c55c785980430123ce.png?s=1000&r=g&d=404), Gravatar 会返回 404, 不知道为什么，所以使用600尺寸的图片
-		resp, reqErr := client.R().Get("http://proxy.server/http://0.gravatar.com/avatar/" + hash + ".png?s=600&r=g&d=404")
-		if reqErr != nil || !resp.IsSuccessState() {
-			return nil, errors.New("获取 Gravatar头像 失败")
-		}
+	}
 
-		// 检查图片是否正常
-		reader := strings.NewReader(resp.String())
-		img, imgErr = imaging.Decode(reader)
-		if imgErr != nil {
-			facades.Log().Warning("Gravatar[图片不正常] ", imgErr.Error())
-			return nil, imgErr
-		}
+	client := req.C()
+	// 有一些头像请求1000尺寸的大图(http://0.gravatar.com/avatar/1b6a1437577086c55c785980430123ce.png?s=1000&r=g&d=404), Gravatar会返回404, 不知道为什么，所以使用600尺寸的图片代替
+	resp, reqErr := client.R().Get("http://proxy.server/http://0.gravatar.com/avatar/" + hash + ".png?s=600&r=g&d=404")
+	if reqErr != nil || !resp.IsSuccessState() {
+		return nil, errors.New("获取 Gravatar头像 失败")
+	}
 
-		// 保存图片
-		err := facades.Storage().Put("cache/gravatar/"+hash[:2]+"/"+hash, resp.String())
-		if err != nil {
-			return nil, err
-		}
+	// 检查图片是否正常
+	reader := strings.NewReader(resp.String())
+	img, imgErr = imaging.Decode(reader)
+	if imgErr != nil {
+		facades.Log().Warning("Gravatar[图片不正常] ", imgErr.Error())
+		return nil, imgErr
+	}
+
+	// 保存图片
+	err := facades.Storage().Put("cache/gravatar/"+hash[:2]+"/"+hash, resp.String())
+	if err != nil {
+		return nil, err
 	}
 
 	return img, nil
@@ -230,7 +225,6 @@ func (r *AvatarImpl) GetGravatarAvatar(hash string) (image.Image, error) {
 
 // GetDefaultAvatar 通过默认参数获取头像
 func (r *AvatarImpl) GetDefaultAvatar(defaultAvatar string, option []string) (image.Image, error) {
-
 	if defaultAvatar == "404" {
 		return nil, nil
 	}
@@ -468,7 +462,6 @@ func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, 
 				img, imgErr = imaging.Open(facades.Storage().Path("upload/app/" + strconv.Itoa(int(appAvatar.AppID)) + "/" + hash[:2] + "/" + hash))
 			}
 		} else {
-			// 检查默认头像是否封禁状态
 			if avatar.Ban {
 				return banImg, from, nil
 			} else {
@@ -484,7 +477,6 @@ func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, 
 			return img, from, nil
 		}
 	} else {
-		// 检查头像是否封禁状态
 		if avatar.Ban {
 			return banImg, from, nil
 		}
