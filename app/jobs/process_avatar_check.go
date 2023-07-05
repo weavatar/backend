@@ -68,6 +68,11 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 
 	isSafe, err := checker.Check("https://weavatar.com/avatar/" + hash + ".png?s=400&d=404")
 	if err != nil {
+		avatar.Checked = false
+		err = facades.Orm().Query().Save(&avatar)
+		if err != nil {
+			facades.Log().Error("COS审核[数据库更新失败] " + err.Error())
+		}
 		return nil
 	}
 
