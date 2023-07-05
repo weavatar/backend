@@ -4,6 +4,7 @@ import (
 	"github.com/disintegration/imaging"
 	"github.com/goravel/framework/facades"
 	"github.com/imroc/req/v3"
+	"weavatar/packages/helpers"
 
 	"weavatar/app/models"
 	packagecdn "weavatar/packages/cdn"
@@ -50,15 +51,16 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 	}
 
 	// 检查WeAvatar头像是否存在
+	var imageHash string
 	_, imgErr := imaging.Open(facades.Storage().Path("upload/default/" + hash[:2] + "/" + hash))
 	if imgErr != nil {
 		// 不存在则请求Gravatar头像
 		client := req.C()
-		resp, reqErr := client.R().Get("http://proxy.server/http://0.gravatar.com/avatar/" + hash + ".png?s=10&r=g&d=404")
+		resp, reqErr := client.R().Get("http://proxy.server/http://0.gravatar.com/avatar/" + hash + ".png?s=600&r=g&d=404")
 		if reqErr != nil || !resp.IsSuccessState() {
-			// 也不存在说明是QQ头像或者默认头像，不需要审核
 			return nil
 		}
+		imageHash = helpers.MD5(resp.String())
 	}
 
 	accessKey := facades.Config().GetString("qcloud.cos_check.access_key")
@@ -66,20 +68,34 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 	bucket := facades.Config().GetString("qcloud.cos_check.bucket")
 	checker := qcloud.NewCreator(accessKey, secretKey, bucket)
 
-	isSafe, err := checker.Check("https://weavatar.com/avatar/" + hash + ".png?s=400&d=404")
+	isSafe := true
+	var image models.Image
+	err = facades.Orm().Query().Where("hash", imageHash).FirstOrFail(&image)
 	if err != nil {
-		avatar.Checked = false
-		err = facades.Orm().Query().Save(&avatar)
+		isSafe, err = checker.Check("https://weavatar.com/avatar/" + hash + ".png?s=400&d=404")
 		if err != nil {
-			facades.Log().Error("COS审核[数据库更新失败] " + err.Error())
+			avatar.Checked = false
+			err = facades.Orm().Query().Save(&avatar)
+			if err != nil {
+				facades.Log().Error("COS审核[数据更新失败] " + err.Error())
+			}
+			return nil
 		}
-		return nil
+		err = facades.Orm().Query().Create(&models.Image{
+			Hash: imageHash,
+			Ban:  !isSafe,
+		})
+		if err != nil {
+			facades.Log().Error("COS审核[缓存数据创建失败] " + err.Error())
+		}
+	} else {
+		isSafe = !image.Ban
 	}
 
 	avatar.Ban = !isSafe
 	err = facades.Orm().Query().Save(&avatar)
 	if err != nil {
-		facades.Log().Error("COS审核[数据库更新失败] " + err.Error())
+		facades.Log().Error("COS审核[数据更新失败] " + err.Error())
 		return err
 	}
 
