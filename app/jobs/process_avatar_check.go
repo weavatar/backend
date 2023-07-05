@@ -39,6 +39,8 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 		return nil
 	}
 
+	isSafe := true
+
 	if appID == "0" {
 		var avatar models.Avatar
 		err := facades.Orm().Query().Where("hash", hash).First(&avatar)
@@ -82,7 +84,6 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 		bucket := facades.Config().GetString("qcloud.cos_check.bucket")
 		checker := qcloud.NewCreator(accessKey, secretKey, bucket)
 
-		isSafe := true
 		var image models.Image
 		err = facades.Orm().Query().Where("hash", imageHash).FirstOrFail(&image)
 		if err != nil {
@@ -158,7 +159,6 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 	bucket := facades.Config().GetString("qcloud.cos_check.bucket")
 	checker := qcloud.NewCreator(accessKey, secretKey, bucket)
 
-	isSafe := true
 	var image models.Image
 	err = facades.Orm().Query().Where("hash", imageHash).FirstOrFail(&image)
 	if err != nil {
