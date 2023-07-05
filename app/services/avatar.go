@@ -204,7 +204,8 @@ func (r *AvatarImpl) GetGravatarAvatar(hash string) (image.Image, error) {
 	} else {
 		// 不存在则从 Gravatar 获取头像
 		client := req.C()
-		resp, reqErr := client.R().Get("http://proxy.server/http://0.gravatar.com/avatar/" + hash + ".png?s=1000&r=g&d=404")
+		// 有一些头像请求1000尺寸的大图(http://0.gravatar.com/avatar/1b6a1437577086c55c785980430123ce.png?s=1000&r=g&d=404), Gravatar 会返回 404, 不知道为什么，所以使用600尺寸的图片
+		resp, reqErr := client.R().Get("http://proxy.server/http://0.gravatar.com/avatar/" + hash + ".png?s=600&r=g&d=404")
 		if reqErr != nil || !resp.IsSuccessState() {
 			return nil, errors.New("获取 Gravatar头像 失败")
 		}
