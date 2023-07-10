@@ -10,7 +10,6 @@ import (
 	"github.com/disintegration/imaging"
 	"github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/facades"
-	"github.com/goravel/framework/support/carbon"
 	_ "golang.org/x/image/webp"
 
 	requests "weavatar/app/http/requests/avatar"
@@ -21,12 +20,12 @@ import (
 )
 
 type AvatarController struct {
-	//Dependent services
+	// Dependent services
 }
 
 func NewAvatarController() *AvatarController {
 	return &AvatarController{
-		//Inject services
+		// Inject services
 	}
 }
 
@@ -75,7 +74,7 @@ func (r *AvatarController) Avatar(ctx http.Context) {
 	ctx.Response().Header("Cache-Control", "public, max-age=300")
 	ctx.Response().Header("Avatar-By", "weavatar.com")
 	ctx.Response().Header("Avatar-From", from)
-	//ctx.Response().Header("Vary", "Accept")
+	// ctx.Response().Header("Vary", "Accept")
 
 	ctx.Response().Data(http.StatusOK, "image/"+imageExt, imageData)
 }
@@ -241,15 +240,8 @@ func (r *AvatarController) Store(ctx http.Context) {
 
 	var avatar models.Avatar
 	hash := helpers.MD5(storeAvatarRequest.Raw)
-	_, err = facades.Orm().Query().Exec(`INSERT INTO avatars (hash, created_at, updated_at) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE updated_at=VALUES(updated_at)`, hash, carbon.DateTime{Carbon: carbon.Now()}, carbon.DateTime{Carbon: carbon.Now()})
-	if err != nil {
-		facades.Log().Error("[AvatarController][Store] 初始化查询用户头像失败 ", err.Error())
-		ctx.Response().Json(http.StatusInternalServerError, http.Json{
-			"code":    500,
-			"message": "系统内部错误",
-		})
-		return
-	}
+	avatar.Hash = &hash
+	_ = facades.Orm().Query().Create(&avatar)
 	err = facades.Orm().Query().Where("hash", hash).First(&avatar)
 	if err != nil {
 		facades.Log().Error("[AvatarController][Store] 查询用户头像失败 ", err.Error())
