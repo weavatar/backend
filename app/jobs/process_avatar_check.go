@@ -101,18 +101,20 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 			if err != nil {
 				facades.Log().Error("COS审核[缓存数据创建失败] " + err.Error())
 			}
+			avatar.Ban = !isSafe
 		} else {
 			avatar.Ban = image.Ban
-			err = facades.Orm().Query().Save(&avatar)
-			if err != nil {
-				facades.Log().Error("COS审核[数据更新失败] " + err.Error())
-				return err
-			}
+		}
 
-			if avatar.Ban {
-				cdn := packagecdn.NewCDN()
-				cdn.RefreshUrl([]string{"weavatar.com/avatar/" + hash})
-			}
+		err = facades.Orm().Query().Save(&avatar)
+		if err != nil {
+			facades.Log().Error("COS审核[数据更新失败] " + err.Error())
+			return nil
+		}
+
+		if avatar.Ban {
+			cdn := packagecdn.NewCDN()
+			cdn.RefreshUrl([]string{"weavatar.com/avatar/" + hash})
 		}
 
 		return nil
@@ -174,18 +176,20 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 		if err != nil {
 			facades.Log().Error("COS审核[缓存数据创建失败] " + err.Error())
 		}
+		avatar.Ban = !isSafe
 	} else {
 		avatar.Ban = image.Ban
-		err = facades.Orm().Query().Save(&avatar)
-		if err != nil {
-			facades.Log().Error("COS审核[数据更新失败] " + err.Error())
-			return err
-		}
+	}
 
-		if avatar.Ban {
-			cdn := packagecdn.NewCDN()
-			cdn.RefreshUrl([]string{"weavatar.com/avatar/" + hash})
-		}
+	err = facades.Orm().Query().Save(&avatar)
+	if err != nil {
+		facades.Log().Error("COS审核[数据更新失败] " + err.Error())
+		return nil
+	}
+
+	if avatar.Ban {
+		cdn := packagecdn.NewCDN()
+		cdn.RefreshUrl([]string{"weavatar.com/avatar/" + hash})
 	}
 
 	return nil
