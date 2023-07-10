@@ -21,12 +21,12 @@ import (
 )
 
 type AvatarController struct {
-	//Dependent services
+	// Dependent services
 }
 
 func NewAvatarController() *AvatarController {
 	return &AvatarController{
-		//Inject services
+		// Inject services
 	}
 }
 
@@ -75,7 +75,7 @@ func (r *AvatarController) Avatar(ctx http.Context) {
 	ctx.Response().Header("Cache-Control", "public, max-age=300")
 	ctx.Response().Header("Avatar-By", "weavatar.com")
 	ctx.Response().Header("Avatar-From", from)
-	//ctx.Response().Header("Vary", "Accept")
+	// ctx.Response().Header("Vary", "Accept")
 
 	ctx.Response().Data(http.StatusOK, "image/"+imageExt, imageData)
 }
