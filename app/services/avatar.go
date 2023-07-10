@@ -23,7 +23,6 @@ import (
 	"github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/contracts/queue"
 	"github.com/goravel/framework/facades"
-	"github.com/goravel/framework/support/carbon"
 
 	"weavatar/app/jobs"
 	"weavatar/app/models"
@@ -49,12 +48,6 @@ func (r *AvatarImpl) Sanitize(ctx http.Context) (string, string, string, int, bo
 	hash := strings.ToLower(hashExt[0]) // Hash 转小写
 	imageExt := "webp"                  // 默认为 WEBP 格式
 
-	// 如果浏览器支持 WEBP 格式，则默认使用 WEBP 格式
-	// 目前检查放到 CDN 上了，所以这里注释掉
-	/*accept := ctx.Request().Header("Accept", "")
-	if strings.Contains(accept, "image/webp") || strings.Contains(accept, "image/*") {
-		imageExt = "webp"
-	}*/
 	// 如果提供了图片格式，则使用提供的图片格式
 	if len(hashExt) > 1 {
 		imageExt = hashExt[1]
@@ -171,7 +164,7 @@ func (r *AvatarImpl) GetQqAvatar(hash string) (image.Image, error) {
 	}
 
 	// 检查图片是否正常
-	reader := strings.NewReader(resp.String())
+	reader := bytes.NewReader(resp.Bytes())
 	img, imgErr := imaging.Decode(reader)
 	if err != nil {
 		facades.Log().Warning("QQ头像[图片不正常] ", err.Error())
@@ -207,7 +200,7 @@ func (r *AvatarImpl) GetGravatarAvatar(hash string) (image.Image, error) {
 	}
 
 	// 检查图片是否正常
-	reader := strings.NewReader(resp.String())
+	reader := bytes.NewReader(resp.Bytes())
 	img, imgErr = imaging.Decode(reader)
 	if imgErr != nil {
 		facades.Log().Warning("Gravatar[图片不正常] ", imgErr.Error())
@@ -377,7 +370,7 @@ func (r *AvatarImpl) GetDefaultAvatar(defaultAvatar string, option []string) (im
 	}
 
 	// 检查图片是否正常
-	reader := strings.NewReader(resp.String())
+	reader := bytes.NewReader(resp.Bytes())
 	img, imgErr := imaging.Decode(reader)
 	if imgErr != nil {
 		img, imgErr = imaging.Open(facades.Storage().Path("default/default.png"))
@@ -436,11 +429,8 @@ func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, 
 	}
 
 	// 取头像数据
-	_, err = facades.Orm().Query().Exec(`INSERT INTO avatars (hash, created_at, updated_at) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE updated_at=VALUES(updated_at)`, hash, carbon.DateTime{Carbon: carbon.Now()}, carbon.DateTime{Carbon: carbon.Now()})
-	if err != nil {
-		facades.Log().Error("WeAvatar[数据库错误] ", err.Error())
-		return nil, from, err
-	}
+	avatar.Hash = &hash
+	_ = facades.Orm().Query().Create(&avatar)
 	err = facades.Orm().Query().Where("hash", hash).First(&avatar)
 	if err != nil {
 		facades.Log().Error("WeAvatar[数据库错误] ", err.Error())
