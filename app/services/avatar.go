@@ -13,16 +13,16 @@ import (
 	"github.com/HaoZi-Team/letteravatar"
 	"github.com/disintegration/imaging"
 	"github.com/golang/freetype/truetype"
+	"github.com/goravel/framework/contracts/http"
+	"github.com/goravel/framework/contracts/queue"
+	"github.com/goravel/framework/facades"
+	"github.com/goravel/framework/support/carbon"
 	"github.com/imroc/req/v3"
 	"github.com/ipsn/go-adorable"
 	"github.com/issue9/identicon/v2"
 	"github.com/o1egl/govatar"
 	"golang.org/x/exp/slices"
 	_ "golang.org/x/image/webp"
-
-	"github.com/goravel/framework/contracts/http"
-	"github.com/goravel/framework/contracts/queue"
-	"github.com/goravel/framework/facades"
 
 	"weavatar/app/jobs"
 	"weavatar/app/models"
@@ -429,8 +429,11 @@ func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, 
 	}
 
 	// 取头像数据
-	avatar.Hash = &hash
-	_ = facades.Orm().Query().Create(&avatar)
+	_, err = facades.Orm().Query().Exec(`INSERT IGNORE INTO avatars (hash, created_at, updated_at) VALUES (?, ?, ?)`, hash, carbon.DateTime{Carbon: carbon.Now()}, carbon.DateTime{Carbon: carbon.Now()})
+	if err != nil {
+		facades.Log().Error("WeAvatar[数据库错误] ", err.Error())
+		return nil, from, err
+	}
 	err = facades.Orm().Query().Where("hash", hash).First(&avatar)
 	if err != nil {
 		facades.Log().Error("WeAvatar[数据库错误] ", err.Error())
