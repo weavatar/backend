@@ -53,7 +53,7 @@ func (r *AvatarImpl) Sanitize(ctx http.Context) (string, string, string, int, bo
 		imageExt = hashExt[1]
 	}
 	// 检查图片格式是否支持
-	imageSlices := []string{"png", "jpg", "jpeg", "gif", "webp", "avif"}
+	imageSlices := []string{"png", "jpg", "jpeg", "gif", "webp"}
 	if !slices.Contains(imageSlices, imageExt) {
 		imageExt = "webp"
 	}
