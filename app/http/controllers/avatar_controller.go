@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/Kagami/go-avif"
 	"github.com/chai2010/webp"
 	"github.com/disintegration/imaging"
 	"github.com/goravel/framework/contracts/http"
@@ -90,6 +91,8 @@ func (r *AvatarController) encodeImage(img image.Image, imageExt string) ([]byte
 	switch imageExt {
 	case "webp":
 		err = webp.Encode(writer, img, &webp.Options{Lossless: true})
+	case "avif":
+		err = avif.Encode(writer, img, nil)
 	case "png":
 		err = imaging.Encode(writer, img, imaging.PNG)
 	case "jpg", "jpeg":
