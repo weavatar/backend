@@ -32,7 +32,7 @@ golangci_lint:
   allow_failure: true
   before_script:
     - sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
-    - apk add --no-cache libwebp-dev libaom-dev
+    - apk add --no-cache libwebp-dev aom-dev
     - apk add --no-cache build-base
   script:
     - golangci-lint run --timeout 30m
@@ -43,7 +43,7 @@ unit_test:
   allow_failure: true
   before_script:
     - sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
-    - apk add --no-cache libwebp-dev libaom-dev
+    - apk add --no-cache libwebp-dev aom-dev
     - apk add --no-cache build-base
   script:
     - go test -v -coverprofile=coverage.txt -covermode=atomic ./...
@@ -53,7 +53,7 @@ build:
   extends: .go_cache
   before_script:
     - sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
-    - apk add --no-cache libwebp-dev libaom-dev
+    - apk add --no-cache libwebp-dev aom-dev
     - apk add --no-cache build-base
   script:
     - go mod download
