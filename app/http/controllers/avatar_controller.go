@@ -6,7 +6,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Kagami/go-avif"
 	"github.com/chai2010/webp"
 	"github.com/disintegration/imaging"
 	"github.com/goravel/framework/contracts/http"
@@ -35,6 +34,8 @@ func NewAvatarController() *AvatarController {
 func (r *AvatarController) Avatar(ctx http.Context) {
 	avatarService := services.NewAvatarImpl()
 	appid, hash, imageExt, size, forceDefault, defaultAvatar := avatarService.Sanitize(ctx)
+
+	carbon.SetTimezone(carbon.GMT)
 
 	var avatar image.Image
 	var lastModified carbon.Carbon
@@ -81,6 +82,8 @@ func (r *AvatarController) Avatar(ctx http.Context) {
 	ctx.Response().Header("Expires", carbon.Now().AddMinutes(5).ToRfc7231String())
 
 	ctx.Response().Data(http.StatusOK, "image/"+imageExt, imageData)
+
+	carbon.SetTimezone(carbon.PRC)
 }
 
 // encodeImage 编码图片为指定格式
@@ -91,8 +94,6 @@ func (r *AvatarController) encodeImage(img image.Image, imageExt string) ([]byte
 	switch imageExt {
 	case "webp":
 		err = webp.Encode(writer, img, &webp.Options{Lossless: true})
-	case "avif":
-		err = avif.Encode(writer, img, nil)
 	case "png":
 		err = imaging.Encode(writer, img, imaging.PNG)
 	case "jpg", "jpeg":
