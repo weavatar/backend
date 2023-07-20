@@ -117,7 +117,7 @@ func createClient(accessKeyId *string, accessKeySecret *string, endpoint string)
 		config.RegionId = tea.String("cn-beijing")
 		config.Endpoint = tea.String("green-cip.cn-beijing.aliyuncs.com")
 	}
-	_result = &green20220302.Client{}
+
 	_result, _err = green20220302.NewClient(config)
 	return _result, _err
 }
