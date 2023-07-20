@@ -36,6 +36,7 @@ func (r *AvatarController) Avatar(ctx http.Context) {
 	appid, hash, imageExt, size, forceDefault, defaultAvatar := avatarService.Sanitize(ctx)
 
 	var avatar image.Image
+	var lastModified carbon.Carbon
 	var option []string
 	var err error
 	from := "weavatar"
@@ -47,9 +48,9 @@ func (r *AvatarController) Avatar(ctx http.Context) {
 	}
 
 	if forceDefault {
-		avatar, err = avatarService.GetDefaultAvatarByType(defaultAvatar, option)
+		avatar, lastModified, err = avatarService.GetDefaultAvatarByType(defaultAvatar, option)
 	} else {
-		avatar, from, err = avatarService.GetAvatar(appid, hash, defaultAvatar, option)
+		avatar, lastModified, from, err = avatarService.GetAvatar(appid, hash, defaultAvatar, option)
 	}
 
 	// 判断一下 404 请求
@@ -75,7 +76,7 @@ func (r *AvatarController) Avatar(ctx http.Context) {
 	ctx.Response().Header("Cache-Control", "public, max-age=300")
 	ctx.Response().Header("Avatar-By", "weavatar.com")
 	ctx.Response().Header("Avatar-From", from)
-	// ctx.Response().Header("Vary", "Accept")
+	ctx.Response().Header("Last-Modified", lastModified.ToRfc7231String())
 
 	ctx.Response().Data(http.StatusOK, "image/"+imageExt, imageData)
 }

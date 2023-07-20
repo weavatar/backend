@@ -6,8 +6,9 @@ require (
 	github.com/HaoZi-Team/letteravatar v1.0.1
 	github.com/alibabacloud-go/darabonba-openapi/v2 v2.0.4
 	github.com/alibabacloud-go/dysmsapi-20170525/v3 v3.0.5
+	github.com/alibabacloud-go/green-20220302 v1.0.7
 	github.com/alibabacloud-go/tea v1.2.0
-	github.com/alibabacloud-go/tea-utils/v2 v2.0.1
+	github.com/alibabacloud-go/tea-utils/v2 v2.0.3
 	github.com/bytedance/sonic v1.9.2
 	github.com/chai2010/webp v1.1.1
 	github.com/disintegration/imaging v1.6.2
