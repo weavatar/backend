@@ -55,7 +55,7 @@ func (c *Checker) Check(url string) (bool, error) {
 	}
 	response, _err := client.ImageModerationWithOptions(imageModerationRequest, runtime)
 
-	// 系统异常，切换到下个地域调用。
+	// 自动切换地域
 	flag := false
 	if _err != nil {
 		var err = &tea.SDKError{}
