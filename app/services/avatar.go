@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 	"unicode"
 
 	"github.com/HaoZi-Team/letteravatar"
@@ -117,8 +118,13 @@ func (r *AvatarImpl) GetQqAvatar(hash string) (image.Image, carbon.Carbon, error
 	var qq qqHash
 
 	if facades.Storage().Exists("cache/qq/" + hash[:2] + "/" + hash) {
+		gmt, err := time.LoadLocation("GMT")
+		if err != nil {
+			return nil, carbon.Now(), err
+		}
 		img, imgErr := imaging.Open(facades.Storage().Path("cache/qq/" + hash[:2] + "/" + hash))
 		lastModified, err := facades.Storage().LastModified("cache/qq/" + hash[:2] + "/" + hash)
+		lastModified = lastModified.In(gmt)
 		if imgErr == nil && err == nil {
 			return img, carbon.FromStdTime(lastModified), nil
 		}
@@ -177,10 +183,15 @@ func (r *AvatarImpl) GetQqAvatar(hash string) (image.Image, carbon.Carbon, error
 	if err != nil {
 		return nil, carbon.Now(), err
 	}
+	gmt, err := time.LoadLocation("GMT")
+	if err != nil {
+		return nil, carbon.Now(), err
+	}
 	lastModified, err := facades.Storage().LastModified("cache/qq/" + hash[:2] + "/" + hash)
 	if err != nil {
 		return nil, carbon.Now(), err
 	}
+	lastModified = lastModified.In(gmt)
 
 	return img, carbon.FromStdTime(lastModified), nil
 }
@@ -191,8 +202,13 @@ func (r *AvatarImpl) GetGravatarAvatar(hash string) (image.Image, carbon.Carbon,
 	var imgErr error
 
 	if facades.Storage().Exists("cache/gravatar/" + hash[:2] + "/" + hash) {
+		gmt, err := time.LoadLocation("GMT")
+		if err != nil {
+			return nil, carbon.Now(), err
+		}
 		img, imgErr = imaging.Open(facades.Storage().Path("cache/gravatar/" + hash[:2] + "/" + hash))
 		lastModified, err := facades.Storage().LastModified("cache/gravatar/" + hash[:2] + "/" + hash)
+		lastModified = lastModified.In(gmt)
 		if imgErr == nil && err == nil {
 			return img, carbon.FromStdTime(lastModified), nil
 		}
@@ -218,7 +234,12 @@ func (r *AvatarImpl) GetGravatarAvatar(hash string) (image.Image, carbon.Carbon,
 	if err != nil {
 		return nil, carbon.Now(), err
 	}
+	gmt, err := time.LoadLocation("GMT")
+	if err != nil {
+		return nil, carbon.Now(), err
+	}
 	lastModified, err := facades.Storage().LastModified("cache/gravatar/" + hash[:2] + "/" + hash)
+	lastModified = lastModified.In(gmt)
 	if err != nil {
 		return nil, carbon.Now(), err
 	}
