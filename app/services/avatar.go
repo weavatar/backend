@@ -109,7 +109,7 @@ func (r *AvatarImpl) Sanitize(ctx http.Context) (string, string, string, int, bo
 }
 
 // GetQqAvatar 通过 QQ 号获取头像
-func (r *AvatarImpl) GetQqAvatar(hash string) (image.Image, error) {
+func (r *AvatarImpl) GetQqAvatar(hash string) (image.Image, carbon.Carbon, error) {
 	type qqHash struct {
 		Hash string `gorm:"primaryKey"`
 		Qq   uint   `gorm:"type:bigint;not null"`
@@ -118,18 +118,19 @@ func (r *AvatarImpl) GetQqAvatar(hash string) (image.Image, error) {
 
 	if facades.Storage().Exists("cache/qq/" + hash[:2] + "/" + hash) {
 		img, imgErr := imaging.Open(facades.Storage().Path("cache/qq/" + hash[:2] + "/" + hash))
-		if imgErr == nil {
-			return img, nil
+		lastModified, err := facades.Storage().LastModified("cache/qq/" + hash[:2] + "/" + hash)
+		if imgErr == nil && err == nil {
+			return img, carbon.FromStdTime(lastModified), nil
 		}
 	}
 
 	err := facades.Orm().Connection("hash").Query().Table("qq_mails").Where("hash", hash).First(&qq)
 	if err != nil {
-		return nil, err
+		return nil, carbon.Now(), err
 	}
 
 	if qq.Qq == 0 {
-		return nil, errors.New("未找到对应的 QQ 号")
+		return nil, carbon.Now(), errors.New("未找到对应的 QQ 号")
 	}
 
 	client := req.C()
@@ -140,9 +141,9 @@ func (r *AvatarImpl) GetQqAvatar(hash string) (image.Image, error) {
 	}).Get("http://q1.qlogo.cn/g")
 	if !resp.IsSuccessState() {
 		if reqErr != nil {
-			return nil, reqErr
+			return nil, carbon.Now(), reqErr
 		} else {
-			return nil, errors.New("获取 QQ头像 失败")
+			return nil, carbon.Now(), errors.New("获取 QQ头像 失败")
 		}
 	}
 
@@ -156,9 +157,9 @@ func (r *AvatarImpl) GetQqAvatar(hash string) (image.Image, error) {
 		}).Get("http://q1.qlogo.cn/g")
 		if !resp.IsSuccessState() {
 			if reqErr != nil {
-				return nil, reqErr
+				return nil, carbon.Now(), reqErr
 			} else {
-				return nil, errors.New("获取 QQ头像 失败")
+				return nil, carbon.Now(), errors.New("获取 QQ头像 失败")
 			}
 		}
 	}
@@ -168,27 +169,32 @@ func (r *AvatarImpl) GetQqAvatar(hash string) (image.Image, error) {
 	img, imgErr := imaging.Decode(reader)
 	if err != nil {
 		facades.Log().Warning("QQ头像[图片不正常] ", err.Error())
-		return nil, imgErr
+		return nil, carbon.Now(), imgErr
 	}
 
 	// 保存图片
 	err = facades.Storage().Put("cache/qq/"+hash[:2]+"/"+hash, resp.String())
 	if err != nil {
-		return nil, err
+		return nil, carbon.Now(), err
+	}
+	lastModified, err := facades.Storage().LastModified("cache/qq/" + hash[:2] + "/" + hash)
+	if err != nil {
+		return nil, carbon.Now(), err
 	}
 
-	return img, nil
+	return img, carbon.FromStdTime(lastModified), nil
 }
 
 // GetGravatarAvatar 通过 Gravatar 获取头像
-func (r *AvatarImpl) GetGravatarAvatar(hash string) (image.Image, error) {
+func (r *AvatarImpl) GetGravatarAvatar(hash string) (image.Image, carbon.Carbon, error) {
 	var img image.Image
 	var imgErr error
 
 	if facades.Storage().Exists("cache/gravatar/" + hash[:2] + "/" + hash) {
 		img, imgErr = imaging.Open(facades.Storage().Path("cache/gravatar/" + hash[:2] + "/" + hash))
-		if imgErr == nil {
-			return img, nil
+		lastModified, err := facades.Storage().LastModified("cache/gravatar/" + hash[:2] + "/" + hash)
+		if imgErr == nil && err == nil {
+			return img, carbon.FromStdTime(lastModified), nil
 		}
 	}
 
@@ -196,7 +202,7 @@ func (r *AvatarImpl) GetGravatarAvatar(hash string) (image.Image, error) {
 	// 有一些头像请求1000尺寸的大图(http://0.gravatar.com/avatar/1b6a1437577086c55c785980430123ce.png?s=1000&r=g&d=404), Gravatar会返回404, 不知道为什么，所以使用600尺寸的图片代替
 	resp, reqErr := client.R().Get("http://proxy.server/http://0.gravatar.com/avatar/" + hash + ".png?s=600&r=g&d=404")
 	if reqErr != nil || !resp.IsSuccessState() {
-		return nil, errors.New("获取 Gravatar头像 失败")
+		return nil, carbon.Now(), errors.New("获取 Gravatar头像 失败")
 	}
 
 	// 检查图片是否正常
@@ -204,54 +210,58 @@ func (r *AvatarImpl) GetGravatarAvatar(hash string) (image.Image, error) {
 	img, imgErr = imaging.Decode(reader)
 	if imgErr != nil {
 		facades.Log().Warning("Gravatar[图片不正常] ", imgErr.Error())
-		return nil, imgErr
+		return nil, carbon.Now(), imgErr
 	}
 
 	// 保存图片
 	err := facades.Storage().Put("cache/gravatar/"+hash[:2]+"/"+hash, resp.String())
 	if err != nil {
-		return nil, err
+		return nil, carbon.Now(), err
+	}
+	lastModified, err := facades.Storage().LastModified("cache/gravatar/" + hash[:2] + "/" + hash)
+	if err != nil {
+		return nil, carbon.Now(), err
 	}
 
-	return img, nil
+	return img, carbon.FromStdTime(lastModified), nil
 }
 
 // GetDefaultAvatar 通过默认参数获取头像
-func (r *AvatarImpl) GetDefaultAvatar(defaultAvatar string, option []string) (image.Image, error) {
+func (r *AvatarImpl) GetDefaultAvatar(defaultAvatar string, option []string) (image.Image, carbon.Carbon, error) {
 	if defaultAvatar == "404" {
-		return nil, nil
+		return nil, carbon.Now(), nil
 	}
 
 	if defaultAvatar == "" {
 		img, imgErr := imaging.Open(facades.Storage().Path("default/default.png"))
 		if imgErr != nil {
-			return nil, imgErr
+			return nil, carbon.Now(), imgErr
 		}
 
-		return img, nil
+		return img, carbon.Now(), nil
 	}
 
 	if defaultAvatar == "mp" {
 		img, imgErr := imaging.Open(facades.Storage().Path("default/mp.png"))
 		if imgErr != nil {
-			return nil, imgErr
+			return nil, carbon.Now(), imgErr
 		}
 
-		return img, nil
+		return img, carbon.Now(), nil
 	}
 
 	if defaultAvatar == "identicon" {
 		img := identicon.Make(identicon.Style1, 1200, color.RGBA{R: 255, A: 100}, color.RGBA{R: 102, G: 204, B: 255, A: 255}, []byte(option[0]))
-		return img, nil
+		return img, carbon.Now(), nil
 	}
 
 	if defaultAvatar == "monsterid" {
 		img, err := govatar.GenerateForUsername(govatar.FEMALE, option[0])
 		if err != nil {
-			return nil, err
+			return nil, carbon.Now(), err
 		}
 
-		return img, nil
+		return img, carbon.Now(), nil
 	}
 
 	if defaultAvatar == "wavatar" {
@@ -259,44 +269,44 @@ func (r *AvatarImpl) GetDefaultAvatar(defaultAvatar string, option []string) (im
 		img, err := imaging.Decode(bytes.NewReader(avatar))
 
 		if err != nil {
-			return nil, err
+			return nil, carbon.Now(), err
 		}
 
-		return img, nil
+		return img, carbon.Now(), nil
 	}
 
 	if defaultAvatar == "retro" {
 		ii := identicon.New(identicon.Style2, 1200, color.RGBA{R: 255, A: 100}, color.RGBA{R: 102, G: 204, B: 255, A: 255})
 		img := ii.Make([]byte(option[0]))
-		return img, nil
+		return img, carbon.Now(), nil
 	}
 
 	if defaultAvatar == "robohash" {
 		img, err := govatar.GenerateForUsername(govatar.MALE, option[0])
 		if err != nil {
-			return nil, err
+			return nil, carbon.Now(), err
 		}
 
-		return img, nil
+		return img, carbon.Now(), nil
 	}
 
 	if defaultAvatar == "blank" {
 		img, imgErr := imaging.Open(facades.Storage().Path("default/blank.png"))
 		if imgErr != nil {
-			return nil, imgErr
+			return nil, carbon.Now(), imgErr
 		}
 
-		return img, nil
+		return img, carbon.Now(), nil
 	}
 
 	if defaultAvatar == "letter" {
 		fontStr, err := facades.Storage().Get("fonts/HarmonyOS_Sans_SC_Medium.ttf")
 		if err != nil {
-			return nil, err
+			return nil, carbon.Now(), err
 		}
 		font, fontErr := truetype.Parse([]byte(fontStr))
 		if fontErr != nil {
-			return nil, fontErr
+			return nil, carbon.Now(), fontErr
 		}
 
 		fontSize := 0
@@ -352,10 +362,10 @@ func (r *AvatarImpl) GetDefaultAvatar(defaultAvatar string, option []string) (im
 			PaletteKey: option[1], // 对相同的字符串使用相同的颜色
 		})
 		if imgErr != nil {
-			return nil, err
+			return nil, carbon.Now(), err
 		}
 
-		return img, nil
+		return img, carbon.Now(), nil
 	}
 
 	client := req.C()
@@ -363,10 +373,10 @@ func (r *AvatarImpl) GetDefaultAvatar(defaultAvatar string, option []string) (im
 	if reqErr != nil || !resp.IsSuccessState() {
 		img, imgErr := imaging.Open(facades.Storage().Path("default/default.png"))
 		if imgErr != nil {
-			return nil, imgErr
+			return nil, carbon.Now(), imgErr
 		}
 
-		return img, nil
+		return img, carbon.Now(), nil
 	}
 
 	// 检查图片是否正常
@@ -375,88 +385,91 @@ func (r *AvatarImpl) GetDefaultAvatar(defaultAvatar string, option []string) (im
 	if imgErr != nil {
 		img, imgErr = imaging.Open(facades.Storage().Path("default/default.png"))
 		if imgErr != nil {
-			return nil, imgErr
+			return nil, carbon.Now(), imgErr
 		}
 	}
 
-	return img, nil
+	return img, carbon.Now(), nil
 }
 
 // GetDefaultAvatarByType 通过默认头像类型获取头像
-func (r *AvatarImpl) GetDefaultAvatarByType(avatarType string, option []string) (image.Image, error) {
+func (r *AvatarImpl) GetDefaultAvatarByType(avatarType string, option []string) (image.Image, carbon.Carbon, error) {
 	var avatar image.Image
+	var lastModified carbon.Carbon
 	var err error
 
 	switch avatarType {
 	case "404":
-		avatar, err = r.GetDefaultAvatar("404", option)
+		avatar, lastModified, err = r.GetDefaultAvatar("404", option)
 	case "mp", "mm", "mystery":
-		avatar, err = r.GetDefaultAvatar("mp", option)
+		avatar, lastModified, err = r.GetDefaultAvatar("mp", option)
 	case "identicon":
-		avatar, err = r.GetDefaultAvatar("identicon", option)
+		avatar, lastModified, err = r.GetDefaultAvatar("identicon", option)
 	case "monsterid":
-		avatar, err = r.GetDefaultAvatar("monsterid", option)
+		avatar, lastModified, err = r.GetDefaultAvatar("monsterid", option)
 	case "wavatar":
-		avatar, err = r.GetDefaultAvatar("wavatar", option)
+		avatar, lastModified, err = r.GetDefaultAvatar("wavatar", option)
 	case "retro":
-		avatar, err = r.GetDefaultAvatar("retro", option)
+		avatar, lastModified, err = r.GetDefaultAvatar("retro", option)
 	case "robohash":
-		avatar, err = r.GetDefaultAvatar("robohash", option)
+		avatar, lastModified, err = r.GetDefaultAvatar("robohash", option)
 	case "blank":
-		avatar, err = r.GetDefaultAvatar("blank", option)
+		avatar, lastModified, err = r.GetDefaultAvatar("blank", option)
 	case "letter":
-		avatar, err = r.GetDefaultAvatar("letter", option)
+		avatar, lastModified, err = r.GetDefaultAvatar("letter", option)
 	default:
-		avatar, err = r.GetDefaultAvatar(avatarType, option)
+		avatar, lastModified, err = r.GetDefaultAvatar(avatarType, option)
 	}
 
-	return avatar, err
+	return avatar, lastModified, err
 }
 
 // GetAvatar 获取头像
-func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, option []string) (image.Image, string, error) {
+func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, option []string) (image.Image, carbon.Carbon, string, error) {
 	var avatar models.Avatar
 	var appAvatar models.AppAvatar
 	var err error
 
-	banImg, banImgErr := imaging.Open(facades.Storage().Path("default/ban.png"))
 	var img image.Image
+	var lastModified carbon.Carbon
+
+	banImg, banImgErr := imaging.Open(facades.Storage().Path("default/ban.png"))
 	from := "weavatar"
 	var imgErr error
 	if banImgErr != nil {
 		facades.Log().Warning("WeAvatar[封禁图片解析出错] ", banImgErr.Error())
-		return nil, from, banImgErr
+		return nil, carbon.Now(), from, banImgErr
 	}
 
 	// 取头像数据
 	_, err = facades.Orm().Query().Exec(`INSERT IGNORE INTO avatars (hash, created_at, updated_at) VALUES (?, ?, ?)`, hash, carbon.DateTime{Carbon: carbon.Now()}, carbon.DateTime{Carbon: carbon.Now()})
 	if err != nil {
 		facades.Log().Error("WeAvatar[数据库错误] ", err.Error())
-		return nil, from, err
+		return nil, carbon.Now(), from, err
 	}
 	err = facades.Orm().Query().Where("hash", hash).First(&avatar)
 	if err != nil {
 		facades.Log().Error("WeAvatar[数据库错误] ", err.Error())
-		return nil, from, err
+		return nil, carbon.Now(), from, err
 	}
 	if avatar.UserID != nil && avatar.Raw != nil {
 		// 检查 Hash 是否有对应的 App
 		err = facades.Orm().Query().Where("app_id", appid).Where("avatar_hash", hash).First(&appAvatar)
 		if err != nil {
 			facades.Log().Error("WeAvatar[数据库错误] ", err.Error())
-			return nil, from, err
+			return nil, carbon.Now(), from, err
 		}
 		// 如果有对应的 App，则检查其 APP 头像是否封禁状态
 		if appAvatar.AppID != 0 {
 			if appAvatar.Ban {
-				return banImg, from, nil
+				return banImg, carbon.Now(), from, nil
 			} else {
 				// 如果不是封禁状态，则检查是否有对应的头像
 				img, imgErr = imaging.Open(facades.Storage().Path("upload/app/" + strconv.Itoa(int(appAvatar.AppID)) + "/" + hash[:2] + "/" + hash))
 			}
 		} else {
 			if avatar.Ban {
-				return banImg, from, nil
+				return banImg, carbon.Now(), from, nil
 			} else {
 				// 如果不是封禁状态，则检查是否有对应的头像
 				img, imgErr = imaging.Open(facades.Storage().Path("upload/default/" + hash[:2] + "/" + hash))
@@ -466,23 +479,23 @@ func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, 
 		// 如果头像获取失败，则使用默认头像
 		if imgErr != nil {
 			facades.Log().Warning("WeAvatar[头像匹配失败] ", imgErr.Error())
-			img, _ = r.GetDefaultAvatarByType(defaultAvatar, option)
-			return img, from, nil
+			img, lastModified, _ = r.GetDefaultAvatarByType(defaultAvatar, option)
+			return img, lastModified, from, nil
 		}
 	} else {
 		if avatar.Ban {
-			return banImg, from, nil
+			return banImg, carbon.Now(), from, nil
 		}
 		// 优先使用 Gravatar 头像
-		img, imgErr = r.GetGravatarAvatar(hash)
+		img, lastModified, imgErr = r.GetGravatarAvatar(hash)
 		from = "gravatar"
 		if imgErr != nil {
 			// 如果 Gravatar 头像获取失败，则使用 QQ 头像
-			img, imgErr = r.GetQqAvatar(hash)
+			img, lastModified, imgErr = r.GetQqAvatar(hash)
 			from = "qq"
 			if imgErr != nil {
 				// 如果 QQ 头像获取失败，则使用默认头像
-				img, _ = r.GetDefaultAvatarByType(defaultAvatar, option)
+				img, lastModified, _ = r.GetDefaultAvatarByType(defaultAvatar, option)
 				from = "weavatar"
 			}
 		}
@@ -498,5 +511,5 @@ func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, 
 		}()
 	}
 
-	return img, from, nil
+	return img, lastModified, from, nil
 }
