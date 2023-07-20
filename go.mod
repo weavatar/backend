@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/HaoZi-Team/letteravatar v1.0.1
+	github.com/Kagami/go-avif v0.1.0
 	github.com/alibabacloud-go/darabonba-openapi/v2 v2.0.4
 	github.com/alibabacloud-go/dysmsapi-20170525/v3 v3.0.5
 	github.com/alibabacloud-go/green-20220302 v1.0.7

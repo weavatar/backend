@@ -70,6 +70,8 @@ github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/HaoZi-Team/letteravatar v1.0.1 h1:cT2MHQu5zFq/f7JcvYKP6LrsWiohQdkXBYaPUKAykjw=
 github.com/HaoZi-Team/letteravatar v1.0.1/go.mod h1:Akf0l0+u/ozUNTlA8iEKPBc8mJF4mvBt6VWcXR5Yxu8=
+github.com/Kagami/go-avif v0.1.0 h1:8GHAGLxCdFfhpd4Zg8j1EqO7rtcQNenxIDerC/uu68w=
+github.com/Kagami/go-avif v0.1.0/go.mod h1:OPmPqzNdQq3+sXm0HqaUJQ9W/4k+Elbc3RSfJUemDKA=
 github.com/Microsoft/go-winio v0.6.1 h1:9/kr64B9VUZrLm5YYwbGtUJnMgqWVOdUAXu6Migciow=
 github.com/Microsoft/go-winio v0.6.1/go.mod h1:LRdKpFKfdobln8UmuiYcKPot9D2v6svN5+sAH+4kjUM=
 github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 h1:TngWCqHvy9oXAN6lEVMRuU21PR1EtLVZJmdB18Gu3Rw=
