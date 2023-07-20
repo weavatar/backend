@@ -35,6 +35,8 @@ func (r *AvatarController) Avatar(ctx http.Context) {
 	avatarService := services.NewAvatarImpl()
 	appid, hash, imageExt, size, forceDefault, defaultAvatar := avatarService.Sanitize(ctx)
 
+	carbon.SetTimezone(carbon.GMT)
+
 	var avatar image.Image
 	var lastModified carbon.Carbon
 	var option []string
@@ -80,6 +82,8 @@ func (r *AvatarController) Avatar(ctx http.Context) {
 	ctx.Response().Header("Expires", carbon.Now().AddMinutes(5).ToRfc7231String())
 
 	ctx.Response().Data(http.StatusOK, "image/"+imageExt, imageData)
+
+	carbon.SetTimezone(carbon.PRC)
 }
 
 // encodeImage 编码图片为指定格式
