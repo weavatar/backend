@@ -5,7 +5,7 @@ import (
 
 	"github.com/goravel/framework/contracts/validation"
 
-	"weavatar/packages/captcha"
+	"weavatar/pkg/captcha"
 )
 
 type Captcha struct {

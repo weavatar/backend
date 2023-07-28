@@ -1,6 +1,6 @@
 module weavatar
 
-go 1.18
+go 1.20
 
 require (
 	github.com/HaoZi-Team/letteravatar v1.0.1
@@ -15,7 +15,7 @@ require (
 	github.com/gertd/go-pluralize v0.2.1
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/gookit/color v1.5.3
-	github.com/goravel/framework v1.12.5
+	github.com/goravel/framework v1.12.7
 	github.com/iancoleman/strcase v0.2.0
 	github.com/imroc/req/v3 v3.35.0
 	github.com/ipsn/go-adorable v1.0.0
@@ -31,7 +31,7 @@ require (
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
 	golang.org/x/image v0.7.0
 	google.golang.org/grpc v1.56.1
-	gorm.io/gorm v1.25.1
+	gorm.io/gorm v1.25.2
 )
 
 require (
@@ -88,6 +88,7 @@ require (
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
+	github.com/golang-jwt/jwt/v5 v5.0.0 // indirect
 	github.com/golang-migrate/migrate/v4 v4.16.2 // indirect
 	github.com/golang-module/carbon/v2 v2.2.3 // indirect
 	github.com/golang-sql/civil v0.0.0-20220223132316-b832511892a9 // indirect

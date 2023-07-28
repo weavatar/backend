@@ -7,9 +7,9 @@ import (
 	"github.com/imroc/req/v3"
 
 	"weavatar/app/models"
-	packagecdn "weavatar/packages/cdn"
-	"weavatar/packages/helpers"
-	"weavatar/packages/qcloud"
+	packagecdn "weavatar/pkg/cdn"
+	"weavatar/pkg/helpers"
+	"weavatar/pkg/qcloud"
 )
 
 type ProcessAvatarCheck struct {

@@ -8,8 +8,8 @@ import (
 	"github.com/goravel/framework/contracts/mail"
 	"github.com/goravel/framework/facades"
 
-	"weavatar/packages/helpers"
-	"weavatar/packages/sms"
+	"weavatar/pkg/helpers"
+	"weavatar/pkg/sms"
 )
 
 type VerifyCode struct {

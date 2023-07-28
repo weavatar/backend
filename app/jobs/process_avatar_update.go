@@ -4,7 +4,7 @@ import (
 	"github.com/goravel/framework/facades"
 
 	"weavatar/app/models"
-	packagecdn "weavatar/packages/cdn"
+	packagecdn "weavatar/pkg/cdn"
 )
 
 type ProcessAvatarUpdate struct {

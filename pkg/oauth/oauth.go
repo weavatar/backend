@@ -9,7 +9,7 @@ import (
 
 	"github.com/goravel/framework/facades"
 
-	"weavatar/packages/helpers"
+	"weavatar/pkg/helpers"
 )
 
 type BasicInfo struct {
