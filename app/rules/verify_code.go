@@ -5,7 +5,7 @@ import (
 
 	"github.com/goravel/framework/contracts/validation"
 
-	"weavatar/packages/verifycode"
+	"weavatar/pkg/verifycode"
 )
 
 type VerifyCode struct {

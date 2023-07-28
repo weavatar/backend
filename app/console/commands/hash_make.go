@@ -10,7 +10,7 @@ import (
 	"github.com/goravel/framework/contracts/console/command"
 	"github.com/spf13/cast"
 
-	"weavatar/packages/helpers"
+	"weavatar/pkg/helpers"
 )
 
 type HashMake struct {

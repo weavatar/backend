@@ -30,6 +30,12 @@ import (
 )
 
 type Avatar interface {
+	Sanitize(ctx http.Context) (string, string, string, int, bool, string)
+	GetQqAvatar(hash string) (image.Image, carbon.Carbon, error)
+	GetGravatarAvatar(hash string) (image.Image, carbon.Carbon, error)
+	GetDefaultAvatar(defaultAvatar string, option []string) (image.Image, carbon.Carbon, error)
+	GetDefaultAvatarByType(avatarType string, option []string) (image.Image, carbon.Carbon, error)
+	GetAvatar(appid string, hash string, defaultAvatar string, option []string) (image.Image, carbon.Carbon, string, error)
 }
 
 type AvatarImpl struct {

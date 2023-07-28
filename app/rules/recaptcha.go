@@ -1,7 +1,7 @@
 package rules
 
 import (
-	"weavatar/packages/recaptcha"
+	"weavatar/pkg/recaptcha"
 
 	"github.com/goravel/framework/contracts/validation"
 )

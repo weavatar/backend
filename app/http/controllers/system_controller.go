@@ -8,17 +8,17 @@ import (
 	"github.com/goravel/framework/support/carbon"
 
 	"weavatar/app/models"
-	packagecdn "weavatar/packages/cdn"
-	"weavatar/packages/helpers"
+	packagecdn "weavatar/pkg/cdn"
+	"weavatar/pkg/helpers"
 )
 
 type SystemController struct {
-	//Dependent services
+	// Dependent services
 }
 
 func NewSystemController() *SystemController {
 	return &SystemController{
-		//Inject services
+		// Inject services
 	}
 }
 
@@ -34,12 +34,8 @@ func (r *SystemController) CdnUsage(ctx http.Context) {
 	// 先判断下有没有缓存
 	usage := facades.Cache().GetInt64("cdn_usage", -1)
 	if usage != -1 {
-		ctx.Response().Json(http.StatusOK, http.Json{
-			"code":    0,
-			"message": "获取成功",
-			"data": http.Json{
-				"usage": usage,
-			},
+		Success(ctx, http.Json{
+			"usage": usage,
 		})
 		return
 	}
@@ -51,23 +47,11 @@ func (r *SystemController) CdnUsage(ctx http.Context) {
 		err := facades.Cache().Put("cdn_usage", usage, cacheTime*time.Second)
 		if err != nil {
 			facades.Log().Error("[SystemController][CdnUsage] 缓存CDN使用情况失败 " + err.Error())
-			ctx.Response().Json(http.StatusOK, http.Json{
-				"code":    0,
-				"message": "获取成功",
-				"data": http.Json{
-					"usage": usage,
-				},
-			})
-			return
 		}
 	}
 
-	ctx.Response().Json(http.StatusOK, http.Json{
-		"code":    0,
-		"message": "获取成功",
-		"data": http.Json{
-			"usage": usage,
-		},
+	Success(ctx, http.Json{
+		"usage": usage,
 	})
 }
 
@@ -80,29 +64,18 @@ func (r *SystemController) CheckBind(ctx http.Context) {
 	err := facades.Orm().Query().Where("hash", hash).First(&avatar)
 	if err != nil {
 		facades.Log().Error("[AvatarController][CheckBind] 查询用户头像失败 ", err.Error())
-		ctx.Response().Json(http.StatusInternalServerError, http.Json{
-			"code":    500,
-			"message": "系统内部错误",
-		})
+		Error(ctx, http.StatusInternalServerError, "系统内部错误")
 		return
 	}
 
 	if avatar.UserID == nil {
-		ctx.Response().Json(http.StatusOK, http.Json{
-			"code":    0,
-			"message": "地址未被其他用户绑定",
-			"data": http.Json{
-				"bind": false,
-			},
+		Success(ctx, http.Json{
+			"bind": false,
 		})
 		return
 	}
 
-	ctx.Response().Json(http.StatusOK, http.Json{
-		"code":    0,
-		"message": "地址已被其他用户绑定",
-		"data": http.Json{
-			"bind": true,
-		},
+	Success(ctx, http.Json{
+		"bind": true,
 	})
 }
