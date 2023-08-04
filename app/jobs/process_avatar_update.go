@@ -10,6 +10,9 @@ import (
 type ProcessAvatarUpdate struct {
 }
 
+// urls 待刷新的URL列表
+var urls []string
+
 // Signature The name and signature of the job.
 func (receiver *ProcessAvatarUpdate) Signature() string {
 	return "process_avatar_update"
@@ -68,8 +71,12 @@ func (receiver *ProcessAvatarUpdate) Handle(args ...any) error {
 		return nil
 	}
 
-	cdn := packagecdn.NewCDN()
-	cdn.RefreshUrl([]string{"weavatar.com/avatar/" + hash})
+	urls = append(urls, "weavatar.com/avatar/"+hash)
+	if len(urls) >= 30 {
+		cdn := packagecdn.NewCDN()
+		cdn.RefreshUrl(urls)
+		urls = []string{}
+	}
 
 	return nil
 }
