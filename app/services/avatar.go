@@ -480,30 +480,26 @@ func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, 
 		return nil, carbon.Now(), from, err
 	}
 	if avatar.UserID != nil && avatar.Raw != nil {
-		// 检查 Hash 是否有对应的 App
 		err = facades.Orm().Query().Where("app_id", appid).Where("avatar_hash", hash).First(&appAvatar)
 		if err != nil {
 			facades.Log().Error("WeAvatar[数据库错误] ", err.Error())
 			return nil, carbon.Now(), from, err
 		}
-		// 如果有对应的 App，则检查其 APP 头像是否封禁状态
+
 		if appAvatar.AppID != 0 {
 			if appAvatar.Ban {
 				return banImg, carbon.Now(), from, nil
 			} else {
-				// 如果不是封禁状态，则检查是否有对应的头像
 				img, imgErr = imaging.Open(facades.Storage().Path("upload/app/" + strconv.Itoa(int(appAvatar.AppID)) + "/" + hash[:2] + "/" + hash))
 			}
 		} else {
 			if avatar.Ban {
 				return banImg, carbon.Now(), from, nil
 			} else {
-				// 如果不是封禁状态，则检查是否有对应的头像
 				img, imgErr = imaging.Open(facades.Storage().Path("upload/default/" + hash[:2] + "/" + hash))
 			}
 		}
 
-		// 如果头像获取失败，则使用默认头像
 		if imgErr != nil {
 			facades.Log().Warning("WeAvatar[头像匹配失败] ", imgErr.Error())
 			img, lastModified, _ = r.GetDefaultAvatarByType(defaultAvatar, option)
@@ -513,29 +509,24 @@ func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, 
 		if avatar.Ban {
 			return banImg, carbon.Now(), from, nil
 		}
-		// 优先使用 Gravatar 头像
+
 		img, lastModified, imgErr = r.GetGravatarAvatar(hash)
 		from = "gravatar"
 		if imgErr != nil {
-			// 如果 Gravatar 头像获取失败，则使用 QQ 头像
 			img, lastModified, imgErr = r.GetQqAvatar(hash)
 			from = "qq"
 			if imgErr != nil {
-				// 如果 QQ 头像获取失败，则使用默认头像
 				img, lastModified, _ = r.GetDefaultAvatarByType(defaultAvatar, option)
 				from = "weavatar"
 			}
 		}
 	}
 
-	// 审核头像
 	if !avatar.Checked {
-		go func() {
-			_ = facades.Queue().Job(&jobs.ProcessAvatarCheck{}, []queue.Arg{
-				{Type: "string", Value: hash},
-				{Type: "string", Value: appid},
-			}).Dispatch()
-		}()
+		_ = facades.Queue().Job(&jobs.ProcessAvatarCheck{}, []queue.Arg{
+			{Type: "string", Value: hash},
+			{Type: "string", Value: appid},
+		}).Dispatch()
 	}
 
 	return img, lastModified, from, nil

@@ -7,50 +7,50 @@ import (
 	"github.com/goravel/framework/support/carbon"
 )
 
-type DDun struct {
+type AnyCast struct {
 	apiKey, apiSecret string
 }
 
-type DDunClean struct {
+type AnyCastClean struct {
 	Type string            `json:"type"`
 	Data map[string]string `json:"data"`
 }
 
-type DDunRefreshResponse struct {
+type AnyCastRefreshResponse struct {
 	Code    uint   `json:"code"`
 	Message string `json:"msg"`
 }
 
-type DDunUsageResponse struct {
+type AnyCastUsageResponse struct {
 	Code    uint      `json:"code"`
 	Data    [][2]uint `json:"data"`
 	Message string    `json:"msg"`
 }
 
 // RefreshUrl 刷新URL
-func (d *DDun) RefreshUrl(urls []string) bool {
+func (d *AnyCast) RefreshUrl(urls []string) bool {
 	client := req.C()
 
-	data := make([]DDunClean, len(urls))
+	data := make([]AnyCastClean, len(urls))
 	for i, url := range urls {
-		data[i] = DDunClean{
+		data[i] = AnyCastClean{
 			Type: "clean_url",
 			Data: map[string]string{"url": "https://" + url + "*"},
 		}
 	}
 
-	var resp DDunRefreshResponse
+	var resp AnyCastRefreshResponse
 
 	_, err := client.R().SetBody(data).SetSuccessResult(&resp).SetErrorResult(&resp).SetHeaders(map[string]string{
 		"api-key":    d.apiKey,
 		"api-secret": d.apiSecret,
-	}).Post("https://cdn.ddunyun.com/v1/jobs")
+	}).Post("https://console.cdncdnnb.com/v1/jobs")
 	if err != nil {
 		return false
 	}
 
 	if resp.Code != 0 {
-		facades.Log().Error("CDN[盾云][URL缓存刷新失败] " + resp.Message)
+		facades.Log().Error("CDN[AnyCast][URL缓存刷新失败] " + resp.Message)
 		return false
 	}
 
@@ -58,23 +58,23 @@ func (d *DDun) RefreshUrl(urls []string) bool {
 }
 
 // RefreshPath 刷新路径
-func (d *DDun) RefreshPath(paths []string) bool {
+func (d *AnyCast) RefreshPath(paths []string) bool {
 	client := req.C()
 
-	data := make([]DDunClean, len(paths))
+	data := make([]AnyCastClean, len(paths))
 	for i, url := range paths {
-		data[i] = DDunClean{
+		data[i] = AnyCastClean{
 			Type: "clean_dir",
 			Data: map[string]string{"url": "https://" + url},
 		}
 	}
 
-	var resp DDunRefreshResponse
+	var resp AnyCastRefreshResponse
 
 	post, err := client.R().SetBody(data).SetSuccessResult(&resp).SetErrorResult(&resp).SetHeaders(map[string]string{
 		"api-key":    d.apiKey,
 		"api-secret": d.apiSecret,
-	}).Post("https://cdn.ddunyun.com/v1/jobs")
+	}).Post("https://console.cdncdnnb.com/v1/jobs")
 	if err != nil {
 		return false
 	}
@@ -83,7 +83,7 @@ func (d *DDun) RefreshPath(paths []string) bool {
 	}
 
 	if resp.Code != 0 {
-		facades.Log().Error("CDN[盾云][目录缓存刷新失败] " + resp.Message)
+		facades.Log().Error("CDN[AnyCast][目录缓存刷新失败] " + resp.Message)
 		return false
 	}
 
@@ -91,16 +91,16 @@ func (d *DDun) RefreshPath(paths []string) bool {
 }
 
 // GetUsage 获取用量
-func (d *DDun) GetUsage(domain string, startTime, endTime carbon.Carbon) uint {
+func (d *AnyCast) GetUsage(domain string, startTime, endTime carbon.Carbon) uint {
 	client := req.C()
 
-	var resp DDunUsageResponse
+	var resp AnyCastUsageResponse
 
 	// 由于cdnfly这个非标准querystring，所以只能手动把参数拼接到url上了
 	post, err := client.R().SetSuccessResult(&resp).SetErrorResult(&resp).SetHeaders(map[string]string{
 		"api-key":    d.apiKey,
 		"api-secret": d.apiSecret,
-	}).Get("https://cdn.ddunyun.com/v1/monitor/site/realtime?type=req&start=" + startTime.ToDateString() + "%2000:00:00" + "&end=" + endTime.ToDateString() + "%2000:00:00" + "&domain=" + domain + "&server_post=")
+	}).Get("https://console.cdncdnnb.com/v1/monitor/site/realtime?type=req&start=" + startTime.ToDateString() + "%2000:00:00" + "&end=" + endTime.ToDateString() + "%2000:00:00" + "&domain=" + domain + "&server_post=")
 
 	if err != nil {
 		return 0
@@ -110,7 +110,7 @@ func (d *DDun) GetUsage(domain string, startTime, endTime carbon.Carbon) uint {
 	}
 
 	if resp.Code != 0 {
-		facades.Log().Error("CDN[盾云][获取用量失败] " + resp.Message)
+		facades.Log().Error("CDN[AnyCast][获取用量失败] " + resp.Message)
 		return 0
 	}
 
