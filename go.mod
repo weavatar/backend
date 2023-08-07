@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/HaoZi-Team/letteravatar v1.0.1
 	github.com/alibabacloud-go/darabonba-openapi/v2 v2.0.4
-	github.com/alibabacloud-go/dysmsapi-20170525/v3 v3.0.5
+	github.com/alibabacloud-go/dysmsapi-20170525/v3 v3.0.6
 	github.com/alibabacloud-go/green-20220302 v1.0.8
 	github.com/alibabacloud-go/tea v1.2.1
 	github.com/alibabacloud-go/tea-utils/v2 v2.0.4
