@@ -85,8 +85,8 @@ github.com/alibabacloud-go/darabonba-openapi/v2 v2.0.4 h1:7Q2FEyqxeZeIkwYMwRC3up
 github.com/alibabacloud-go/darabonba-openapi/v2 v2.0.4/go.mod h1:5JHVmnHvGzR2wNdgaW1zDLQG8kOC4Uec8ubkMogW7OQ=
 github.com/alibabacloud-go/debug v0.0.0-20190504072949-9472017b5c68 h1:NqugFkGxx1TXSh/pBcU00Y6bljgDPaFdh5MUSeJ7e50=
 github.com/alibabacloud-go/debug v0.0.0-20190504072949-9472017b5c68/go.mod h1:6pb/Qy8c+lqua8cFpEy7g39NRRqOWc3rOwAy8m5Y2BY=
-github.com/alibabacloud-go/dysmsapi-20170525/v3 v3.0.5 h1:/c+eQK0o7Lf8EIZ0ovB0cU+L82rVu1r3v91icUYnsdM=
-github.com/alibabacloud-go/dysmsapi-20170525/v3 v3.0.5/go.mod h1:CT6UkI74Or2t3NSDgGyY6hkKid3fW7VvN4l+mda+HSw=
+github.com/alibabacloud-go/dysmsapi-20170525/v3 v3.0.6 h1:UTl97mt2qfavxveqCkaVg4tKaZUPzA9RKbFIRaIdtdg=
+github.com/alibabacloud-go/dysmsapi-20170525/v3 v3.0.6/go.mod h1:UWpcGrWwTbES9QW7OQ7xDffukMJ/l7lzioixIz8+lgY=
 github.com/alibabacloud-go/endpoint-util v1.1.0/go.mod h1:O5FuCALmCKs2Ff7JFJMudHs0I5EBgecXXxZRyswlEjE=
 github.com/alibabacloud-go/endpoint-util v1.1.1 h1:ZkBv2/jnghxtU0p+upSU0GGzW1VL9GQdZO3mcSUTUy8=
 github.com/alibabacloud-go/endpoint-util v1.1.1/go.mod h1:O5FuCALmCKs2Ff7JFJMudHs0I5EBgecXXxZRyswlEjE=
@@ -106,7 +106,7 @@ github.com/alibabacloud-go/tea-utils v1.3.1/go.mod h1:EI/o33aBfj3hETm4RLiAxF/ThQ
 github.com/alibabacloud-go/tea-utils v1.4.5 h1:h0/6Xd2f3bPE4XHTvkpjwxowIwRCJAJOqY6Eq8f3zfA=
 github.com/alibabacloud-go/tea-utils v1.4.5/go.mod h1:KNcT0oXlZZxOXINnZBs6YvgOd5aYp9U67G+E3R8fcQw=
 github.com/alibabacloud-go/tea-utils/v2 v2.0.0/go.mod h1:U5MTY10WwlquGPS34DOeomUGBB0gXbLueiq5Trwu0C4=
-github.com/alibabacloud-go/tea-utils/v2 v2.0.1/go.mod h1:U5MTY10WwlquGPS34DOeomUGBB0gXbLueiq5Trwu0C4=
+github.com/alibabacloud-go/tea-utils/v2 v2.0.3/go.mod h1:sj1PbjPodAVTqGTA3olprfeeqqmwD0A5OQz94o9EuXQ=
 github.com/alibabacloud-go/tea-utils/v2 v2.0.4 h1:SoFgjJuO7pze88j9RBJNbKb7AgTS52O+J5ITxc00lCs=
 github.com/alibabacloud-go/tea-utils/v2 v2.0.4/go.mod h1:sj1PbjPodAVTqGTA3olprfeeqqmwD0A5OQz94o9EuXQ=
 github.com/alibabacloud-go/tea-xml v1.1.2/go.mod h1:Rq08vgCcCAjHyRi/M7xlHKUykZCEtyBy9+DPF6GgEu8=
