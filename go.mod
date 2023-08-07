@@ -30,7 +30,7 @@ require (
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.665
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
 	golang.org/x/image v0.11.0
-	google.golang.org/grpc v1.56.1
+	google.golang.org/grpc v1.57.0
 	gorm.io/gorm v1.25.2
 )
 
