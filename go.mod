@@ -27,8 +27,8 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cast v1.5.1
 	github.com/stretchr/testify v1.8.4
-	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.716
-	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.716
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.717
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.717
 	golang.org/x/exp v0.0.0-20230725093048-515e97ebf090
 	golang.org/x/image v0.11.0
 	google.golang.org/grpc v1.57.0
