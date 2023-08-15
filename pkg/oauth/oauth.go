@@ -4,7 +4,6 @@ import (
 	"errors"
 	"time"
 
-	"github.com/bytedance/sonic"
 	"github.com/imroc/req/v3"
 
 	"github.com/goravel/framework/facades"
@@ -57,21 +56,16 @@ func GetToken(code string) (Token, error) {
 		"client_secret": clientSecret,
 		"code":          code,
 		"redirect_uri":  redirectURI,
-	}).Get(facades.Config().GetString("haozi.account.base_url") + "/api/oauth/token")
-	if err != nil {
-		facades.Log().Warning("耗子通行证 ", " [获取Token失败] ", err.Error())
-		return token, err
-	}
-
-	// 解析Token
-	err = sonic.Unmarshal([]byte(resp.String()), &token)
+	}).SetSuccessResult(&token).Get(facades.Config().GetString("haozi.account.base_url") + "/api/oauth/token")
 	if err != nil {
 		return token, err
 	}
+	if !resp.IsSuccessState() {
+		return token, errors.New("获取Token失败: " + resp.String())
+	}
 
-	// 判断ExpiresIn是否为0
 	if token.ExpiresIn == 0 {
-		return token, errors.New("获取Token失败")
+		return token, errors.New("获取Token失败: " + resp.String())
 	}
 
 	return token, nil
@@ -84,14 +78,12 @@ func GetUserInfo(accessToken string) (BasicInfo, error) {
 	client := req.C()
 	resp, err := client.R().SetQueryParams(map[string]string{
 		"access_token": accessToken,
-	}).Get(facades.Config().GetString("haozi.account.base_url") + "/api/oauth/getBasicInfo")
-	if err != nil {
-		facades.Log().Warning("耗子通行证 ", " [获取用户信息失败] ", err.Error())
-	}
-
-	err = sonic.Unmarshal([]byte(resp.String()), &basicInfo)
+	}).SetSuccessResult(basicInfo).Get(facades.Config().GetString("haozi.account.base_url") + "/api/oauth/getBasicInfo")
 	if err != nil {
 		return basicInfo, err
+	}
+	if !resp.IsSuccessState() {
+		return basicInfo, errors.New("获取用户信息失败: " + resp.String())
 	}
 
 	if basicInfo.Code != 0 {
