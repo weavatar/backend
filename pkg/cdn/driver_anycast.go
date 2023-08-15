@@ -40,11 +40,10 @@ func (d *AnyCast) RefreshUrl(urls []string) bool {
 	}
 
 	var resp AnyCastRefreshResponse
-
 	_, err := client.R().SetBody(data).SetSuccessResult(&resp).SetErrorResult(&resp).SetHeaders(map[string]string{
 		"api-key":    d.apiKey,
 		"api-secret": d.apiSecret,
-	}).Post("https://console.cdncdnnb.com/v1/jobs")
+	}).Post("https://console.anycast.ai/v1/jobs")
 	if err != nil {
 		return false
 	}
@@ -70,11 +69,10 @@ func (d *AnyCast) RefreshPath(paths []string) bool {
 	}
 
 	var resp AnyCastRefreshResponse
-
 	post, err := client.R().SetBody(data).SetSuccessResult(&resp).SetErrorResult(&resp).SetHeaders(map[string]string{
 		"api-key":    d.apiKey,
 		"api-secret": d.apiSecret,
-	}).Post("https://console.cdncdnnb.com/v1/jobs")
+	}).Post("https://console.anycast.ai/v1/jobs")
 	if err != nil {
 		return false
 	}
@@ -95,12 +93,10 @@ func (d *AnyCast) GetUsage(domain string, startTime, endTime carbon.Carbon) uint
 	client := req.C()
 
 	var resp AnyCastUsageResponse
-
-	// 由于cdnfly这个非标准querystring，所以只能手动把参数拼接到url上了
 	post, err := client.R().SetSuccessResult(&resp).SetErrorResult(&resp).SetHeaders(map[string]string{
 		"api-key":    d.apiKey,
 		"api-secret": d.apiSecret,
-	}).Get("https://console.cdncdnnb.com/v1/monitor/site/realtime?type=req&start=" + startTime.ToDateString() + "%2000:00:00" + "&end=" + endTime.ToDateString() + "%2000:00:00" + "&domain=" + domain + "&server_post=")
+	}).Get("https://console.anycast.ai/v1/monitor/site/realtime?type=req&start=" + startTime.ToDateString() + "%2000:00:00" + "&end=" + endTime.ToDateString() + "%2000:00:00" + "&domain=" + domain + "&server_post=")
 
 	if err != nil {
 		return 0

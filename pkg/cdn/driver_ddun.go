@@ -40,7 +40,6 @@ func (d *DDun) RefreshUrl(urls []string) bool {
 	}
 
 	var resp DDunRefreshResponse
-
 	_, err := client.R().SetBody(data).SetSuccessResult(&resp).SetErrorResult(&resp).SetHeaders(map[string]string{
 		"api-key":    d.apiKey,
 		"api-secret": d.apiSecret,
@@ -70,7 +69,6 @@ func (d *DDun) RefreshPath(paths []string) bool {
 	}
 
 	var resp DDunRefreshResponse
-
 	post, err := client.R().SetBody(data).SetSuccessResult(&resp).SetErrorResult(&resp).SetHeaders(map[string]string{
 		"api-key":    d.apiKey,
 		"api-secret": d.apiSecret,
@@ -95,8 +93,6 @@ func (d *DDun) GetUsage(domain string, startTime, endTime carbon.Carbon) uint {
 	client := req.C()
 
 	var resp DDunUsageResponse
-
-	// 由于cdnfly这个非标准querystring，所以只能手动把参数拼接到url上了
 	post, err := client.R().SetSuccessResult(&resp).SetErrorResult(&resp).SetHeaders(map[string]string{
 		"api-key":    d.apiKey,
 		"api-secret": d.apiSecret,

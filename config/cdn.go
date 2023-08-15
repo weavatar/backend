@@ -29,11 +29,6 @@ func init() {
 			"api_key":    config.Env("CDN_ANYCAST_API_KEY", ""),
 			"api_secret": config.Env("CDN_ANYCAST_API_SECRET", ""),
 		},
-		// 迅捷盾
-		"fastdun": map[string]any{
-			"api_key":    config.Env("CDN_FASTDUN_API_KEY", ""),
-			"api_secret": config.Env("CDN_FASTDUN_API_SECRET", ""),
-		},
 		// 上海云盾
 		"yundun": map[string]any{
 			"username": config.Env("CDN_YUNDUN_USERNAME", ""),
