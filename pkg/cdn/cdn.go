@@ -48,11 +48,6 @@ func NewCDN() CDN {
 				apiKey:    config["api_key"],
 				apiSecret: config["api_secret"],
 			})
-		case "fastdun":
-			internalCDN.Driver = append(internalCDN.Driver, &FastDun{
-				apiKey:    config["api_key"],
-				apiSecret: config["api_secret"],
-			})
 		case "yundun":
 			internalCDN.Driver = append(internalCDN.Driver, &YunDun{
 				UserName: config["username"],
