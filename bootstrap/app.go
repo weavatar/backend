@@ -17,5 +17,6 @@ func Boot() {
 	config.Boot()
 
 	// Bootstrap the vips.
+	vips.LoggingSettings(nil, vips.LogLevelError)
 	vips.Startup(nil)
 }
