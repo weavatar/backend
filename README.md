@@ -9,14 +9,14 @@
 - Nginx >= 1.18
 - Go >= 1.20
 - TiDB >= 6.5
-- libwebp-dev（用于处理WEBP图像）
+- libvips-dev >= 8.10
 
 ## 部署
 
 ### 1. 安装依赖
 
 ```bash
-sudo yum install libwebp-devel
+apt install -y libvips-dev
 ```
 
 ### 2. 安装环境

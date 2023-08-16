@@ -3,16 +3,16 @@ package services
 import (
 	"bytes"
 	"errors"
-	"image"
 	"image/color"
+	"image/png"
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
 	"time"
 	"unicode"
 
 	"github.com/HaoZi-Team/letteravatar"
-	"github.com/disintegration/imaging"
 	"github.com/golang/freetype/truetype"
 	"github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/contracts/queue"
@@ -31,11 +31,11 @@ import (
 
 type Avatar interface {
 	Sanitize(ctx http.Context) (string, string, string, int, bool, string)
-	GetQqAvatar(hash string) (image.Image, carbon.Carbon, error)
-	GetGravatarAvatar(hash string) (image.Image, carbon.Carbon, error)
-	GetDefaultAvatar(defaultAvatar string, option []string) (image.Image, carbon.Carbon, error)
-	GetDefaultAvatarByType(avatarType string, option []string) (image.Image, carbon.Carbon, error)
-	GetAvatar(appid string, hash string, defaultAvatar string, option []string) (image.Image, carbon.Carbon, string, error)
+	GetQqAvatar(hash string) ([]byte, carbon.Carbon, error)
+	GetGravatarAvatar(hash string) ([]byte, carbon.Carbon, error)
+	GetDefaultAvatar(defaultAvatar string, option []string) ([]byte, carbon.Carbon, error)
+	GetDefaultAvatarByType(avatarType string, option []string) ([]byte, carbon.Carbon, error)
+	GetAvatar(appid string, hash string, defaultAvatar string, option []string) ([]byte, carbon.Carbon, string, error)
 }
 
 type AvatarImpl struct {
@@ -60,7 +60,7 @@ func (r *AvatarImpl) Sanitize(ctx http.Context) (string, string, string, int, bo
 		imageExt = hashExt[1]
 	}
 	// 检查图片格式是否支持
-	imageSlices := []string{"png", "jpg", "jpeg", "gif", "webp"}
+	imageSlices := []string{"png", "jpg", "jpeg", "gif", "webp", "tiff", "heif", "avif"}
 	if !slices.Contains(imageSlices, imageExt) {
 		imageExt = "webp"
 	}
@@ -116,7 +116,7 @@ func (r *AvatarImpl) Sanitize(ctx http.Context) (string, string, string, int, bo
 }
 
 // GetQqAvatar 通过 QQ 号获取头像
-func (r *AvatarImpl) GetQqAvatar(hash string) (image.Image, carbon.Carbon, error) {
+func (r *AvatarImpl) GetQqAvatar(hash string) ([]byte, carbon.Carbon, error) {
 	type qqHash struct {
 		Hash string `gorm:"primaryKey"`
 		Qq   uint   `gorm:"type:bigint;not null"`
@@ -128,7 +128,7 @@ func (r *AvatarImpl) GetQqAvatar(hash string) (image.Image, carbon.Carbon, error
 		if err != nil {
 			return nil, carbon.Now(), err
 		}
-		img, imgErr := imaging.Open(facades.Storage().Path("cache/qq/" + hash[:2] + "/" + hash))
+		img, imgErr := os.ReadFile("cache/qq/" + hash[:2] + "/" + hash)
 		lastModified, err := facades.Storage().LastModified("cache/qq/" + hash[:2] + "/" + hash)
 		lastModified = lastModified.In(gmt)
 		if imgErr == nil && err == nil {
@@ -176,14 +176,6 @@ func (r *AvatarImpl) GetQqAvatar(hash string) (image.Image, carbon.Carbon, error
 		}
 	}
 
-	// 检查图片是否正常
-	reader := bytes.NewReader(resp.Bytes())
-	img, imgErr := imaging.Decode(reader)
-	if err != nil {
-		facades.Log().Warning("QQ头像[图片不正常] ", err.Error())
-		return nil, carbon.Now(), imgErr
-	}
-
 	// 保存图片
 	err = facades.Storage().Put("cache/qq/"+hash[:2]+"/"+hash, resp.String())
 	if err != nil {
@@ -199,12 +191,12 @@ func (r *AvatarImpl) GetQqAvatar(hash string) (image.Image, carbon.Carbon, error
 	}
 	lastModified = lastModified.In(gmt)
 
-	return img, carbon.FromStdTime(lastModified), nil
+	return resp.Bytes(), carbon.FromStdTime(lastModified), nil
 }
 
 // GetGravatarAvatar 通过 Gravatar 获取头像
-func (r *AvatarImpl) GetGravatarAvatar(hash string) (image.Image, carbon.Carbon, error) {
-	var img image.Image
+func (r *AvatarImpl) GetGravatarAvatar(hash string) ([]byte, carbon.Carbon, error) {
+	var img []byte
 	var imgErr error
 
 	if facades.Storage().Exists("cache/gravatar/" + hash[:2] + "/" + hash) {
@@ -212,7 +204,7 @@ func (r *AvatarImpl) GetGravatarAvatar(hash string) (image.Image, carbon.Carbon,
 		if err != nil {
 			return nil, carbon.Now(), err
 		}
-		img, imgErr = imaging.Open(facades.Storage().Path("cache/gravatar/" + hash[:2] + "/" + hash))
+		img, imgErr = os.ReadFile("cache/gravatar/" + hash[:2] + "/" + hash)
 		lastModified, err := facades.Storage().LastModified("cache/gravatar/" + hash[:2] + "/" + hash)
 		lastModified = lastModified.In(gmt)
 		if imgErr == nil && err == nil {
@@ -225,14 +217,6 @@ func (r *AvatarImpl) GetGravatarAvatar(hash string) (image.Image, carbon.Carbon,
 	resp, reqErr := client.R().Get("http://proxy.server/http://0.gravatar.com/avatar/" + hash + ".png?s=600&r=g&d=404")
 	if reqErr != nil || !resp.IsSuccessState() {
 		return nil, carbon.Now(), errors.New("获取 Gravatar头像 失败")
-	}
-
-	// 检查图片是否正常
-	reader := bytes.NewReader(resp.Bytes())
-	img, imgErr = imaging.Decode(reader)
-	if imgErr != nil {
-		facades.Log().Warning("Gravatar[图片不正常] ", imgErr.Error())
-		return nil, carbon.Now(), imgErr
 	}
 
 	// 保存图片
@@ -250,17 +234,17 @@ func (r *AvatarImpl) GetGravatarAvatar(hash string) (image.Image, carbon.Carbon,
 		return nil, carbon.Now(), err
 	}
 
-	return img, carbon.FromStdTime(lastModified), nil
+	return resp.Bytes(), carbon.FromStdTime(lastModified), nil
 }
 
 // GetDefaultAvatar 通过默认参数获取头像
-func (r *AvatarImpl) GetDefaultAvatar(defaultAvatar string, option []string) (image.Image, carbon.Carbon, error) {
+func (r *AvatarImpl) GetDefaultAvatar(defaultAvatar string, option []string) ([]byte, carbon.Carbon, error) {
 	if defaultAvatar == "404" {
 		return nil, carbon.Now(), nil
 	}
 
 	if defaultAvatar == "" {
-		img, imgErr := imaging.Open(facades.Storage().Path("default/default.png"))
+		img, imgErr := os.ReadFile(facades.Storage().Path("default/default.png"))
 		if imgErr != nil {
 			return nil, carbon.Now(), imgErr
 		}
@@ -269,7 +253,7 @@ func (r *AvatarImpl) GetDefaultAvatar(defaultAvatar string, option []string) (im
 	}
 
 	if defaultAvatar == "mp" {
-		img, imgErr := imaging.Open(facades.Storage().Path("default/mp.png"))
+		img, imgErr := os.ReadFile(facades.Storage().Path("default/mp.png"))
 		if imgErr != nil {
 			return nil, carbon.Now(), imgErr
 		}
@@ -279,7 +263,13 @@ func (r *AvatarImpl) GetDefaultAvatar(defaultAvatar string, option []string) (im
 
 	if defaultAvatar == "identicon" {
 		img := identicon.Make(identicon.Style1, 1200, color.RGBA{R: 255, A: 100}, color.RGBA{R: 102, G: 204, B: 255, A: 255}, []byte(option[0]))
-		return img, carbon.Now(), nil
+		var buf bytes.Buffer
+		err := png.Encode(&buf, img)
+		if err != nil {
+			return nil, carbon.Now(), err
+		}
+
+		return buf.Bytes(), carbon.Now(), nil
 	}
 
 	if defaultAvatar == "monsterid" {
@@ -287,25 +277,29 @@ func (r *AvatarImpl) GetDefaultAvatar(defaultAvatar string, option []string) (im
 		if err != nil {
 			return nil, carbon.Now(), err
 		}
-
-		return img, carbon.Now(), nil
-	}
-
-	if defaultAvatar == "wavatar" {
-		avatar := adorable.PseudoRandom([]byte(option[0]))
-		img, err := imaging.Decode(bytes.NewReader(avatar))
-
+		var buf bytes.Buffer
+		err = png.Encode(&buf, img)
 		if err != nil {
 			return nil, carbon.Now(), err
 		}
 
-		return img, carbon.Now(), nil
+		return buf.Bytes(), carbon.Now(), nil
+	}
+
+	if defaultAvatar == "wavatar" {
+		return adorable.PseudoRandom([]byte(option[0])), carbon.Now(), nil
 	}
 
 	if defaultAvatar == "retro" {
 		ii := identicon.New(identicon.Style2, 1200, color.RGBA{R: 255, A: 100}, color.RGBA{R: 102, G: 204, B: 255, A: 255})
 		img := ii.Make([]byte(option[0]))
-		return img, carbon.Now(), nil
+		var buf bytes.Buffer
+		err := png.Encode(&buf, img)
+		if err != nil {
+			return nil, carbon.Now(), err
+		}
+
+		return buf.Bytes(), carbon.Now(), nil
 	}
 
 	if defaultAvatar == "robohash" {
@@ -313,12 +307,17 @@ func (r *AvatarImpl) GetDefaultAvatar(defaultAvatar string, option []string) (im
 		if err != nil {
 			return nil, carbon.Now(), err
 		}
+		var buf bytes.Buffer
+		err = png.Encode(&buf, img)
+		if err != nil {
+			return nil, carbon.Now(), err
+		}
 
-		return img, carbon.Now(), nil
+		return buf.Bytes(), carbon.Now(), nil
 	}
 
 	if defaultAvatar == "blank" {
-		img, imgErr := imaging.Open(facades.Storage().Path("default/blank.png"))
+		img, imgErr := os.ReadFile(facades.Storage().Path("default/blank.png"))
 		if imgErr != nil {
 			return nil, carbon.Now(), imgErr
 		}
@@ -392,13 +391,19 @@ func (r *AvatarImpl) GetDefaultAvatar(defaultAvatar string, option []string) (im
 			return nil, carbon.Now(), err
 		}
 
-		return img, carbon.Now(), nil
+		var buf bytes.Buffer
+		err = png.Encode(&buf, img)
+		if err != nil {
+			return nil, carbon.Now(), err
+		}
+
+		return buf.Bytes(), carbon.Now(), nil
 	}
 
 	client := req.C()
 	resp, reqErr := client.R().Get(defaultAvatar)
 	if reqErr != nil || !resp.IsSuccessState() {
-		img, imgErr := imaging.Open(facades.Storage().Path("default/default.png"))
+		img, imgErr := os.ReadFile(facades.Storage().Path("default/default.png"))
 		if imgErr != nil {
 			return nil, carbon.Now(), imgErr
 		}
@@ -406,22 +411,12 @@ func (r *AvatarImpl) GetDefaultAvatar(defaultAvatar string, option []string) (im
 		return img, carbon.Now(), nil
 	}
 
-	// 检查图片是否正常
-	reader := bytes.NewReader(resp.Bytes())
-	img, imgErr := imaging.Decode(reader)
-	if imgErr != nil {
-		img, imgErr = imaging.Open(facades.Storage().Path("default/default.png"))
-		if imgErr != nil {
-			return nil, carbon.Now(), imgErr
-		}
-	}
-
-	return img, carbon.Now(), nil
+	return resp.Bytes(), carbon.Now(), nil
 }
 
 // GetDefaultAvatarByType 通过默认头像类型获取头像
-func (r *AvatarImpl) GetDefaultAvatarByType(avatarType string, option []string) (image.Image, carbon.Carbon, error) {
-	var avatar image.Image
+func (r *AvatarImpl) GetDefaultAvatarByType(avatarType string, option []string) ([]byte, carbon.Carbon, error) {
+	var avatar []byte
 	var lastModified carbon.Carbon
 	var err error
 
@@ -452,15 +447,15 @@ func (r *AvatarImpl) GetDefaultAvatarByType(avatarType string, option []string) 
 }
 
 // GetAvatar 获取头像
-func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, option []string) (image.Image, carbon.Carbon, string, error) {
+func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, option []string) ([]byte, carbon.Carbon, string, error) {
 	var avatar models.Avatar
 	var appAvatar models.AppAvatar
 	var err error
 
-	var img image.Image
+	var img []byte
 	var lastModified carbon.Carbon
 
-	banImg, banImgErr := imaging.Open(facades.Storage().Path("default/ban.png"))
+	banImg, banImgErr := os.ReadFile(facades.Storage().Path("default/ban.png"))
 	from := "weavatar"
 	var imgErr error
 	if banImgErr != nil {
@@ -490,13 +485,13 @@ func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, 
 			if appAvatar.Ban {
 				return banImg, carbon.Now(), from, nil
 			} else {
-				img, imgErr = imaging.Open(facades.Storage().Path("upload/app/" + strconv.Itoa(int(appAvatar.AppID)) + "/" + hash[:2] + "/" + hash))
+				img, imgErr = os.ReadFile(facades.Storage().Path("upload/app/" + strconv.Itoa(int(appAvatar.AppID)) + "/" + hash[:2] + "/" + hash))
 			}
 		} else {
 			if avatar.Ban {
 				return banImg, carbon.Now(), from, nil
 			} else {
-				img, imgErr = imaging.Open(facades.Storage().Path("upload/default/" + hash[:2] + "/" + hash))
+				img, imgErr = os.ReadFile(facades.Storage().Path("upload/default/" + hash[:2] + "/" + hash))
 			}
 		}
 

@@ -4,9 +4,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/imroc/req/v3"
-
 	"github.com/goravel/framework/facades"
+	"github.com/imroc/req/v3"
 
 	"weavatar/pkg/helpers"
 )

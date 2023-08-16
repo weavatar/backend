@@ -1,6 +1,7 @@
 package bootstrap
 
 import (
+	"github.com/davidbyttow/govips/v2/vips"
 	"github.com/goravel/framework/foundation"
 
 	"weavatar/config"
@@ -14,4 +15,7 @@ func Boot() {
 
 	// Bootstrap the config.
 	config.Boot()
+
+	// Bootstrap the vips.
+	vips.Startup(nil)
 }

@@ -10,8 +10,7 @@ require (
 	github.com/alibabacloud-go/tea v1.2.1
 	github.com/alibabacloud-go/tea-utils/v2 v2.0.4
 	github.com/bytedance/sonic v1.9.2
-	github.com/chai2010/webp v1.1.1
-	github.com/disintegration/imaging v1.6.2
+	github.com/davidbyttow/govips/v2 v2.13.0
 	github.com/gertd/go-pluralize v0.2.1
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/gookit/color v1.5.4
