@@ -1,13 +1,10 @@
 package controllers
 
 import (
-	"bytes"
-	"image"
 	"os"
 	"strings"
 
-	"github.com/chai2010/webp"
-	"github.com/disintegration/imaging"
+	"github.com/davidbyttow/govips/v2/vips"
 	"github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/facades"
 	"github.com/goravel/framework/support/carbon"
@@ -36,7 +33,7 @@ func (c *AvatarController) Avatar(ctx http.Context) {
 
 	carbon.SetTimezone(carbon.GMT)
 
-	var avatar image.Image
+	var avatar []byte
 	var lastModified carbon.Carbon
 	var option []string
 	var err error
@@ -66,10 +63,40 @@ func (c *AvatarController) Avatar(ctx http.Context) {
 		return
 	}
 
-	img := imaging.Resize(avatar, size, size, imaging.Lanczos)
-	imageData, imgErr := c.encodeImage(img, imageExt)
-	if imgErr != nil {
-		facades.Log().Error("WeAvatar[生成头像错误] ", imgErr.Error())
+	img, err := vips.NewImageFromBuffer(avatar)
+	if err != nil {
+		facades.Log().Error("WeAvatar[生成头像错误] ", err.Error())
+		ctx.Response().String(http.StatusInternalServerError, "WeAvatar 服务出现错误")
+		return
+	}
+	err = img.Thumbnail(size, size, vips.InterestingCentre)
+	if err != nil {
+		facades.Log().Error("WeAvatar[缩放头像错误] ", err.Error())
+		ctx.Response().String(http.StatusInternalServerError, "WeAvatar 服务出现错误")
+		return
+	}
+
+	var imageData []byte
+	switch imageExt {
+	case "webp":
+		imageData, _, err = img.ExportWebp(vips.NewWebpExportParams())
+	case "png":
+		imageData, _, err = img.ExportPng(vips.NewPngExportParams())
+	case "jpg", "jpeg":
+		imageData, _, err = img.ExportJpeg(vips.NewJpegExportParams())
+	case "gif":
+		imageData, _, err = img.ExportGIF(vips.NewGifExportParams())
+	case "tiff":
+		imageData, _, err = img.ExportTiff(vips.NewTiffExportParams())
+	case "heif":
+		imageData, _, err = img.ExportHeif(vips.NewHeifExportParams())
+	case "avif":
+		imageData, _, err = img.ExportAvif(vips.NewAvifExportParams())
+	default:
+		imageData, _, err = img.ExportWebp(vips.NewWebpExportParams())
+	}
+	if err != nil {
+		facades.Log().Error("WeAvatar[编码头像错误] ", err.Error())
 		ctx.Response().String(http.StatusInternalServerError, "WeAvatar 服务出现错误")
 		return
 	}
@@ -83,31 +110,6 @@ func (c *AvatarController) Avatar(ctx http.Context) {
 	ctx.Response().Data(http.StatusOK, "image/"+imageExt, imageData)
 
 	carbon.SetTimezone(carbon.PRC)
-}
-
-// encodeImage 编码图片为指定格式
-func (c *AvatarController) encodeImage(img image.Image, imageExt string) ([]byte, error) {
-	var err error
-	writer := bytes.NewBuffer([]byte{})
-
-	switch imageExt {
-	case "webp":
-		err = webp.Encode(writer, img, &webp.Options{Lossless: true})
-	case "png":
-		err = imaging.Encode(writer, img, imaging.PNG)
-	case "jpg", "jpeg":
-		err = imaging.Encode(writer, img, imaging.JPEG)
-	case "gif":
-		err = imaging.Encode(writer, img, imaging.GIF)
-	default:
-		err = imaging.Encode(writer, img, imaging.PNG)
-	}
-
-	if err != nil {
-		return nil, err
-	}
-
-	return writer.Bytes(), nil
 }
 
 // Index 获取头像列表
@@ -187,15 +189,13 @@ func (c *AvatarController) Store(ctx http.Context) {
 		return
 	}
 
-	decode, decodeErr := imaging.Decode(bytes.NewReader(file))
-	if decodeErr != nil {
-		facades.Log().Error("[AvatarController][Store] 解析图片失败 ", decodeErr.Error())
-		Error(ctx, http.StatusInternalServerError, "系统内部错误")
+	img, err := vips.NewImageFromBuffer(file)
+	if err != nil {
+		facades.Log().Error("[AvatarController][Store] 解析图片失败 ", err.Error())
+		Error(ctx, http.StatusInternalServerError, "无法解析图片")
 		return
 	}
-
-	// 判断图片长宽是否符合要求
-	if decode.Bounds().Dx() != decode.Bounds().Dy() {
+	if img.Width() != img.Height() {
 		Error(ctx, http.StatusUnprocessableEntity, "图片长宽必须相等")
 		return
 	}
@@ -299,15 +299,13 @@ func (c *AvatarController) Update(ctx http.Context) {
 		return
 	}
 
-	decode, decodeErr := imaging.Decode(bytes.NewReader(file))
-	if decodeErr != nil {
-		facades.Log().Error("[AvatarController][Update] 解析图片失败 ", decodeErr.Error())
-		Error(ctx, http.StatusInternalServerError, "系统内部错误")
+	img, err := vips.NewImageFromBuffer(file)
+	if err != nil {
+		facades.Log().Error("[AvatarController][Store] 解析图片失败 ", err.Error())
+		Error(ctx, http.StatusInternalServerError, "无法解析图片")
 		return
 	}
-
-	// 判断图片长宽是否符合要求
-	if decode.Bounds().Dx() != decode.Bounds().Dy() {
+	if img.Width() != img.Height() {
 		Error(ctx, http.StatusUnprocessableEntity, "图片长宽必须相等")
 		return
 	}

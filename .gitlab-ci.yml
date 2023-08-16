@@ -1,4 +1,4 @@
-image: golang:alpine
+image: golang:bullseye
 
 # 在每个任务执行前运行
 before_script:
@@ -27,13 +27,13 @@ stages:
 
 golangci_lint:
   stage: prepare
-  image: golangci/golangci-lint:latest-alpine
+  image: golangci/golangci-lint:latest
   extends: .go_cache
   allow_failure: true
   before_script:
-    - sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
-    - apk add --no-cache libwebp-dev aom-dev
-    - apk add --no-cache build-base
+    - wget -O /etc/apt/sources.list https://mirrors.ustc.edu.cn/repogen/conf/debian-http-4-bookworm
+    - apt update
+    - apt install -y build-essential libvips-dev
   script:
     - golangci-lint run --timeout 30m
 
@@ -42,9 +42,9 @@ unit_test:
   extends: .go_cache
   allow_failure: true
   before_script:
-    - sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
-    - apk add --no-cache libwebp-dev aom-dev
-    - apk add --no-cache build-base
+    - wget -O /etc/apt/sources.list https://mirrors.ustc.edu.cn/repogen/conf/debian-http-4-bookworm
+    - apt update
+    - apt install -y build-essential libvips-dev
   script:
     - go test -v -coverprofile=coverage.txt -covermode=atomic ./...
 
@@ -52,12 +52,12 @@ build:
   stage: build
   extends: .go_cache
   before_script:
-    - sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
-    - apk add --no-cache libwebp-dev aom-dev
-    - apk add --no-cache build-base
+    - wget -O /etc/apt/sources.list https://mirrors.ustc.edu.cn/repogen/conf/debian-http-4-bookworm
+    - apt update
+    - apt install -y build-essential libvips-dev
   script:
     - go mod download
-    - CGO_ENABLED=1 GOAMD64=v3 go build  -tags="sonic avx nomsgpack" -ldflags '-s -w --extldflags "-static -fpic"' -o $OUTPUT_NAME
+    - CGO_ENABLED=1 GOAMD64=v3 go build  -tags="sonic avx nomsgpack" -ldflags '-s -w' -o $OUTPUT_NAME
   artifacts:
     name: "$OUTPUT_NAME"
     paths:
