@@ -7,17 +7,17 @@ import (
 )
 
 func main() {
-	// This bootstraps the framework and gets it ready for use.
+	// WeAvatar，启动！
 	bootstrap.Boot()
 
-	// Start http server by facades.Route().
+	// 路由，启动！
 	go func() {
 		if err := facades.Route().Run(); err != nil {
 			facades.Log().Errorf("Route run error: %v", err)
 		}
 	}()
 
-	// Start schedule by facades.Schedule()
+	// 计划任务，启动！
 	go facades.Schedule().Run()
 
 	select {}

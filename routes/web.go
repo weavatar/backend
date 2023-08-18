@@ -33,14 +33,13 @@ func Web() {
 		route.Middleware(middleware.Jwt()).Get("info", userController.GetInfo)
 		route.Middleware(middleware.Jwt()).Put("info", userController.UpdateInfo)
 		route.Middleware(middleware.Jwt()).Post("logout", userController.Logout)
-		route.Middleware(middleware.Jwt()).Post("refresh", userController.Refresh)
 	})
-	facades.Route().Middleware(frameworkmiddleware.Throttle("global")).Group(func(route route.Route) {
-		route.Middleware(middleware.Jwt()).Resource("avatars", avatarController)
+	facades.Route().Middleware(frameworkmiddleware.Throttle("global"), middleware.Jwt()).Group(func(route route.Route) {
+		route.Resource("avatars", avatarController)
 	})
-	facades.Route().Middleware(frameworkmiddleware.Throttle("global")).Group(func(route route.Route) {
+	facades.Route().Middleware(frameworkmiddleware.Throttle("global"), middleware.Jwt()).Group(func(route route.Route) {
 		appController := controllers.NewAppController()
-		route.Middleware(middleware.Jwt()).Resource("apps", appController)
+		route.Resource("apps", appController)
 	})
 
 	facades.Route().Prefix("system").Middleware(frameworkmiddleware.Throttle("global")).Group(func(route route.Route) {

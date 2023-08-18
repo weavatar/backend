@@ -8,26 +8,23 @@ import (
 	"github.com/spf13/cast"
 )
 
-// Message 短信的结构体
+// Message 短信结构体
 type Message struct {
 	Data map[string]string
 
 	Content string
 }
 
-// SMS 发送短信操作类
 type SMS struct {
 	Driver Driver
 	Config map[string]string
 }
 
-// once 单例模式
 var once sync.Once
 
-// internalSMS 内部使用的 SMS 对象
 var internalSMS *SMS
 
-// NewSMS 单例模式获取
+// NewSMS 创建短信实例
 func NewSMS() *SMS {
 	driver := facades.Config().Get("sms.driver")
 	config := make(map[string]string)
@@ -55,6 +52,7 @@ func NewSMS() *SMS {
 	return internalSMS
 }
 
-func (sms *SMS) Send(phone string, message Message) bool {
-	return sms.Driver.Send(phone, message, sms.Config)
+// Send 发送短信
+func (s *SMS) Send(phone string, message Message) bool {
+	return s.Driver.Send(phone, message, s.Config)
 }

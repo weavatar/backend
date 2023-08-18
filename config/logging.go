@@ -26,13 +26,13 @@ func init() {
 			},
 			"single": map[string]any{
 				"driver": "single",
-				"path":   "storage/logs/goravel.log",
+				"path":   "storage/logs/weavatar.log",
 				"level":  config.Env("LOG_LEVEL", "debug"),
 				"print":  false,
 			},
 			"daily": map[string]any{
 				"driver": "daily",
-				"path":   "storage/logs/goravel.log",
+				"path":   "storage/logs/weavatar.log",
 				"level":  config.Env("LOG_LEVEL", "debug"),
 				"days":   7,
 				"print":  false,

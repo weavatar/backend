@@ -14,7 +14,7 @@ type RouteServiceProvider struct {
 }
 
 func (receiver *RouteServiceProvider) Register(app foundation.Application) {
-	//Add HTTP middlewares
+	// Add HTTP middlewares
 	facades.Route().GlobalMiddleware(http.Kernel{}.Middleware()...)
 }
 
@@ -35,7 +35,7 @@ func (receiver *RouteServiceProvider) configureRateLimiting() {
 	})
 	facades.RateLimiter().ForWithLimits("verify_code", func(ctx contractshttp.Context) []contractshttp.Limit {
 		return []contractshttp.Limit{
-			limit.PerMinute(5).Response(func(ctx contractshttp.Context) {
+			limit.PerMinute(2).Response(func(ctx contractshttp.Context) {
 				ctx.Request().AbortWithStatusJson(contractshttp.StatusTooManyRequests, contractshttp.Json{
 					"code":    contractshttp.StatusTooManyRequests,
 					"message": "达到请求上限，请稍后再试",
@@ -44,13 +44,13 @@ func (receiver *RouteServiceProvider) configureRateLimiting() {
 			limit.PerDay(50).By(ctx.Request().Ip()).Response(func(ctx contractshttp.Context) {
 				ctx.Request().AbortWithStatusJson(contractshttp.StatusTooManyRequests, contractshttp.Json{
 					"code":    contractshttp.StatusTooManyRequests,
-					"message": "达到请求上限，请稍后再试",
+					"message": "达到请求上限，请明天再试",
 				})
 			}),
 		}
 	})
 	facades.RateLimiter().For("captcha", func(ctx contractshttp.Context) contractshttp.Limit {
-		return limit.PerMinute(60).Response(func(ctx contractshttp.Context) {
+		return limit.PerMinute(30).Response(func(ctx contractshttp.Context) {
 			ctx.Request().AbortWithStatusJson(contractshttp.StatusTooManyRequests, contractshttp.Json{
 				"code":    contractshttp.StatusTooManyRequests,
 				"message": "达到请求上限，请稍后再试",

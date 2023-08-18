@@ -10,13 +10,13 @@ import (
 func Boot() {
 	app := foundation.NewApplication()
 
-	// Bootstrap the application
+	// 框架，启动！
 	app.Boot()
 
-	// Bootstrap the config.
+	// 配置，启动！
 	config.Boot()
 
-	// Bootstrap the vips.
+	// Vips，启动！
 	vips.LoggingSettings(nil, vips.LogLevelError)
 	vips.Startup(nil)
 }

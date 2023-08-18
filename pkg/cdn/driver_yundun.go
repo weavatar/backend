@@ -12,7 +12,7 @@ import (
 	"github.com/goravel/framework/facades"
 	"github.com/goravel/framework/support/carbon"
 
-	"weavatar/pkg/helpers"
+	"weavatar/pkg/helper"
 )
 
 type YunDun struct {
@@ -23,7 +23,7 @@ type YunDun struct {
 func (y *YunDun) RefreshUrl(urls []string) bool {
 	timeStamp := strconv.Itoa(int(carbon.Now().TimestampMilli()))
 	rand.NewSource(time.Now().UnixNano())
-	random := helpers.RandomNumber(16)
+	random := helper.RandomNumber(16)
 	callback := "jsonp_" + timeStamp + "_" + random
 	attachURL := fmt.Sprintf("https://www.yundun.com/api/sso/V4/attach?callback=%s&_time=%s", callback, timeStamp)
 
@@ -81,7 +81,7 @@ func (y *YunDun) RefreshUrl(urls []string) bool {
 func (y *YunDun) RefreshPath(paths []string) bool {
 	timeStamp := strconv.Itoa(int(carbon.Now().TimestampMilli()))
 	rand.NewSource(time.Now().UnixNano())
-	random := helpers.RandomNumber(16)
+	random := helper.RandomNumber(16)
 	callback := "jsonp_" + timeStamp + "_" + random
 	attachURL := fmt.Sprintf("https://www.yundun.com/api/sso/V4/attach?callback=%s&_time=%s", callback, timeStamp)
 

@@ -8,7 +8,7 @@ import (
 
 	"weavatar/app/models"
 	packagecdn "weavatar/pkg/cdn"
-	"weavatar/pkg/helpers"
+	"weavatar/pkg/helper"
 	"weavatar/pkg/imagecheck"
 )
 
@@ -67,14 +67,14 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 				facades.Log().Error("图片审核[文件读取失败] " + fileErr.Error())
 				return nil
 			}
-			imageHash = helpers.MD5(fileString)
+			imageHash = helper.MD5(fileString)
 		} else {
 			client := req.C()
 			resp, reqErr := client.R().Get("http://proxy.server/http://0.gravatar.com/avatar/" + hash + ".png?s=600&r=g&d=404")
 			if reqErr != nil || !resp.IsSuccessState() {
 				return nil
 			}
-			imageHash = helpers.MD5(resp.String())
+			imageHash = helper.MD5(resp.String())
 		}
 
 		checker := imagecheck.NewChecker()
@@ -145,7 +145,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 			facades.Log().Error("图片审核[文件读取失败] " + fileErr.Error())
 			return nil
 		}
-		imageHash = helpers.MD5(fileString)
+		imageHash = helper.MD5(fileString)
 	} else {
 		return nil
 	}

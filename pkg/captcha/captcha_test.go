@@ -4,10 +4,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/goravel/framework/testing/mock"
 	testifymock "github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
-
-	"github.com/goravel/framework/testing/mock"
 )
 
 type CaptchaTestSuite struct {
@@ -28,14 +27,17 @@ func TestCaptchaTestSuite(t *testing.T) {
 	mockConfig.On("GetBool", "app.debug").Return(true).Once()
 	mockCache, _, _ := mock.Cache()
 	mockCache.On("Put", testifymock.Anything, testifymock.Anything, time.Minute*time.Duration(10)).Return(nil).Once()
+
 	suite.Run(t, &CaptchaTestSuite{
 		captcha: NewCaptcha(),
 	})
+
 	mockConfig.AssertExpectations(t)
 }
 
 func (s *CaptchaTestSuite) TestGenerateCaptcha() {
 	id, base64, err := s.captcha.GenerateCaptcha()
+
 	s.NotEmpty(id)
 	s.NotEmpty(base64)
 	s.Nil(err)

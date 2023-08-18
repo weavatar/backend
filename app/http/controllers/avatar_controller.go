@@ -14,7 +14,7 @@ import (
 	"weavatar/app/models"
 	"weavatar/app/services"
 	packagecdn "weavatar/pkg/cdn"
-	"weavatar/pkg/helpers"
+	"weavatar/pkg/helper"
 )
 
 type AvatarController struct {
@@ -28,8 +28,8 @@ func NewAvatarController() *AvatarController {
 }
 
 // Avatar 获取头像
-func (c *AvatarController) Avatar(ctx http.Context) {
-	appid, hash, imageExt, size, forceDefault, defaultAvatar := c.avatar.Sanitize(ctx)
+func (r *AvatarController) Avatar(ctx http.Context) {
+	appid, hash, imageExt, size, forceDefault, defaultAvatar := r.avatar.Sanitize(ctx)
 
 	carbon.SetTimezone(carbon.GMT)
 
@@ -46,9 +46,9 @@ func (c *AvatarController) Avatar(ctx http.Context) {
 	}
 
 	if forceDefault {
-		avatar, lastModified, err = c.avatar.GetDefaultAvatarByType(defaultAvatar, option)
+		avatar, lastModified, err = r.avatar.GetDefaultByType(defaultAvatar, option)
 	} else {
-		avatar, lastModified, from, err = c.avatar.GetAvatar(appid, hash, defaultAvatar, option)
+		avatar, lastModified, from, err = r.avatar.GetAvatar(appid, hash, defaultAvatar, option)
 	}
 
 	// 判断一下 404 请求
@@ -113,9 +113,9 @@ func (c *AvatarController) Avatar(ctx http.Context) {
 }
 
 // Index 获取头像列表
-func (c *AvatarController) Index(ctx http.Context) {
-	user, ok := ctx.Value("user").(models.User)
-	if !ok {
+func (r *AvatarController) Index(ctx http.Context) {
+	var user models.User
+	if err := facades.Auth().User(ctx, &user); err != nil {
 		Error(ctx, http.StatusUnauthorized, "登录已过期")
 		return
 	}
@@ -132,9 +132,9 @@ func (c *AvatarController) Index(ctx http.Context) {
 }
 
 // Show 获取头像详情
-func (c *AvatarController) Show(ctx http.Context) {
-	user, ok := ctx.Value("user").(models.User)
-	if !ok {
+func (r *AvatarController) Show(ctx http.Context) {
+	var user models.User
+	if err := facades.Auth().User(ctx, &user); err != nil {
 		Error(ctx, http.StatusUnauthorized, "登录已过期")
 		return
 	}
@@ -156,25 +156,16 @@ func (c *AvatarController) Show(ctx http.Context) {
 }
 
 // Store 添加头像
-func (c *AvatarController) Store(ctx http.Context) {
-	user, ok := ctx.Value("user").(models.User)
-	if !ok {
+func (r *AvatarController) Store(ctx http.Context) {
+	var user models.User
+	if err := facades.Auth().User(ctx, &user); err != nil {
 		Error(ctx, http.StatusUnauthorized, "登录已过期")
 		return
 	}
 
 	var storeAvatarRequest requests.StoreAvatarRequest
-	errors, err := ctx.Request().ValidateRequest(&storeAvatarRequest)
-	if err != nil {
-		Error(ctx, http.StatusUnprocessableEntity, err.Error())
-		return
-	}
-	if errors != nil {
-		Error(ctx, http.StatusUnprocessableEntity, errors.All())
-		return
-	}
+	Sanitize(ctx, &storeAvatarRequest)
 
-	// 尝试解析图片
 	upload, uploadErr := ctx.Request().File("avatar")
 	if uploadErr != nil {
 		facades.Log().Error("[AvatarController][Store] 解析上传失败 ", uploadErr.Error())
@@ -201,7 +192,7 @@ func (c *AvatarController) Store(ctx http.Context) {
 	}
 
 	var avatar models.Avatar
-	hash := helpers.MD5(storeAvatarRequest.Raw)
+	hash := helper.MD5(storeAvatarRequest.Raw)
 	_, err = facades.Orm().Query().Exec(`INSERT INTO avatars (hash, created_at, updated_at) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE updated_at=VALUES(updated_at)`, hash, carbon.DateTime{Carbon: carbon.Now()}, carbon.DateTime{Carbon: carbon.Now()})
 	if err != nil {
 		facades.Log().Error("[AvatarController][Store] 初始化查询用户头像失败 ", err.Error())
@@ -247,23 +238,15 @@ func (c *AvatarController) Store(ctx http.Context) {
 }
 
 // Update 更新头像
-func (c *AvatarController) Update(ctx http.Context) {
-	user, ok := ctx.Value("user").(models.User)
-	if !ok {
+func (r *AvatarController) Update(ctx http.Context) {
+	var user models.User
+	if err := facades.Auth().User(ctx, &user); err != nil {
 		Error(ctx, http.StatusUnauthorized, "登录已过期")
 		return
 	}
 
 	var updateAvatarRequest requests.UpdateAvatarRequest
-	errors, err := ctx.Request().ValidateRequest(&updateAvatarRequest)
-	if err != nil {
-		Error(ctx, http.StatusUnprocessableEntity, err.Error())
-		return
-	}
-	if errors != nil {
-		Error(ctx, http.StatusUnprocessableEntity, errors.All())
-		return
-	}
+	Sanitize(ctx, &updateAvatarRequest)
 
 	hash := ctx.Request().Input("id")
 	if len(hash) != 32 {
@@ -272,7 +255,7 @@ func (c *AvatarController) Update(ctx http.Context) {
 	}
 
 	var avatar models.Avatar
-	err = facades.Orm().Query().Where("hash", hash).Where("user_id", user.ID).First(&avatar)
+	err := facades.Orm().Query().Where("hash", hash).Where("user_id", user.ID).First(&avatar)
 	if err != nil {
 		facades.Log().Error("[AvatarController][Update] 查询用户头像失败 ", err.Error())
 		Error(ctx, http.StatusInternalServerError, "系统内部错误")
@@ -336,9 +319,9 @@ func (c *AvatarController) Update(ctx http.Context) {
 }
 
 // Destroy 删除头像
-func (c *AvatarController) Destroy(ctx http.Context) {
-	user, ok := ctx.Value("user").(models.User)
-	if !ok {
+func (r *AvatarController) Destroy(ctx http.Context) {
+	var user models.User
+	if err := facades.Auth().User(ctx, &user); err != nil {
 		Error(ctx, http.StatusUnauthorized, "登录已过期")
 		return
 	}

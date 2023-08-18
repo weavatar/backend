@@ -21,13 +21,11 @@ type recaptchaResponse struct {
 	ErrorCodes  []string  `json:"error-codes"`
 }
 
-// once 单例模式
 var once sync.Once
 
-// internalRecaptcha 内部使用的 Recaptcha 对象
 var internalRecaptcha *Recaptcha
 
-// NewRecaptcha 单例模式获取
+// NewRecaptcha 创建 Recaptcha 实例
 func NewRecaptcha() *Recaptcha {
 	once.Do(func() {
 		internalRecaptcha = &Recaptcha{
@@ -37,9 +35,16 @@ func NewRecaptcha() *Recaptcha {
 	return internalRecaptcha
 }
 
-const recaptchaServer = "https://recaptcha.net/recaptcha/api/siteverify"
+// Confirm 验证 Recaptcha
+func (re *Recaptcha) Confirm(remoteIp, response, action string) bool {
+	resp, err := re.check(remoteIp, response)
+	if err != nil {
+		return false
+	}
 
-// check 内部使用的检查方法
+	return resp.Success && resp.Score >= 0.7 && resp.Action == action
+}
+
 func (re *Recaptcha) check(remoteIp, response string) (r recaptchaResponse, err error) {
 	client := req.C()
 	var resp recaptchaResponse
@@ -48,21 +53,11 @@ func (re *Recaptcha) check(remoteIp, response string) (r recaptchaResponse, err 
 		"secret":   re.secret,
 		"remoteip": remoteIp,
 		"response": response,
-	}).SetSuccessResult(&resp).SetErrorResult(&resp).Post(recaptchaServer)
+	}).SetSuccessResult(&resp).SetErrorResult(&resp).Post("https://recaptcha.net/recaptcha/api/siteverify")
 	if err != nil {
 		facades.Log().Error("[Recaptcha] ", " HTTP请求失败 "+err.Error())
 		return resp, err
 	}
 
 	return resp, nil
-}
-
-// Confirm 外部使用的检查方法
-func (re *Recaptcha) Confirm(remoteIp, response, action string) bool {
-	resp, err := re.check(remoteIp, response)
-	if err != nil {
-		return false
-	}
-
-	return resp.Success && resp.Score >= 0.7 && resp.Action == action
 }
