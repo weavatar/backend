@@ -45,17 +45,15 @@ func (receiver *ProcessAvatarUpdate) Handle(args ...any) error {
 
 	var avatar models.Avatar
 	err := facades.Orm().Query().Where("hash", hash).First(&avatar)
-	if err != nil || avatar.Hash == nil || avatar.UserID != nil {
-		if err != nil {
-			facades.Log().Error("头像更新[数据库查询失败] " + err.Error())
-		} else {
-			// 这里有2种可能：1.数据库中没有这个头像，但是缓存中有，所以需要删除缓存 2.用户已经上传了头像，不再需要缓存，所以也需要删除缓存
-			facades.Log().Error("头像更新[数据库查询为空] HASH:" + hash)
-			_ = facades.Storage().Delete("cache/gravatar/" + hash[:2] + "/" + hash)
-			_ = facades.Storage().Delete("cache/qq/" + hash[:2] + "/" + hash)
-		}
-
+	if err != nil {
+		facades.Log().Error("头像更新[数据库查询失败] " + err.Error())
 		return nil
+	}
+	if avatar.Hash == nil || avatar.UserID != nil {
+		// 这里有2种可能：1.数据库中没有这个头像，但是缓存中有，所以需要删除缓存 2.用户已经上传了头像，不再需要缓存，所以也需要删除缓存
+		facades.Log().Error("头像更新[数据库查询为空] HASH:" + hash)
+		_ = facades.Storage().Delete("cache/gravatar/" + hash[:2] + "/" + hash)
+		_ = facades.Storage().Delete("cache/qq/" + hash[:2] + "/" + hash)
 	}
 
 	delErr := facades.Storage().Delete(path)

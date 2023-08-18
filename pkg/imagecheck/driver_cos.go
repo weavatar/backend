@@ -20,6 +20,7 @@ type COS struct {
 	Bucket    string
 }
 
+// Check 检查图片是否违规 true: 违规 false: 未违规
 func (c *COS) Check(url string) (bool, error) {
 	authorization, err := c.getAuthorization("GET", "/", 0)
 	if err != nil {
@@ -55,10 +56,10 @@ func (c *COS) Check(url string) (bool, error) {
 	}
 
 	if response.Result == 1 {
-		return false, nil
+		return true, nil
 	}
 
-	return true, nil
+	return false, nil
 }
 
 func (c *COS) getAuthorization(method, path string, expires time.Duration) (string, error) {

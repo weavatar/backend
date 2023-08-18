@@ -16,6 +16,7 @@ type Aliyun struct {
 	AccessKeySecret string
 }
 
+// Check 检查图片是否违规 true: 违规 false: 未违规
 func (a *Aliyun) Check(url string) (bool, error) {
 	client, err := a.createClient(tea.String(a.AccessKeyId), tea.String(a.AccessKeySecret), "shanghai")
 	if err != nil {
