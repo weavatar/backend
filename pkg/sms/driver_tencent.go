@@ -9,10 +9,8 @@ import (
 	tencentsms "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms/v20210111"
 )
 
-// Tencent 实现 sms.Driver interface
 type Tencent struct{}
 
-// Send 实现 sms.Driver interface 的 Send 方法
 func (s *Tencent) Send(phone string, message Message, config map[string]string) bool {
 	credential := common.NewCredential(
 		config["access_key"],
@@ -39,7 +37,6 @@ func (s *Tencent) Send(phone string, message Message, config map[string]string) 
 		return false
 	}
 
-	// 当前只有一条
 	statusSet := response.Response.SendStatusSet
 	code := *statusSet[0].Code
 	if code == "Ok" {

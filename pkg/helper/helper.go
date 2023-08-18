@@ -1,5 +1,5 @@
-// Package helpers 存放辅助方法
-package helpers
+// Package helper 存放辅助方法
+package helper
 
 import (
 	"crypto/md5"
@@ -34,7 +34,7 @@ func Empty(val interface{}) bool {
 	return reflect.DeepEqual(val, reflect.Zero(v.Type()).Interface())
 }
 
-// FirstElement 安全地获取 args[0]，避免 panic: runtime error: index out of range
+// FirstElement 安全获取 args[0]
 func FirstElement(args []string) string {
 	if len(args) > 0 {
 		return args[0]

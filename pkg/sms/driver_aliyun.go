@@ -10,10 +10,8 @@ import (
 	"github.com/goravel/framework/facades"
 )
 
-type Aliyun struct {
-}
+type Aliyun struct{}
 
-// Send 实现Driver中的Send方法
 func (a *Aliyun) Send(phone string, message Message, config map[string]string) bool {
 	client, err := CreateClient(tea.String(config["access_key_id"]), tea.String(config["access_key_secret"]))
 	if err != nil {
@@ -27,7 +25,6 @@ func (a *Aliyun) Send(phone string, message Message, config map[string]string) b
 		return false
 	}
 
-	// 发送参数
 	sendSmsRequest := &dysmsapi20170525.SendSmsRequest{
 		SignName:      tea.String(config["sign_name"]),
 		TemplateCode:  tea.String(config["template_code"]),
@@ -35,7 +32,6 @@ func (a *Aliyun) Send(phone string, message Message, config map[string]string) b
 		TemplateParam: tea.String(string(param)),
 	}
 
-	// 其他运行参数
 	runtime := &util.RuntimeOptions{}
 
 	_result, err := client.SendSmsWithOptions(sendSmsRequest, runtime)
@@ -66,12 +62,10 @@ func (a *Aliyun) Send(phone string, message Message, config map[string]string) b
 
 func CreateClient(accessKeyId *string, accessKeySecret *string) (_result *dysmsapi20170525.Client, _err error) {
 	config := &openapi.Config{
-		// 必填，您的 AccessKey ID
-		AccessKeyId: accessKeyId,
-		// 必填，您的 AccessKey Secret
+		AccessKeyId:     accessKeyId,
 		AccessKeySecret: accessKeySecret,
 	}
-	// 访问的域名
+
 	config.Endpoint = tea.String("dysmsapi.aliyuncs.com")
 	_result, _err = dysmsapi20170525.NewClient(config)
 	return _result, _err

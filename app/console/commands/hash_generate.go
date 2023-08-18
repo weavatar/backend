@@ -10,24 +10,24 @@ import (
 	"github.com/goravel/framework/contracts/console/command"
 	"github.com/spf13/cast"
 
-	"weavatar/pkg/helpers"
+	"weavatar/pkg/helper"
 )
 
-type HashMake struct {
+type HashGenerate struct {
 }
 
 // Signature The name and signature of the console command.
-func (receiver *HashMake) Signature() string {
+func (receiver *HashGenerate) Signature() string {
 	return "hash:make"
 }
 
 // Description The console command description.
-func (receiver *HashMake) Description() string {
+func (receiver *HashGenerate) Description() string {
 	return "生成 MD5值 对应的 QQ邮箱地址"
 }
 
 // Extend The console command extend.
-func (receiver *HashMake) Extend() command.Extend {
+func (receiver *HashGenerate) Extend() command.Extend {
 	return command.Extend{
 		Category: "hash",
 		Flags: []command.Flag{
@@ -42,7 +42,7 @@ func (receiver *HashMake) Extend() command.Extend {
 }
 
 // Handle Execute the console command.
-func (receiver *HashMake) Handle(ctx console.Context) error {
+func (receiver *HashGenerate) Handle(ctx console.Context) error {
 	// 要生成 MD5 值的 QQ 号的范围
 	start := 10000
 	end := cast.ToInt(ctx.Option("sum"))
@@ -67,7 +67,7 @@ func (receiver *HashMake) Handle(ctx console.Context) error {
 		}
 
 		// 写入 MD5 值到对应的 writer
-		md5Sum := helpers.MD5(fmt.Sprintf("%d@qq.com", num))
+		md5Sum := helper.MD5(fmt.Sprintf("%d@qq.com", num))
 		_, err = fmt.Fprintf(writer, "%s,%d\n", md5Sum, num)
 		if err != nil {
 			panic(err)

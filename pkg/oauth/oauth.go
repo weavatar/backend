@@ -7,7 +7,7 @@ import (
 	"github.com/goravel/framework/facades"
 	"github.com/imroc/req/v3"
 
-	"weavatar/pkg/helpers"
+	"weavatar/pkg/helper"
 )
 
 type BasicInfo struct {
@@ -32,7 +32,7 @@ type Token struct {
 
 // GetAuthorizationState 获取授权状态码
 func GetAuthorizationState(ip string) (string, error) {
-	state := helpers.RandomString(32)
+	state := helper.RandomString(32)
 	err := facades.Cache().Put("oauth_state:"+state, ip, 10*time.Minute)
 	if err != nil {
 		return "", err

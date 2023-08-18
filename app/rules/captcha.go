@@ -23,17 +23,17 @@ func (receiver *Captcha) Passes(data validation.Data, val any, options ...any) b
 		return false
 	}
 
-	// 第一个参数（如果有），是否清除验证码，如 false
-	clear := true
+	// 第一个参数（如果有），是否清除验证码
+	needClear := true
 	var err error
 	if len(options) > 0 {
-		clear, err = strconv.ParseBool(options[0].(string))
+		needClear, err = strconv.ParseBool(options[0].(string))
 		if err != nil {
-			clear = true
+			needClear = true
 		}
 	}
 
-	if !captcha.NewCaptcha().VerifyCaptcha(captchaID.(string), val.(string), clear) {
+	if !captcha.NewCaptcha().VerifyCaptcha(captchaID.(string), val.(string), needClear) {
 		return false
 	}
 

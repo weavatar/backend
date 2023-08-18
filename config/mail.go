@@ -27,8 +27,8 @@ func init() {
 		// the same address. Here, you may specify a name and address that is
 		// used globally for all e-mails that are sent by your application.
 		"from": map[string]any{
-			"address": config.Env("MAIL_FROM_ADDRESS", "hello@example.com"),
-			"name":    config.Env("MAIL_FROM_NAME", "Example"),
+			"address": config.Env("MAIL_FROM_ADDRESS", "noreply@weavatar.com"),
+			"name":    config.Env("MAIL_FROM_NAME", "WeAvatar"),
 		},
 
 		// SMTP Server Username

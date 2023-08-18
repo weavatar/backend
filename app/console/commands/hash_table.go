@@ -7,26 +7,26 @@ import (
 	"github.com/goravel/framework/facades"
 )
 
-type HashInsert struct {
+type HashTable struct {
 }
 
 // Signature The name and signature of the console command.
-func (receiver *HashInsert) Signature() string {
-	return "hash:insert"
+func (receiver *HashTable) Signature() string {
+	return "hash:table"
 }
 
 // Description The console command description.
-func (receiver *HashInsert) Description() string {
+func (receiver *HashTable) Description() string {
 	return "建立哈希数据表"
 }
 
 // Extend The console command extend.
-func (receiver *HashInsert) Extend() command.Extend {
+func (receiver *HashTable) Extend() command.Extend {
 	return command.Extend{}
 }
 
 // Handle Execute the console command.
-func (receiver *HashInsert) Handle(ctx console.Context) error {
+func (receiver *HashTable) Handle(ctx console.Context) error {
 
 	_, err := facades.Orm().Connection("hash").Query().Exec(`DROP TABLE IF EXISTS qq_mails;`)
 	if err != nil {

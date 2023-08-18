@@ -33,7 +33,7 @@ func init() {
 		// This value is the name of your application. This value is used when the
 		// framework needs to place the application's name in a notification or
 		// any other location as required by the application or its packages.
-		"name": config.Env("APP_NAME", "Goravel"),
+		"name": config.Env("APP_NAME", "WeAvatar"),
 
 		// Application Environment
 		//
@@ -71,9 +71,9 @@ func init() {
 			&http.ServiceProvider{},
 			&route.ServiceProvider{},
 			&schedule.ServiceProvider{},
-			//&event.ServiceProvider{},
+			// &event.ServiceProvider{},
 			&queue.ServiceProvider{},
-			//&grpc.ServiceProvider{},
+			// &grpc.ServiceProvider{},
 			&mail.ServiceProvider{},
 			&auth.ServiceProvider{},
 			&hash.ServiceProvider{},
@@ -83,10 +83,10 @@ func init() {
 			&providers.AppServiceProvider{},
 			&providers.AuthServiceProvider{},
 			&providers.RouteServiceProvider{},
-			//&providers.GrpcServiceProvider{},
+			// &providers.GrpcServiceProvider{},
 			&providers.ConsoleServiceProvider{},
 			&providers.QueueServiceProvider{},
-			//&providers.EventServiceProvider{},
+			// &providers.EventServiceProvider{},
 			&providers.ValidationServiceProvider{},
 		},
 	})
