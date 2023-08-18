@@ -25,7 +25,7 @@ func Jwt() http.Middleware {
 			if errors.Is(err, auth.ErrorTokenExpired) {
 				token, err = facades.Auth().Refresh(ctx)
 				if err != nil {
-					// Refresh time exceeded
+					// 到达刷新时间上限
 					ctx.Request().AbortWithStatusJson(http.StatusOK, http.Json{
 						"code":    401,
 						"message": "登录已过期",

@@ -138,16 +138,3 @@ func (r *UserController) Logout(ctx http.Context) {
 
 	Success(ctx, nil)
 }
-
-func (r *UserController) Refresh(ctx http.Context) {
-	token, err := facades.Auth().Refresh(ctx)
-	if err != nil {
-		facades.Log().Error("[UserController][Refresh] 刷新令牌失败 ", err.Error())
-		Error(ctx, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	Success(ctx, http.Json{
-		"token": token,
-	})
-}
