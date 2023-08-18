@@ -24,7 +24,6 @@ func (a *Aliyun) Check(url string) (bool, error) {
 
 	parameters, err := sonic.MarshalString(map[string]string{
 		"imageUrl": url,
-		"dataId":   url,
 	})
 	if err != nil {
 		return false, err
