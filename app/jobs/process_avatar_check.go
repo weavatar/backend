@@ -91,9 +91,10 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 				}
 				return nil
 			}
-			err = facades.Orm().Query().Create(&models.Image{
+			err = facades.Orm().Query().UpdateOrCreate(&image, &models.Image{
 				Hash: imageHash,
-				Ban:  !isSafe,
+			}, &models.Image{
+				Ban: !isSafe,
 			})
 			if err != nil {
 				facades.Log().Error("图片审核[缓存数据创建失败] " + err.Error())
@@ -163,9 +164,10 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 			}
 			return nil
 		}
-		err = facades.Orm().Query().Create(&models.Image{
+		err = facades.Orm().Query().UpdateOrCreate(&image, &models.Image{
 			Hash: imageHash,
-			Ban:  !isSafe,
+		}, &models.Image{
+			Ban: !isSafe,
 		})
 		if err != nil {
 			facades.Log().Error("图片审核[缓存数据创建失败] " + err.Error())
