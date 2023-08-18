@@ -35,7 +35,7 @@ func NewChecker() Checker {
 	return *internal
 }
 
-// Check 检查图片是否违规
+// Check 检查图片是否违规 true: 违规 false: 未违规
 func (c *Checker) Check(url string) (bool, error) {
 	return c.Driver.Check(url)
 }

@@ -81,7 +81,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 		var image models.Image
 		err = facades.Orm().Query().Where("hash", imageHash).FirstOrFail(&image)
 		if err != nil {
-			isSafe, checkErr := checker.Check("https://weavatar.com/avatar/" + hash + ".png?s=400&d=404")
+			ban, checkErr := checker.Check("https://weavatar.com/avatar/" + hash + ".png?s=400&d=404")
 			if checkErr != nil {
 				facades.Log().Error("图片审核[审核失败] " + checkErr.Error())
 				avatar.Checked = false
@@ -94,12 +94,12 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 			err = facades.Orm().Query().UpdateOrCreate(&image, &models.Image{
 				Hash: imageHash,
 			}, &models.Image{
-				Ban: !isSafe,
+				Ban: ban,
 			})
 			if err != nil {
 				facades.Log().Error("图片审核[缓存数据创建失败] " + err.Error())
 			}
-			avatar.Ban = !isSafe
+			avatar.Ban = ban
 		} else {
 			avatar.Ban = image.Ban
 		}
@@ -154,7 +154,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 	var image models.Image
 	err = facades.Orm().Query().Where("hash", imageHash).FirstOrFail(&image)
 	if err != nil {
-		isSafe, checkErr := checker.Check("https://weavatar.com/avatar/" + hash + ".png?appid=" + strconv.Itoa(int(avatar.AppID)) + "&s=400&d=404")
+		ban, checkErr := checker.Check("https://weavatar.com/avatar/" + hash + ".png?appid=" + strconv.Itoa(int(avatar.AppID)) + "&s=400&d=404")
 		if checkErr != nil {
 			facades.Log().Error("图片审核[审核失败] " + checkErr.Error())
 			avatar.Checked = false
@@ -167,12 +167,12 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 		err = facades.Orm().Query().UpdateOrCreate(&image, &models.Image{
 			Hash: imageHash,
 		}, &models.Image{
-			Ban: !isSafe,
+			Ban: ban,
 		})
 		if err != nil {
 			facades.Log().Error("图片审核[缓存数据创建失败] " + err.Error())
 		}
-		avatar.Ban = !isSafe
+		avatar.Ban = ban
 	} else {
 		avatar.Ban = image.Ban
 	}
