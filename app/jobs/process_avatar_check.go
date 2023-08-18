@@ -9,7 +9,7 @@ import (
 	"weavatar/app/models"
 	packagecdn "weavatar/pkg/cdn"
 	"weavatar/pkg/helpers"
-	"weavatar/pkg/qcloud"
+	"weavatar/pkg/imagecheck"
 )
 
 type ProcessAvatarCheck struct {
@@ -23,19 +23,19 @@ func (receiver *ProcessAvatarCheck) Signature() string {
 // Handle Execute the job.
 func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 	if len(args) < 2 {
-		facades.Log().Error("COS审核[队列参数不足]")
+		facades.Log().Error("图片审核[队列参数不足]")
 		return nil
 	}
 
 	hash, ok := args[0].(string)
 	if !ok {
-		facades.Log().Error("COS审核[队列参数断言失败] HASH:" + hash)
+		facades.Log().Error("图片审核[队列参数断言失败] HASH:" + hash)
 		return nil
 	}
 
 	appID, ok2 := args[1].(string)
 	if !ok2 {
-		facades.Log().Error("COS审核[队列参数断言失败] APPID:" + appID)
+		facades.Log().Error("图片审核[队列参数断言失败] APPID:" + appID)
 		return nil
 	}
 
@@ -43,7 +43,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 		var avatar models.Avatar
 		err := facades.Orm().Query().Where("hash", hash).First(&avatar)
 		if err != nil {
-			facades.Log().Error("COS审核[数据库查询失败] " + err.Error())
+			facades.Log().Error("图片审核[数据库查询失败] " + err.Error())
 			return nil
 		}
 		if avatar.Checked {
@@ -54,7 +54,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 		avatar.Checked = true
 		err = facades.Orm().Query().Save(&avatar)
 		if err != nil {
-			facades.Log().Error("COS审核[数据库更新失败] " + err.Error())
+			facades.Log().Error("图片审核[数据库更新失败] " + err.Error())
 			return nil
 		}
 
@@ -64,7 +64,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 		if exist {
 			fileString, fileErr := facades.Storage().Get("upload/default/" + hash[:2] + "/" + hash)
 			if fileErr != nil {
-				facades.Log().Error("COS审核[文件读取失败] " + fileErr.Error())
+				facades.Log().Error("图片审核[文件读取失败] " + fileErr.Error())
 				return nil
 			}
 			imageHash = helpers.MD5(fileString)
@@ -77,20 +77,17 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 			imageHash = helpers.MD5(resp.String())
 		}
 
-		accessKey := facades.Config().GetString("qcloud.cos_check.access_key")
-		secretKey := facades.Config().GetString("qcloud.cos_check.secret_key")
-		bucket := facades.Config().GetString("qcloud.cos_check.bucket")
-		checker := qcloud.NewCreator(accessKey, secretKey, bucket)
-
+		checker := imagecheck.NewChecker()
 		var image models.Image
 		err = facades.Orm().Query().Where("hash", imageHash).FirstOrFail(&image)
 		if err != nil {
 			isSafe, checkErr := checker.Check("https://weavatar.com/avatar/" + hash + ".png?s=400&d=404")
 			if checkErr != nil {
+				facades.Log().Error("图片审核[审核失败] " + checkErr.Error())
 				avatar.Checked = false
 				err = facades.Orm().Query().Save(&avatar)
 				if err != nil {
-					facades.Log().Error("COS审核[数据更新失败] " + err.Error())
+					facades.Log().Error("图片审核[数据更新失败] " + err.Error())
 				}
 				return nil
 			}
@@ -99,7 +96,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 				Ban:  !isSafe,
 			})
 			if err != nil {
-				facades.Log().Error("COS审核[缓存数据创建失败] " + err.Error())
+				facades.Log().Error("图片审核[缓存数据创建失败] " + err.Error())
 			}
 			avatar.Ban = !isSafe
 		} else {
@@ -108,7 +105,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 
 		err = facades.Orm().Query().Save(&avatar)
 		if err != nil {
-			facades.Log().Error("COS审核[数据更新失败] " + err.Error())
+			facades.Log().Error("图片审核[数据更新失败] " + err.Error())
 			return nil
 		}
 
@@ -123,7 +120,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 	var avatar models.AppAvatar
 	err := facades.Orm().Query().Where("avatar_hash", hash).First(&avatar)
 	if err != nil {
-		facades.Log().Error("COS审核[数据库查询失败] " + err.Error())
+		facades.Log().Error("图片审核[数据库查询失败] " + err.Error())
 		return nil
 	}
 	if avatar.Checked {
@@ -134,7 +131,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 	avatar.Checked = true
 	err = facades.Orm().Query().Save(&avatar)
 	if err != nil {
-		facades.Log().Error("COS审核[数据库更新失败] " + err.Error())
+		facades.Log().Error("图片审核[数据库更新失败] " + err.Error())
 		return nil
 	}
 
@@ -144,7 +141,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 	if exist {
 		fileString, fileErr := facades.Storage().Get("upload/app/" + strconv.Itoa(int(avatar.AppID)) + "/" + hash[:2] + "/" + hash)
 		if fileErr != nil {
-			facades.Log().Error("COS审核[文件读取失败] " + fileErr.Error())
+			facades.Log().Error("图片审核[文件读取失败] " + fileErr.Error())
 			return nil
 		}
 		imageHash = helpers.MD5(fileString)
@@ -152,20 +149,17 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 		return nil
 	}
 
-	accessKey := facades.Config().GetString("qcloud.cos_check.access_key")
-	secretKey := facades.Config().GetString("qcloud.cos_check.secret_key")
-	bucket := facades.Config().GetString("qcloud.cos_check.bucket")
-	checker := qcloud.NewCreator(accessKey, secretKey, bucket)
-
+	checker := imagecheck.NewChecker()
 	var image models.Image
 	err = facades.Orm().Query().Where("hash", imageHash).FirstOrFail(&image)
 	if err != nil {
 		isSafe, checkErr := checker.Check("https://weavatar.com/avatar/" + hash + ".png?appid=" + strconv.Itoa(int(avatar.AppID)) + "&s=400&d=404")
 		if checkErr != nil {
+			facades.Log().Error("图片审核[审核失败] " + checkErr.Error())
 			avatar.Checked = false
 			err = facades.Orm().Query().Save(&avatar)
 			if err != nil {
-				facades.Log().Error("COS审核[数据更新失败] " + err.Error())
+				facades.Log().Error("图片审核[数据更新失败] " + err.Error())
 			}
 			return nil
 		}
@@ -174,7 +168,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 			Ban:  !isSafe,
 		})
 		if err != nil {
-			facades.Log().Error("COS审核[缓存数据创建失败] " + err.Error())
+			facades.Log().Error("图片审核[缓存数据创建失败] " + err.Error())
 		}
 		avatar.Ban = !isSafe
 	} else {
@@ -183,7 +177,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 
 	err = facades.Orm().Query().Save(&avatar)
 	if err != nil {
-		facades.Log().Error("COS审核[数据更新失败] " + err.Error())
+		facades.Log().Error("图片审核[数据更新失败] " + err.Error())
 		return nil
 	}
 
