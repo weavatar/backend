@@ -164,7 +164,9 @@ func (r *AvatarController) Store(ctx http.Context) {
 	}
 
 	var storeAvatarRequest requests.StoreAvatarRequest
-	Sanitize(ctx, &storeAvatarRequest)
+	if !Sanitize(ctx, &storeAvatarRequest) {
+		return
+	}
 
 	upload, uploadErr := ctx.Request().File("avatar")
 	if uploadErr != nil {
@@ -246,7 +248,9 @@ func (r *AvatarController) Update(ctx http.Context) {
 	}
 
 	var updateAvatarRequest requests.UpdateAvatarRequest
-	Sanitize(ctx, &updateAvatarRequest)
+	if !Sanitize(ctx, &updateAvatarRequest) {
+		return
+	}
 
 	hash := ctx.Request().Input("id")
 	if len(hash) != 32 {

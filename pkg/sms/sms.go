@@ -53,6 +53,6 @@ func NewSMS() *SMS {
 }
 
 // Send 发送短信
-func (s *SMS) Send(phone string, message Message) bool {
+func (s *SMS) Send(phone string, message Message) error {
 	return s.Driver.Send(phone, message, s.Config)
 }

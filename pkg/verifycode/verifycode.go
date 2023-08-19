@@ -14,6 +14,7 @@ import (
 
 type VerifyCode struct {
 	Store Store
+	sms   *sms.SMS
 }
 
 var once sync.Once
@@ -26,6 +27,7 @@ func NewVerifyCode() *VerifyCode {
 			Store: &CacheStore{
 				KeyPrefix: "verify_code:",
 			},
+			sms: sms.NewSMS(),
 		}
 	})
 
@@ -33,33 +35,31 @@ func NewVerifyCode() *VerifyCode {
 }
 
 // SendSMS 发送短信验证码
-func (vc *VerifyCode) SendSMS(phone string, useFor string) bool {
+func (vc *VerifyCode) SendSMS(phone string, useFor string) error {
 	code := vc.generateVerifyCode(phone, useFor)
 
 	if facades.Config().GetBool("app.debug") {
-		return true
+		return nil
 	}
 
-	return sms.NewSMS().Send(phone, sms.Message{
+	return vc.sms.Send(phone, sms.Message{
 		Data: map[string]string{"code": code},
 	})
 }
 
 // SendEmail 发送邮件验证码
-func (vc *VerifyCode) SendEmail(email string, useFor string) bool {
+func (vc *VerifyCode) SendEmail(email string, useFor string) error {
 	code := vc.generateVerifyCode(email, useFor)
 
 	if facades.Config().GetBool("app.debug") {
-		return true
+		return nil
 	}
 
 	content := fmt.Sprintf("<h1>您的 Email 验证码是 %v </h1>", code)
 
-	err := facades.Mail().To([]string{email}).
+	return facades.Mail().To([]string{email}).
 		Content(mail.Content{Subject: facades.Config().GetString("app.name") + " - 验证码", Html: content}).
 		Send()
-
-	return err == nil
 }
 
 // Check 检查用户提交的验证码是否正确

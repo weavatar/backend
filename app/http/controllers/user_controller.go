@@ -38,7 +38,9 @@ func (r *UserController) OauthLogin(ctx http.Context) {
 
 func (r *UserController) OauthCallback(ctx http.Context) {
 	var oauthCallbackRequest requests.OauthCallbackRequest
-	Sanitize(ctx, &oauthCallbackRequest)
+	if !Sanitize(ctx, &oauthCallbackRequest) {
+		return
+	}
 
 	// 验证 state
 	if facades.Cache().GetString("oauth_state:"+oauthCallbackRequest.State) != ctx.Request().Ip() {
@@ -71,9 +73,8 @@ func (r *UserController) OauthCallback(ctx http.Context) {
 
 	// 检查用户是否存在
 	var user models.User
-	userErr := facades.Orm().Query().FirstOrCreate(&user, models.User{OpenID: userInfo.Data.OpenID}, models.User{ID: userID, UnionID: userInfo.Data.UnionID, Nickname: userInfo.Data.Nickname, Avatar: "https://weavatar.com/avatar/?d=mp"})
-	if userErr != nil {
-		facades.Log().Error("[UserController][OauthCallback] 查询用户失败 ", userErr.Error())
+	if err := facades.Orm().Query().FirstOrCreate(&user, models.User{OpenID: userInfo.Data.OpenID}, models.User{ID: userID, UnionID: userInfo.Data.UnionID, Nickname: userInfo.Data.Nickname, Avatar: "https://weavatar.com/avatar/?d=mp"}); err != nil {
+		facades.Log().Error("[UserController][OauthCallback] 查询用户失败 ", err.Error())
 		Error(ctx, http.StatusInternalServerError, "系统内部错误")
 		return
 	}
@@ -108,7 +109,9 @@ func (r *UserController) GetInfo(ctx http.Context) {
 
 func (r *UserController) UpdateInfo(ctx http.Context) {
 	var updateInfoRequest requests.UpdateInfoRequest
-	Sanitize(ctx, &updateInfoRequest)
+	if !Sanitize(ctx, &updateInfoRequest) {
+		return
+	}
 
 	var user models.User
 	if err := facades.Auth().User(ctx, &user); err != nil {
@@ -118,9 +121,8 @@ func (r *UserController) UpdateInfo(ctx http.Context) {
 
 	user.Nickname = updateInfoRequest.Nickname
 	user.Avatar = updateInfoRequest.Avatar
-	updateErr := facades.Orm().Query().Save(&user)
-	if updateErr != nil {
-		facades.Log().Error("[UserController][UpdateNickname] 更新用户失败 ", updateErr.Error())
+	if err := facades.Orm().Query().Save(&user); err != nil {
+		facades.Log().Error("[UserController][UpdateNickname] 更新用户失败 ", err.Error())
 		Error(ctx, http.StatusInternalServerError, "系统内部错误")
 		return
 	}
@@ -129,8 +131,7 @@ func (r *UserController) UpdateInfo(ctx http.Context) {
 }
 
 func (r *UserController) Logout(ctx http.Context) {
-	err := facades.Auth().Logout(ctx)
-	if err != nil {
+	if err := facades.Auth().Logout(ctx); err != nil {
 		facades.Log().Error("[UserController][Logout] 登出失败 ", err.Error())
 		Error(ctx, http.StatusInternalServerError, err.Error())
 		return
