@@ -1,17 +1,16 @@
 package sms
 
 import (
-	"github.com/goravel/framework/facades"
+	"errors"
 
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
-	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/errors"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/profile"
 	tencentsms "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms/v20210111"
 )
 
 type Tencent struct{}
 
-func (s *Tencent) Send(phone string, message Message, config map[string]string) bool {
+func (s *Tencent) Send(phone string, message Message, config map[string]string) error {
 	credential := common.NewCredential(
 		config["access_key"],
 		config["secret_key"],
@@ -29,21 +28,16 @@ func (s *Tencent) Send(phone string, message Message, config map[string]string) 
 
 	response, err := client.SendSms(request)
 
-	if _, ok := err.(*errors.TencentCloudSDKError); ok {
-		return false
-	}
 	if err != nil {
-		facades.Log().Info("短信[腾讯云] ", " 服务商返回错误", err.Error())
-		return false
+		return err
 	}
 
 	statusSet := response.Response.SendStatusSet
 	code := *statusSet[0].Code
 	if code == "Ok" {
-		return true
+		return nil
 	} else {
-		facades.Log().Info("短信[腾讯云] ", " 发信失败 ", response.ToJsonString())
-		return false
+		return errors.New("短信发送失败: " + response.ToJsonString())
 	}
 
 }

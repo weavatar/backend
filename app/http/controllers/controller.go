@@ -17,14 +17,16 @@ func Error(ctx http.Context, code int, message any) {
 	})
 }
 
-func Sanitize(ctx http.Context, request http.FormRequest) {
+func Sanitize(ctx http.Context, request http.FormRequest) bool {
 	errors, err := ctx.Request().ValidateRequest(request)
 	if err != nil {
 		Error(ctx, http.StatusUnprocessableEntity, err.Error())
-		return
+		return false
 	}
 	if errors != nil {
 		Error(ctx, http.StatusUnprocessableEntity, errors.One())
-		return
+		return false
 	}
+
+	return true
 }

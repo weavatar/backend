@@ -1,28 +1,26 @@
 package sms
 
 import (
+	"errors"
+
 	openapi "github.com/alibabacloud-go/darabonba-openapi/v2/client"
 	dysmsapi20170525 "github.com/alibabacloud-go/dysmsapi-20170525/v3/client"
 	util "github.com/alibabacloud-go/tea-utils/v2/service"
 	"github.com/alibabacloud-go/tea/tea"
 	"github.com/bytedance/sonic"
-
-	"github.com/goravel/framework/facades"
 )
 
 type Aliyun struct{}
 
-func (a *Aliyun) Send(phone string, message Message, config map[string]string) bool {
+func (a *Aliyun) Send(phone string, message Message, config map[string]string) error {
 	client, err := CreateClient(tea.String(config["access_key_id"]), tea.String(config["access_key_secret"]))
 	if err != nil {
-		facades.Log().Error("短信[阿里云] ", " 解析绑定错误 ", err.Error())
-		return false
+		return err
 	}
 
 	param, err := sonic.Marshal(message.Data)
 	if err != nil {
-		facades.Log().Error("短信[阿里云] ", " 短信模板参数解析错误 ", err.Error())
-		return false
+		return err
 	}
 
 	sendSmsRequest := &dysmsapi20170525.SendSmsRequest{
@@ -37,27 +35,19 @@ func (a *Aliyun) Send(phone string, message Message, config map[string]string) b
 	_result, err := client.SendSmsWithOptions(sendSmsRequest, runtime)
 	if err != nil {
 		var errs = &tea.SDKError{}
-		if _t, ok := err.(*tea.SDKError); ok {
+		var _t *tea.SDKError
+		if errors.As(err, &_t) {
 			errs = _t
-		} else {
-			errs.Message = tea.String(err.Error())
 		}
 
-		var r dysmsapi20170525.SendSmsResponseBody
-		err = sonic.Unmarshal([]byte(*errs.Data), &r)
-		if err != nil {
-			facades.Log().Error("短信[阿里云] ", " 解析JSON失败 ", errs)
-		}
-
-		return false
+		return errs
 	}
 
 	if tea.StringValue(_result.Body.Message) != "OK" {
-		facades.Log().Error("短信[阿里云] ", " 发送失败 ", _result.Body)
-		return false
+		return errors.New("短信发送失败: " + tea.StringValue(_result.Body.Message))
 	}
 
-	return true
+	return nil
 }
 
 func CreateClient(accessKeyId *string, accessKeySecret *string) (_result *dysmsapi20170525.Client, _err error) {

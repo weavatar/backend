@@ -37,17 +37,11 @@ func (r *CaptchaController) Image(ctx http.Context) {
 // Sms 获取短信验证码
 func (r *CaptchaController) Sms(ctx http.Context) {
 	var smsRequest requests.SmsRequest
-	errors, err := ctx.Request().ValidateRequest(&smsRequest)
-	if err != nil {
-		Error(ctx, http.StatusUnprocessableEntity, err.Error())
-		return
-	}
-	if errors != nil {
-		Error(ctx, http.StatusUnprocessableEntity, errors.All())
+	if !Sanitize(ctx, &smsRequest) {
 		return
 	}
 
-	if ok := verifycode.NewVerifyCode().SendSMS(smsRequest.Phone, smsRequest.UseFor); !ok {
+	if err := verifycode.NewVerifyCode().SendSMS(smsRequest.Phone, smsRequest.UseFor); err != nil {
 		facades.Log().Error("[CaptchaController][Sms] 发送短信验证码失败 ", err.Error())
 		Error(ctx, http.StatusInternalServerError, "发送失败")
 		return
@@ -59,17 +53,11 @@ func (r *CaptchaController) Sms(ctx http.Context) {
 // Email 获取邮箱验证码
 func (r *CaptchaController) Email(ctx http.Context) {
 	var emailRequest requests.EmailRequest
-	errors, err := ctx.Request().ValidateRequest(&emailRequest)
-	if err != nil {
-		Error(ctx, http.StatusUnprocessableEntity, err.Error())
-		return
-	}
-	if errors != nil {
-		Error(ctx, http.StatusUnprocessableEntity, errors.All())
+	if !Sanitize(ctx, &emailRequest) {
 		return
 	}
 
-	if ok := verifycode.NewVerifyCode().SendEmail(emailRequest.Email, emailRequest.UseFor); !ok {
+	if err := verifycode.NewVerifyCode().SendEmail(emailRequest.Email, emailRequest.UseFor); err != nil {
 		facades.Log().Error("[CaptchaController][Email] 发送邮箱验证码失败 ", err.Error())
 		Error(ctx, http.StatusInternalServerError, "发送失败")
 		return
