@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/base64"
 	"strconv"
 
 	"github.com/goravel/framework/contracts/http"
@@ -165,5 +166,5 @@ func (r *UserController) GetQQAvatar(ctx http.Context) {
 		return
 	}
 
-	Success(ctx, resp.String())
+	Success(ctx, base64.StdEncoding.EncodeToString(resp.Bytes()))
 }
