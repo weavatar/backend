@@ -1,8 +1,11 @@
 package controllers
 
 import (
+	"strconv"
+
 	"github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/facades"
+	"github.com/imroc/req/v3"
 
 	requests "weavatar/app/http/requests/user"
 	"weavatar/app/models"
@@ -71,9 +74,8 @@ func (r *UserController) OauthCallback(ctx http.Context) {
 		return
 	}
 
-	// 检查用户是否存在
 	var user models.User
-	if err := facades.Orm().Query().FirstOrCreate(&user, models.User{OpenID: userInfo.Data.OpenID}, models.User{ID: userID, UnionID: userInfo.Data.UnionID, Nickname: userInfo.Data.Nickname, Avatar: "https://weavatar.com/avatar/?d=mp"}); err != nil {
+	if err := facades.Orm().Query().FirstOrCreate(&user, models.User{OpenID: userInfo.Data.OpenID, UnionID: userInfo.Data.UnionID}, models.User{ID: userID, Nickname: userInfo.Data.Nickname, Avatar: "https://weavatar.com/avatar/?d=mp"}); err != nil {
 		facades.Log().Error("[UserController][OauthCallback] 查询用户失败 ", err.Error())
 		Error(ctx, http.StatusInternalServerError, "系统内部错误")
 		return
@@ -138,4 +140,30 @@ func (r *UserController) Logout(ctx http.Context) {
 	}
 
 	Success(ctx, nil)
+}
+
+// GetQQAvatar 获取 QQ 头像
+func (r *UserController) GetQQAvatar(ctx http.Context) {
+	client := req.C()
+	resp, err := client.R().SetQueryParams(map[string]string{
+		"b":  "qq",
+		"nk": ctx.Request().Input("qq"),
+		"s":  "640",
+	}).Get("http://q1.qlogo.cn/g")
+
+	length, lengthErr := strconv.Atoi(resp.GetHeader("Content-Length"))
+	if length < 6400 || lengthErr != nil {
+		resp, err = client.R().SetQueryParams(map[string]string{
+			"b":  "qq",
+			"nk": ctx.Request().Input("qq"),
+			"s":  "100",
+		}).Get("http://q1.qlogo.cn/g")
+	}
+
+	if err != nil || !resp.IsSuccessState() {
+		Error(ctx, http.StatusInternalServerError, "获取失败请检查输入")
+		return
+	}
+
+	Success(ctx, resp.String())
 }

@@ -17,7 +17,7 @@
 ### 1. 安装依赖
 
 ```bash
-apt install -y libvips-dev
+apt-get install -y libvips-dev
 ```
 
 ### 2. 安装环境

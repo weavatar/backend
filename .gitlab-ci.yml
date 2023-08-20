@@ -32,8 +32,8 @@ golangci_lint:
   allow_failure: true
   before_script:
     - wget -O /etc/apt/sources.list https://mirrors.ustc.edu.cn/repogen/conf/debian-http-4-bookworm
-    - apt update
-    - apt install -y build-essential libvips-dev
+    - apt-get update
+    - apt-get install -y build-essential libvips-dev
   script:
     - golangci-lint run --timeout 30m
 
@@ -43,8 +43,8 @@ unit_test:
   allow_failure: true
   before_script:
     - wget -O /etc/apt/sources.list https://mirrors.ustc.edu.cn/repogen/conf/debian-http-4-bookworm
-    - apt update
-    - apt install -y build-essential libvips-dev
+    - apt-get update
+    - apt-get install -y build-essential libvips-dev
   script:
     - go test -v -coverprofile=coverage.txt -covermode=atomic ./...
 
@@ -53,8 +53,8 @@ build:
   extends: .go_cache
   before_script:
     - wget -O /etc/apt/sources.list https://mirrors.ustc.edu.cn/repogen/conf/debian-http-4-bookworm
-    - apt update
-    - apt install -y build-essential libvips-dev
+    - apt-get update
+    - apt-get install -y build-essential libvips-dev
   script:
     - go mod download
     - CGO_ENABLED=1 GOAMD64=v3 go build  -tags="sonic avx nomsgpack" -ldflags '-s -w' -o $OUTPUT_NAME
