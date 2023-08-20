@@ -1,8 +1,10 @@
 package controllers
 
 import (
+	"encoding/base64"
 	"strconv"
 
+	"github.com/davidbyttow/govips/v2/vips"
 	"github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/facades"
 	"github.com/imroc/req/v3"
@@ -165,5 +167,16 @@ func (r *UserController) GetQQAvatar(ctx http.Context) {
 		return
 	}
 
-	Success(ctx, resp.String())
+	img, err := vips.NewImageFromBuffer(resp.Bytes())
+	if err != nil {
+		Error(ctx, http.StatusInternalServerError, "解析头像图片失败")
+		return
+	}
+	data, _, err := img.ExportPng(vips.NewPngExportParams())
+	if err != nil {
+		Error(ctx, http.StatusInternalServerError, "解析头像图片失败")
+		return
+	}
+
+	Success(ctx, base64.StdEncoding.EncodeToString(data))
 }
