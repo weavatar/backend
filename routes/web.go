@@ -33,6 +33,7 @@ func Web() {
 		route.Middleware(middleware.Jwt()).Get("info", userController.GetInfo)
 		route.Middleware(middleware.Jwt()).Put("info", userController.UpdateInfo)
 		route.Middleware(middleware.Jwt()).Post("logout", userController.Logout)
+		route.Middleware(middleware.Jwt()).Get("qqAvatar", userController.GetQQAvatar)
 	})
 	facades.Route().Middleware(frameworkmiddleware.Throttle("global"), middleware.Jwt()).Group(func(route route.Route) {
 		route.Resource("avatars", avatarController)

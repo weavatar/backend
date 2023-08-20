@@ -77,7 +77,7 @@ func GetUserInfo(accessToken string) (BasicInfo, error) {
 	client := req.C()
 	resp, err := client.R().SetQueryParams(map[string]string{
 		"access_token": accessToken,
-	}).SetSuccessResult(basicInfo).Get(facades.Config().GetString("haozi.account.base_url") + "/api/oauth/getBasicInfo")
+	}).SetSuccessResult(&basicInfo).Get(facades.Config().GetString("haozi.account.base_url") + "/api/oauth/getBasicInfo")
 	if err != nil {
 		return basicInfo, err
 	}
@@ -85,7 +85,7 @@ func GetUserInfo(accessToken string) (BasicInfo, error) {
 		return basicInfo, errors.New("获取用户信息失败: " + resp.String())
 	}
 
-	if basicInfo.Code != 0 {
+	if basicInfo.Code != 0 || len(basicInfo.Data.OpenID) == 0 || len(basicInfo.Data.UnionID) == 0 {
 		return basicInfo, errors.New(basicInfo.Message)
 	}
 
