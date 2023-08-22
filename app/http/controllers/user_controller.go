@@ -77,8 +77,14 @@ func (r *UserController) OauthCallback(ctx http.Context) {
 	}
 
 	var user models.User
-	if err := facades.Orm().Query().UpdateOrCreate(&user, models.User{OpenID: userInfo.Data.OpenID, UnionID: userInfo.Data.UnionID}, models.User{ID: userID, Nickname: userInfo.Data.Nickname, Avatar: "https://weavatar.com/avatar/?d=mp", RealName: userInfo.Data.RealName}); err != nil {
+	if err := facades.Orm().Query().FirstOrCreate(&user, models.User{OpenID: userInfo.Data.OpenID, UnionID: userInfo.Data.UnionID}, models.User{ID: userID, Nickname: userInfo.Data.Nickname, Avatar: "https://weavatar.com/avatar/?d=mp"}); err != nil {
 		facades.Log().Error("[UserController][OauthCallback] 查询用户失败 ", err.Error())
+		Error(ctx, http.StatusInternalServerError, "系统内部错误")
+		return
+	}
+	user.RealName = userInfo.Data.RealName
+	if err := facades.Orm().Query().Save(&user); err != nil {
+		facades.Log().Error("[UserController][OauthCallback] 更新用户失败 ", err.Error())
 		Error(ctx, http.StatusInternalServerError, "系统内部错误")
 		return
 	}
