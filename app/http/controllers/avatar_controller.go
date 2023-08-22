@@ -120,15 +120,22 @@ func (r *AvatarController) Index(ctx http.Context) {
 		return
 	}
 
+	page := ctx.Request().QueryInt("page", 1)
+	limit := ctx.Request().QueryInt("limit", 10)
+
 	var avatars []models.Avatar
-	err := facades.Orm().Query().Where("user_id", user.ID).Find(&avatars)
+	var total int64
+	err := facades.Orm().Query().Where("user_id", user.ID).Paginate(page, limit, &avatars, &total)
 	if err != nil {
 		facades.Log().Error("[AvatarController][Index] 查询用户头像失败 ", err.Error())
 		Error(ctx, http.StatusInternalServerError, "系统内部错误")
 		return
 	}
 
-	Success(ctx, avatars)
+	Success(ctx, http.Json{
+		"total": total,
+		"items": avatars,
+	})
 }
 
 // Show 获取头像详情
