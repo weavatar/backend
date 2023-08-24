@@ -4,14 +4,10 @@ import (
 	"github.com/goravel/framework/facades"
 
 	"weavatar/app/models"
-	packagecdn "weavatar/pkg/cdn"
 )
 
 type ProcessAvatarUpdate struct {
 }
-
-// urls 待刷新的URL列表
-var urls []string
 
 // Signature The name and signature of the job.
 func (receiver *ProcessAvatarUpdate) Signature() string {
@@ -67,13 +63,6 @@ func (receiver *ProcessAvatarUpdate) Handle(args ...any) error {
 	if err != nil {
 		facades.Log().Error("头像更新[数据库更新失败] " + err.Error())
 		return nil
-	}
-
-	urls = append(urls, "weavatar.com/avatar/"+hash)
-	if len(urls) >= 30 {
-		cdn := packagecdn.NewCDN()
-		cdn.RefreshUrl(urls)
-		urls = []string{}
 	}
 
 	return nil
