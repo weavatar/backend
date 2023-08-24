@@ -127,6 +127,9 @@ location /api/
     proxy_set_header REMOTE-HOST $remote_addr;
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Accept-Encoding "";
+    proxy_cache off;
+    proxy_no_cache 1;
+    proxy_cache_bypass 1;
 }
 
 location /avatar {
