@@ -1,20 +1,16 @@
 package controllers
 
-import (
-	"github.com/goravel/framework/contracts/http"
-)
-
 type AppController struct {
-	//Dependent services
+	// Dependent services
 }
 
 func NewAppController() *AppController {
 	return &AppController{
-		//Inject services
+		// Inject services
 	}
 }
 
-// Index 获取应用列表
+/*// Index 获取应用列表
 func (r *AppController) Index(ctx http.Context) {
 
 }
@@ -37,4 +33,4 @@ func (r *AppController) Update(ctx http.Context) {
 // Destroy 删除应用
 func (r *AppController) Destroy(ctx http.Context) {
 
-}
+}*/

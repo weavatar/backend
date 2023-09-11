@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/goravel/fiber"
 	"github.com/goravel/framework/auth"
 	"github.com/goravel/framework/cache"
 	"github.com/goravel/framework/console"
@@ -17,6 +18,7 @@ import (
 	"github.com/goravel/framework/route"
 	"github.com/goravel/framework/schedule"
 	"github.com/goravel/framework/support/carbon"
+	"github.com/goravel/framework/testing"
 	"github.com/goravel/framework/validation"
 
 	"weavatar/app/providers"
@@ -80,6 +82,7 @@ func init() {
 			&crypt.ServiceProvider{},
 			&filesystem.ServiceProvider{},
 			&validation.ServiceProvider{},
+			&testing.ServiceProvider{},
 			&providers.AppServiceProvider{},
 			&providers.AuthServiceProvider{},
 			&providers.RouteServiceProvider{},
@@ -88,6 +91,8 @@ func init() {
 			&providers.QueueServiceProvider{},
 			// &providers.EventServiceProvider{},
 			&providers.ValidationServiceProvider{},
+			&providers.DatabaseServiceProvider{},
+			&fiber.ServiceProvider{},
 		},
 	})
 }
