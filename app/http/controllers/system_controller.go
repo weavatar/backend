@@ -23,7 +23,7 @@ func NewSystemController() *SystemController {
 }
 
 // CdnUsage 获取CDN使用情况
-func (r *SystemController) CdnUsage(ctx http.Context) {
+func (r *SystemController) CdnUsage(ctx http.Context) http.Response {
 	yesterday := carbon.Now().SubDay().StartOfDay()
 	today := carbon.Now().StartOfDay()
 	domain := "weavatar.com"
@@ -31,10 +31,9 @@ func (r *SystemController) CdnUsage(ctx http.Context) {
 	// 先判断下有没有缓存
 	usage := facades.Cache().GetInt64("cdn_usage", -1)
 	if usage != -1 {
-		Success(ctx, http.Json{
+		return Success(ctx, http.Json{
 			"usage": usage,
 		})
-		return
 	}
 
 	cdn := packagecdn.NewCDN()
@@ -47,31 +46,29 @@ func (r *SystemController) CdnUsage(ctx http.Context) {
 		}
 	}
 
-	Success(ctx, http.Json{
+	return Success(ctx, http.Json{
 		"usage": usage,
 	})
 }
 
 // CheckBind 检查绑定
-func (r *SystemController) CheckBind(ctx http.Context) {
+func (r *SystemController) CheckBind(ctx http.Context) http.Response {
 	raw := ctx.Request().Input("raw", "12345")
 	hash := helper.MD5(raw)
 
 	var avatar models.Avatar
 	if err := facades.Orm().Query().Where("hash", hash).First(&avatar); err != nil {
 		facades.Log().Error("[AvatarController][CheckBind] 查询用户头像失败 ", err.Error())
-		Error(ctx, http.StatusInternalServerError, "系统内部错误")
-		return
+		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
 	}
 
 	if avatar.UserID == nil {
-		Success(ctx, http.Json{
+		return Success(ctx, http.Json{
 			"bind": false,
 		})
-		return
 	}
 
-	Success(ctx, http.Json{
+	return Success(ctx, http.Json{
 		"bind": true,
 	})
 }

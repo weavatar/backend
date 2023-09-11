@@ -8,7 +8,6 @@ import (
 type StoreAvatarRequest struct {
 	Raw        string `json:"raw" form:"raw"`
 	VerifyCode string `json:"verify_code" form:"verify_code"`
-	Avatar     string `json:"avatar" form:"avatar"`
 
 	Captcha string `json:"captcha" form:"captcha"`
 }
@@ -21,7 +20,6 @@ func (r *StoreAvatarRequest) Rules(ctx http.Context) map[string]string {
 	return map[string]string{
 		"raw":         "required|string",
 		"verify_code": "required|len:6|number|verify_code:raw,avatar",
-		"avatar":      "required|image",
 		"captcha":     "required|recaptcha:avatar",
 	}
 }
@@ -34,8 +32,6 @@ func (r *StoreAvatarRequest) Messages(ctx http.Context) map[string]string {
 		"verify_code.len":         "验证码长度必须为 6 位",
 		"verify_code.number":      "验证码必须为数字",
 		"verify_code.verify_code": "验证码错误",
-		"avatar.required":         "头像不能为空",
-		"avatar.image":            "头像必须为图片",
 		"captcha.required":        "reCAPTCHA不能为空",
 		"captcha.recaptcha":       "reCAPTCHA校验失败（更换网络环境或稍后再试）",
 	}

@@ -1,12 +1,24 @@
 package config
 
 import (
+	fiberfacades "github.com/goravel/fiber/facades"
+	"github.com/goravel/framework/contracts/route"
 	"github.com/goravel/framework/facades"
 )
 
 func init() {
 	config := facades.Config()
 	config.Add("http", map[string]any{
+		// HTTP Driver
+		"default": "fiber",
+		// HTTP Drivers
+		"drivers": map[string]any{
+			"fiber": map[string]any{
+				"route": func() (route.Route, error) {
+					return fiberfacades.Route("fiber"), nil
+				},
+			},
+		},
 		// HTTP URL
 		"url": config.Env("APP_URL", "http://localhost"),
 		// HTTP Host

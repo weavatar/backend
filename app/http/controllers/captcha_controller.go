@@ -20,48 +20,47 @@ func NewCaptchaController() *CaptchaController {
 }
 
 // Image 获取图片验证码
-func (r *CaptchaController) Image(ctx http.Context) {
+func (r *CaptchaController) Image(ctx http.Context) http.Response {
 	id, b64s, err := captcha.NewCaptcha().GenerateCaptcha()
 	if err != nil {
 		facades.Log().Error("[CaptchaController][Image] 生成图片验证码失败 ", err.Error())
-		Error(ctx, http.StatusInternalServerError, "系统内部错误")
-		return
+		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
 	}
 
-	Success(ctx, http.Json{
+	return Success(ctx, http.Json{
 		"captcha_id": id,
 		"captcha":    b64s,
 	})
 }
 
 // Sms 获取短信验证码
-func (r *CaptchaController) Sms(ctx http.Context) {
+func (r *CaptchaController) Sms(ctx http.Context) http.Response {
 	var smsRequest requests.SmsRequest
-	if !Sanitize(ctx, &smsRequest) {
-		return
+	sanitize := Sanitize(ctx, &smsRequest)
+	if sanitize != nil {
+		return sanitize
 	}
 
 	if err := verifycode.NewVerifyCode().SendSMS(smsRequest.Phone, smsRequest.UseFor); err != nil {
 		facades.Log().Error("[CaptchaController][Sms] 发送短信验证码失败 ", err.Error())
-		Error(ctx, http.StatusInternalServerError, "发送失败")
-		return
+		return Error(ctx, http.StatusInternalServerError, "发送失败")
 	}
 
-	Success(ctx, nil)
+	return Success(ctx, nil)
 }
 
 // Email 获取邮箱验证码
-func (r *CaptchaController) Email(ctx http.Context) {
+func (r *CaptchaController) Email(ctx http.Context) http.Response {
 	var emailRequest requests.EmailRequest
-	if !Sanitize(ctx, &emailRequest) {
-		return
+	sanitize := Sanitize(ctx, &emailRequest)
+	if sanitize != nil {
+		return sanitize
 	}
 
 	if err := verifycode.NewVerifyCode().SendEmail(emailRequest.Email, emailRequest.UseFor); err != nil {
 		facades.Log().Error("[CaptchaController][Email] 发送邮箱验证码失败 ", err.Error())
-		Error(ctx, http.StatusInternalServerError, "发送失败")
-		return
+		return Error(ctx, http.StatusInternalServerError, "发送失败")
 	}
 
-	Success(ctx, nil)
+	return Success(ctx, nil)
 }

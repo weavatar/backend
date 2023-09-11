@@ -6,8 +6,6 @@ import (
 )
 
 type UpdateAvatarRequest struct {
-	Avatar string `form:"avatar" json:"avatar"`
-
 	Captcha string `form:"captcha" json:"captcha"`
 }
 
@@ -17,15 +15,12 @@ func (r *UpdateAvatarRequest) Authorize(ctx http.Context) error {
 
 func (r *UpdateAvatarRequest) Rules(ctx http.Context) map[string]string {
 	return map[string]string{
-		"avatar":  "required|image",
 		"captcha": "required|recaptcha:avatar",
 	}
 }
 
 func (r *UpdateAvatarRequest) Messages(ctx http.Context) map[string]string {
 	return map[string]string{
-		"avatar.required":   "头像不能为空",
-		"avatar.image":      "头像必须为图片",
 		"captcha.required":  "reCAPTCHA不能为空",
 		"captcha.recaptcha": "reCAPTCHA校验失败（更换网络环境或稍后再试）",
 	}
