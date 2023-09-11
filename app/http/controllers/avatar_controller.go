@@ -241,7 +241,7 @@ func (r *AvatarController) Update(ctx http.Context) http.Response {
 		return sanitize
 	}
 
-	hash := updateAvatarRequest.ID
+	hash := ctx.Request().Input("id")
 	if len(hash) != 32 {
 		return Error(ctx, http.StatusUnprocessableEntity, "头像哈希格式错误")
 	}
