@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	"panel/tests"
+	"weavatar/tests"
 )
 
 type ExampleTestSuite struct {
