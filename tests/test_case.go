@@ -3,7 +3,7 @@ package tests
 import (
 	"github.com/goravel/framework/testing"
 
-	"panel/bootstrap"
+	"weavatar/bootstrap"
 )
 
 func init() {
