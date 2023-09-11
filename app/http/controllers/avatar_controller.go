@@ -104,7 +104,7 @@ func (r *AvatarController) Avatar(ctx http.Context) http.Response {
 
 	carbon.SetTimezone(carbon.PRC)
 
-	return ctx.Response().Data(http.StatusOK, "image/"+imageExt, imageData)
+	return ctx.Response().Data(http.StatusOK, imageExt, imageData)
 }
 
 // Index 获取头像列表
