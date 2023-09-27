@@ -31,6 +31,8 @@ golangci_lint:
   extends: .go_cache
   allow_failure: true
   before_script:
+    - rm -rf /etc/apt/sources.list
+    - rm -rf /etc/apt/sources.list.d/*
     - wget -O /etc/apt/sources.list https://mirrors.ustc.edu.cn/repogen/conf/debian-http-4-bookworm
     - apt-get update
     - apt-get install -y build-essential libvips-dev
@@ -42,6 +44,8 @@ unit_test:
   extends: .go_cache
   allow_failure: true
   before_script:
+    - rm -rf /etc/apt/sources.list
+    - rm -rf /etc/apt/sources.list.d/*
     - wget -O /etc/apt/sources.list https://mirrors.ustc.edu.cn/repogen/conf/debian-http-4-bookworm
     - apt-get update
     - apt-get install -y build-essential libvips-dev
@@ -52,16 +56,22 @@ build:
   stage: build
   extends: .go_cache
   before_script:
+    - rm -rf /etc/apt/sources.list
+    - rm -rf /etc/apt/sources.list.d/*
     - wget -O /etc/apt/sources.list https://mirrors.ustc.edu.cn/repogen/conf/debian-http-4-bookworm
     - apt-get update
     - apt-get install -y build-essential libvips-dev
   script:
     - go mod download
-    - CGO_ENABLED=1 GOAMD64=v3 go build  -tags="sonic avx nomsgpack" -ldflags '-s -w' -o $OUTPUT_NAME
+    - CGO_ENABLED=1 GOAMD64=v3 go build -ldflags '-s -w' -o $OUTPUT_NAME
   artifacts:
     name: "$OUTPUT_NAME"
     paths:
       - $OUTPUT_NAME
+      - database
+      - public
+      - storage
+      - resources
     expire_in: 1 week
 
 deploy_development:
@@ -78,11 +88,11 @@ deploy_development:
     - apk add --no-cache openssh-client sshpass
     - mv $OUTPUT_NAME $OUTPUT_NAME@new
   script:
-    - sshpass -p $DEVELOPMENT_SERVER_PASSWORD scp -o StrictHostKeyChecking=no -P $DEVELOPMENT_SERVER_PORT -r $OUTPUT_NAME@new $DEVELOPMENT_SERVER_USER@$DEVELOPMENT_SERVER_IP:$DEVELOPMENT_SERVER_PATH
+    - sshpass -p $DEVELOPMENT_SERVER_PASSWORD scp -o StrictHostKeyChecking=no -P $DEVELOPMENT_SERVER_PORT -r $OUTPUT_NAME@new database public storage resources $DEVELOPMENT_SERVER_USER@$DEVELOPMENT_SERVER_IP:$DEVELOPMENT_SERVER_PATH
     - sshpass -p $DEVELOPMENT_SERVER_PASSWORD ssh -o StrictHostKeyChecking=no -p $DEVELOPMENT_SERVER_PORT $DEVELOPMENT_SERVER_USER@$DEVELOPMENT_SERVER_IP "supervisorctl stop $OUTPUT_NAME" || true
     - sshpass -p $DEVELOPMENT_SERVER_PASSWORD ssh -o StrictHostKeyChecking=no -p $DEVELOPMENT_SERVER_PORT $DEVELOPMENT_SERVER_USER@$DEVELOPMENT_SERVER_IP "rm -f $DEVELOPMENT_SERVER_PATH/$OUTPUT_NAME && mv $DEVELOPMENT_SERVER_PATH/$OUTPUT_NAME@new $DEVELOPMENT_SERVER_PATH/$OUTPUT_NAME && chmod -R 755 $DEVELOPMENT_SERVER_PATH && chown -R www:www $DEVELOPMENT_SERVER_PATH && supervisorctl start $OUTPUT_NAME"
 
-deploy_production:
+deploy_production_main:
   stage: deploy
   image: alpine:latest
   extends: .go_cache
@@ -98,6 +108,25 @@ deploy_production:
     - apk add --no-cache openssh-client sshpass
     - mv $OUTPUT_NAME $OUTPUT_NAME@new
   script:
-    - sshpass -p $PRODUCTION_SERVER_PASSWORD scp -o StrictHostKeyChecking=no -P $PRODUCTION_SERVER_PORT -r $OUTPUT_NAME@new $PRODUCTION_SERVER_USER@$PRODUCTION_SERVER_IP:$PRODUCTION_SERVER_PATH
+    - sshpass -p $PRODUCTION_SERVER_PASSWORD scp -o StrictHostKeyChecking=no -P $PRODUCTION_SERVER_PORT -r $OUTPUT_NAME@new database public storage resources $PRODUCTION_SERVER_USER@$PRODUCTION_SERVER_IP:$PRODUCTION_SERVER_PATH
     - sshpass -p $PRODUCTION_SERVER_PASSWORD ssh -o StrictHostKeyChecking=no -p $PRODUCTION_SERVER_PORT $PRODUCTION_SERVER_USER@$PRODUCTION_SERVER_IP "supervisorctl stop $OUTPUT_NAME" || true
     - sshpass -p $PRODUCTION_SERVER_PASSWORD ssh -o StrictHostKeyChecking=no -p $PRODUCTION_SERVER_PORT $PRODUCTION_SERVER_USER@$PRODUCTION_SERVER_IP "rm -f $PRODUCTION_SERVER_PATH/$OUTPUT_NAME && mv $PRODUCTION_SERVER_PATH/$OUTPUT_NAME@new $PRODUCTION_SERVER_PATH/$OUTPUT_NAME && chmod -R 755 $PRODUCTION_SERVER_PATH && chown -R www:www $PRODUCTION_SERVER_PATH && supervisorctl start $OUTPUT_NAME"
+
+deploy_production_backup:
+  stage: deploy
+  image: alpine:latest
+  extends: .go_cache
+  dependencies:
+    - build
+  environment:
+    name: production
+    url: https://weavatar.com
+  when: manual
+  before_script:
+    - sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
+    - apk add --no-cache openssh-client sshpass
+    - mv $OUTPUT_NAME $OUTPUT_NAME@new
+  script:
+    - sshpass -p $PRODUCTION_BACKUP_SERVER_PASSWORD scp -o StrictHostKeyChecking=no -P $PRODUCTION_BACKUP_SERVER_PORT -r $OUTPUT_NAME@new database public storage resources $PRODUCTION_BACKUP_SERVER_USER@$PRODUCTION_BACKUP_SERVER_IP:$PRODUCTION_BACKUP_SERVER_PATH
+    - sshpass -p $PRODUCTION_BACKUP_SERVER_PASSWORD ssh -o StrictHostKeyChecking=no -p $PRODUCTION_BACKUP_SERVER_PORT $PRODUCTION_BACKUP_SERVER_USER@$PRODUCTION_BACKUP_SERVER_IP "supervisorctl stop $OUTPUT_NAME" || true
+    - sshpass -p $PRODUCTION_BACKUP_SERVER_PASSWORD ssh -o StrictHostKeyChecking=no -p $PRODUCTION_BACKUP_SERVER_PORT $PRODUCTION_BACKUP_SERVER_USER@$PRODUCTION_BACKUP_SERVER_IP "rm -f $PRODUCTION_BACKUP_SERVER_PATH/$OUTPUT_NAME && mv $PRODUCTION_BACKUP_SERVER_PATH/$OUTPUT_NAME@new $PRODUCTION_BACKUP_SERVER_PATH/$OUTPUT_NAME && chmod -R 755 $PRODUCTION_BACKUP_SERVER_PATH && chown -R www:www $PRODUCTION_BACKUP_SERVER_PATH && supervisorctl start $OUTPUT_NAME"

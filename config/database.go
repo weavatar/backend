@@ -1,46 +1,38 @@
 package config
 
 import (
-	"github.com/goravel/framework/contracts/database"
 	"github.com/goravel/framework/facades"
-	"github.com/spf13/cast"
 )
 
 func init() {
 	config := facades.Config()
 	config.Add("database", map[string]any{
 		// Default database connection name, only support Mysql now.
-		"default": config.Env("DB_CONNECTION", "mysql"),
+		"default": config.Env("DB_CONNECTION", "postgresql"),
 
 		// Database connections
 		"connections": map[string]any{
-			"mysql": map[string]any{
-				"driver": "mysql",
-				"read": []database.Config{
-					{Host: config.Env("DB_HOST", "127.0.0.1").(string), Port: cast.ToInt(config.Env("DB_PORT_READ", 3306)), Database: config.Env("DB_DATABASE", "forge").(string), Username: config.Env("DB_USERNAME", "root").(string), Password: config.Env("DB_PASSWORD", "root").(string)},
-				},
-				"write": []database.Config{
-					{Host: config.Env("DB_HOST", "127.0.0.1").(string), Port: cast.ToInt(config.Env("DB_PORT_WRITE", 3306)), Database: config.Env("DB_DATABASE", "forge").(string), Username: config.Env("DB_USERNAME", "root").(string), Password: config.Env("DB_PASSWORD", "root").(string)},
-				},
+			"postgresql": map[string]any{
+				"driver":   "postgresql",
 				"host":     config.Env("DB_HOST", "127.0.0.1"),
-				"port":     config.Env("DB_PORT_READ", 3306),
+				"port":     config.Env("DB_PORT", 5432),
 				"database": config.Env("DB_DATABASE", "forge"),
 				"username": config.Env("DB_USERNAME", ""),
 				"password": config.Env("DB_PASSWORD", ""),
-				"charset":  "utf8mb4",
-				"loc":      "Local",
+				"sslmode":  "disable",
+				"timezone": "Asia/Shanghai", // Asia/Shanghai
 				"prefix":   "",
 				"singular": false, // Table name is singular
 			},
 			"hash": map[string]any{
-				"driver":   "mysql",
+				"driver":   "postgresql",
 				"host":     config.Env("DB_HOST_HASH", "127.0.0.1"),
-				"port":     config.Env("DB_PORT_HASH", 3306),
+				"port":     config.Env("DB_PORT_HASH", 5432),
 				"database": config.Env("DB_DATABASE_HASH", "forge"),
 				"username": config.Env("DB_USERNAME_HASH", ""),
 				"password": config.Env("DB_PASSWORD_HASH", ""),
-				"charset":  "utf8mb4",
-				"loc":      "Local",
+				"sslmode":  "disable",
+				"timezone": "Asia/Shanghai", // Asia/Shanghai
 				"prefix":   "",
 				"singular": false, // Table name is singular
 			},

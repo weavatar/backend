@@ -22,6 +22,10 @@ func (receiver *ProcessAvatarCheck) Signature() string {
 
 // Handle Execute the job.
 func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
+	if status := facades.Config().GetString("app.status", "main"); status != "main" {
+		return nil
+	}
+
 	if len(args) < 2 {
 		facades.Log().Error("图片审核[队列参数不足]")
 		return nil

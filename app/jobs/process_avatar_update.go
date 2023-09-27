@@ -16,6 +16,10 @@ func (receiver *ProcessAvatarUpdate) Signature() string {
 
 // Handle Execute the job.
 func (receiver *ProcessAvatarUpdate) Handle(args ...any) error {
+	if status := facades.Config().GetString("app.status", "main"); status != "main" {
+		return nil
+	}
+
 	if len(args) < 2 {
 		facades.Log().Error("头像更新[队列参数不足]")
 		return nil

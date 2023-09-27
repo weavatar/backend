@@ -47,6 +47,10 @@ func init() {
 		// Application Debug Mode
 		"debug": config.Env("APP_DEBUG", false),
 
+		// Application Status
+		// 可选 main backup
+		"status": config.Env("APP_STATUS", "main"),
+
 		// Application Timezone
 		//
 		// Here you may specify the default timezone for your application, which

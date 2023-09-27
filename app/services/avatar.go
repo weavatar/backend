@@ -113,6 +113,11 @@ func (r *AvatarImpl) Sanitize(ctx http.Context) (string, string, string, int, bo
 
 // GetQQ 通过 QQ 号获取头像
 func (r *AvatarImpl) GetQQ(hash string) ([]byte, carbon.Carbon, error) {
+	hashIndex, err := strconv.ParseInt(hash[:10], 16, 64)
+	if err != nil {
+		return nil, carbon.Now(), err
+	}
+	tableIndex := (hashIndex % int64(500)) + 1
 	type qqHash struct {
 		Hash string `gorm:"primaryKey"`
 		QQ   uint   `gorm:"type:bigint;not null"`
@@ -132,7 +137,7 @@ func (r *AvatarImpl) GetQQ(hash string) ([]byte, carbon.Carbon, error) {
 		}
 	}
 
-	if err := facades.Orm().Connection("hash").Query().Table("qq_mails").Where("hash", hash).First(&qq); err != nil {
+	if err = facades.Orm().Connection("hash").Query().Table("qq_"+strconv.Itoa(int(tableIndex))).Where("hash", hash).First(&qq); err != nil {
 		return nil, carbon.Now(), err
 	}
 
@@ -448,7 +453,7 @@ func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, 
 	from := "weavatar"
 
 	// 取头像数据
-	_, err = facades.Orm().Query().Exec(`INSERT IGNORE INTO avatars (hash, created_at, updated_at) VALUES (?, ?, ?)`, hash, carbon.DateTime{Carbon: carbon.Now()}, carbon.DateTime{Carbon: carbon.Now()})
+	_, err = facades.Orm().Query().Exec(`INSERT INTO avatars (hash, created_at, updated_at) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE updated_at=VALUES(updated_at)`, hash, carbon.DateTime{Carbon: carbon.Now()}, carbon.DateTime{Carbon: carbon.Now()})
 	if err != nil {
 		facades.Log().Error("WeAvatar[数据库错误] ", err.Error())
 		return nil, carbon.Now(), from, err
@@ -502,10 +507,12 @@ func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, 
 	}
 
 	if !avatar.Checked {
-		_ = facades.Queue().Job(&jobs.ProcessAvatarCheck{}, []queue.Arg{
-			{Type: "string", Value: hash},
-			{Type: "string", Value: appid},
-		}).Dispatch()
+		go func() {
+			_ = facades.Queue().Job(&jobs.ProcessAvatarCheck{}, []queue.Arg{
+				{Type: "string", Value: hash},
+				{Type: "string", Value: appid},
+			}).Dispatch()
+		}()
 	}
 
 	return img, lastModified, from, nil
