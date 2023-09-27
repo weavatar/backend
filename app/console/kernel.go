@@ -18,8 +18,8 @@ func (kernel *Kernel) Schedule() []schedule.Event {
 
 func (kernel *Kernel) Commands() []console.Command {
 	return []console.Command{
-		&commands.HashGenerate{},
-		&commands.HashTable{},
+		&commands.HashMake{},
+		&commands.HashInsert{},
 		&commands.UpdateExpiredAvatar{},
 	}
 }

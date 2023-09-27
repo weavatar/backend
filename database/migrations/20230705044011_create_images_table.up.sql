@@ -1,7 +1,12 @@
 CREATE TABLE images
 (
-    hash       CHAR(32) PRIMARY KEY NOT NULL COMMENT '哈希',
-    ban        TINYINT(1)      DEFAULT '0' COMMENT '禁用',
-    created_at TIMESTAMP            NOT NULL COMMENT '创建时间',
-    updated_at TIMESTAMP            NOT NULL COMMENT '更新时间'
+    hash       CHAR(32) PRIMARY KEY NOT NULL,
+    ban        BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP            NOT NULL,
+    updated_at TIMESTAMP            NOT NULL
 );
+
+COMMENT ON COLUMN images.hash IS '哈希';
+COMMENT ON COLUMN images.ban IS '禁用';
+COMMENT ON COLUMN images.created_at IS '创建时间';
+COMMENT ON COLUMN images.updated_at IS '更新时间';

@@ -43,6 +43,10 @@ func (receiver *UpdateExpiredAvatar) Extend() command.Extend {
 
 // Handle Execute the console command.
 func (receiver *UpdateExpiredAvatar) Handle(ctx console.Context) error {
+	if status := facades.Config().GetString("app.status", "main"); status != "main" {
+		return nil
+	}
+
 	dir := facades.Storage().Path("cache")
 	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
