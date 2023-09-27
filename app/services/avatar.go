@@ -453,7 +453,7 @@ func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, 
 	from := "weavatar"
 
 	// 取头像数据
-	_, err = facades.Orm().Query().Exec(`INSERT INTO avatars (hash, created_at, updated_at) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE updated_at=VALUES(updated_at)`, hash, carbon.DateTime{Carbon: carbon.Now()}, carbon.DateTime{Carbon: carbon.Now()})
+	_, err = facades.Orm().Query().Exec(`INSERT INTO avatars (hash, created_at, updated_at) VALUES (?, ?, ?) ON CONFLICT DO NOTHING`, hash, carbon.DateTime{Carbon: carbon.Now()}, carbon.DateTime{Carbon: carbon.Now()})
 	if err != nil {
 		facades.Log().Error("WeAvatar[数据库错误] ", err.Error())
 		return nil, carbon.Now(), from, err
