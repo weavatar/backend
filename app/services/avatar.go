@@ -212,7 +212,7 @@ func (r *AvatarImpl) GetGravatar(hash string) ([]byte, carbon.Carbon, error) {
 
 	client := req.C()
 	// 有一些头像请求1000尺寸的大图(http://0.gravatar.com/avatar/1b6a1437577086c55c785980430123ce.png?s=1000&r=g&d=404), Gravatar会返回404, 不知道为什么，所以使用600尺寸的图片代替
-	resp, reqErr := client.R().Get("http://proxy.server/http://0.gravatar.com/avatar/" + hash + ".png?s=600&r=g&d=404")
+	resp, reqErr := client.R().Get("http://proxy.server/https://secure.gravatar.com/avatar/" + hash + ".png?s=600&r=g&d=404")
 	if reqErr != nil || !resp.IsSuccessState() {
 		return nil, carbon.Now(), errors.New("获取 Gravatar头像 失败")
 	}
@@ -334,20 +334,20 @@ func (r *AvatarImpl) GetDefault(defaultAvatar string, option []string) ([]byte, 
 
 		fontSize := 0
 		hasChinese := false
-		for _, w := range option[0] {
-			if unicode.Is(unicode.Han, w) {
-				hasChinese = true
-				break
-			}
-		}
-
-		// 判断长度
 		letters := []rune(option[0])
 		length := len(letters)
 		if length > 4 {
 			letters = letters[:4]
 			length = 4
 		}
+
+		for _, w := range letters {
+			if unicode.Is(unicode.Han, w) {
+				hasChinese = true
+				break
+			}
+		}
+
 		switch {
 		case length == 1:
 			if hasChinese {
@@ -475,12 +475,14 @@ func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, 
 				return r.BanImage, carbon.Now(), from, nil
 			} else {
 				img, imgErr = os.ReadFile(facades.Storage().Path("upload/app/" + strconv.Itoa(int(appAvatar.AppID)) + "/" + hash[:2] + "/" + hash))
+				lastModified = appAvatar.UpdatedAt.Carbon
 			}
 		} else {
 			if avatar.Ban {
 				return r.BanImage, carbon.Now(), from, nil
 			} else {
 				img, imgErr = os.ReadFile(facades.Storage().Path("upload/default/" + hash[:2] + "/" + hash))
+				lastModified = avatar.UpdatedAt.Carbon
 			}
 		}
 
