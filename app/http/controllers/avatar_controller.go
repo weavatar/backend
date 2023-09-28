@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"os"
-	"strings"
 
 	"github.com/davidbyttow/govips/v2/vips"
 	"github.com/goravel/framework/contracts/http"
@@ -37,7 +36,7 @@ func (r *AvatarController) Avatar(ctx http.Context) http.Response {
 	from := "weavatar"
 
 	if defaultAvatar == "letter" {
-		option = []string{strings.Trim(ctx.Request().Input("letter"), " "), hash}
+		option = []string{ctx.Request().Input("letter"), hash}
 	} else {
 		option = []string{hash}
 	}
