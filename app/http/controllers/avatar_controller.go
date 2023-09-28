@@ -188,14 +188,9 @@ func (r *AvatarController) Store(ctx http.Context) http.Response {
 
 	var avatar models.Avatar
 	hash := helper.MD5(storeAvatarRequest.Raw)
-	_, err = facades.Orm().Query().Exec(`INSERT INTO avatars (hash, created_at, updated_at) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE updated_at=VALUES(updated_at)`, hash, carbon.DateTime{Carbon: carbon.Now()}, carbon.DateTime{Carbon: carbon.Now()})
+	err = facades.Orm().Query().FirstOrCreate(&avatar, models.Avatar{Hash: &hash})
 	if err != nil {
 		facades.Log().Error("[AvatarController][Store] 初始化查询用户头像失败 ", err.Error())
-		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
-	}
-	err = facades.Orm().Query().Where("hash", hash).First(&avatar)
-	if err != nil {
-		facades.Log().Error("[AvatarController][Store] 查询用户头像失败 ", err.Error())
 		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
 	}
 
