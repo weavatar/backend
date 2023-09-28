@@ -1,14 +1,14 @@
 CREATE TABLE users
 (
-    id         BIGINT PRIMARY KEY NOT NULL,
-    open_id    CHAR(32) UNIQUE      NOT NULL,
-    union_id   CHAR(32) UNIQUE      NOT NULL,
-    nickname   VARCHAR(255)       NOT NULL,
-    is_admin   BOOLEAN      DEFAULT '0',
-    real_name  BOOLEAN      DEFAULT '0',
-    created_at TIMESTAMP(3)       NOT NULL,
-    updated_at TIMESTAMP(3)       NOT NULL,
-    deleted_at TIMESTAMP(3) DEFAULT NULL
+    id         BIGINT PRIMARY KEY      NOT NULL,
+    open_id    CHAR(32) UNIQUE         NOT NULL,
+    union_id   CHAR(32) UNIQUE         NOT NULL,
+    nickname   VARCHAR(255)            NOT NULL,
+    is_admin   BOOLEAN   DEFAULT FALSE NOT NULL,
+    real_name  BOOLEAN   DEFAULT FALSE NOT NULL,
+    created_at TIMESTAMP               NOT NULL,
+    updated_at TIMESTAMP               NOT NULL,
+    deleted_at TIMESTAMP DEFAULT NULL
 );
 
 COMMENT ON COLUMN users.id IS 'ID';

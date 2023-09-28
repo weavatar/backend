@@ -1,12 +1,12 @@
 CREATE TABLE avatars
 (
-    hash       CHAR(32) PRIMARY KEY NOT NULL,
+    hash       CHAR(32) PRIMARY KEY  NOT NULL,
     raw        VARCHAR(255) UNIQUE,
     user_id    BIGINT  DEFAULT NULL,
-    ban        BOOLEAN DEFAULT '0',
-    checked    BOOLEAN DEFAULT '0',
-    created_at TIMESTAMP(3)         NOT NULL,
-    updated_at TIMESTAMP(3)         NOT NULL
+    ban        BOOLEAN DEFAULT FALSE NOT NULL,
+    checked    BOOLEAN DEFAULT FALSE NOT NULL,
+    created_at TIMESTAMP             NOT NULL,
+    updated_at TIMESTAMP             NOT NULL
 );
 
 COMMENT ON COLUMN avatars.hash IS '哈希';

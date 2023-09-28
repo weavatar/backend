@@ -1,9 +1,9 @@
 CREATE TABLE images
 (
-    hash       CHAR(32) PRIMARY KEY NOT NULL,
-    ban        BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP            NOT NULL,
-    updated_at TIMESTAMP            NOT NULL
+    hash       CHAR(32) PRIMARY KEY  NOT NULL,
+    ban        BOOLEAN DEFAULT FALSE NOT NULL,
+    created_at TIMESTAMP             NOT NULL,
+    updated_at TIMESTAMP             NOT NULL
 );
 
 COMMENT ON COLUMN images.hash IS '哈希';

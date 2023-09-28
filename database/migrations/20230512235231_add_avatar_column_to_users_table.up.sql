@@ -7,8 +7,8 @@ CREATE TABLE users_temp
     union_id   CHAR(32) UNIQUE    NOT NULL,
     nickname   VARCHAR(255)       NOT NULL,
     avatar     VARCHAR(255) DEFAULT NULL,
-    is_admin   BOOLEAN      DEFAULT '0',
-    real_name  BOOLEAN      DEFAULT '0',
+    is_admin   BOOLEAN      DEFAULT FALSE,
+    real_name  BOOLEAN      DEFAULT FALSE,
     created_at TIMESTAMP(3)       NOT NULL,
     updated_at TIMESTAMP(3)       NOT NULL,
     deleted_at TIMESTAMP(3) DEFAULT NULL
