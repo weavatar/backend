@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"os"
 	"strings"
 
@@ -99,6 +100,7 @@ func (r *AvatarController) Avatar(ctx http.Context) http.Response {
 	ctx.Response().Header("Avatar-By", "weavatar.com")
 	ctx.Response().Header("Avatar-From", from)
 	ctx.Response().Header("Last-Modified", lastModified.ToRfc7231String())
+	fmt.Println(lastModified.ToRfc7231String())
 	ctx.Response().Header("Expires", carbon.Now().AddMinutes(5).ToRfc7231String())
 
 	carbon.SetTimezone(carbon.PRC)
