@@ -7,6 +7,7 @@ import (
 	"image/png"
 	"net/url"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -111,7 +112,8 @@ func (r *AvatarImpl) Sanitize(ctx http.Context) (string, string, string, int, bo
 		}
 	}
 
-	if len(hash) != 32 {
+	match, _ := regexp.MatchString("^[a-fA-F0-9]{32}$", hash)
+	if !match {
 		forceDefaultBool = true
 	}
 

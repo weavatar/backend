@@ -50,7 +50,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 			facades.Log().Error("图片审核[数据库查询失败] " + err.Error())
 			return nil
 		}
-		if avatar.Checked {
+		if avatar.Checked || avatar.Hash == nil {
 			return nil
 		}
 
@@ -128,7 +128,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 		facades.Log().Error("图片审核[数据库查询失败] " + err.Error())
 		return nil
 	}
-	if avatar.Checked {
+	if avatar.Checked || len(avatar.AvatarHash) == 0 {
 		return nil
 	}
 
