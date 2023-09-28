@@ -4,8 +4,8 @@ CREATE TABLE apps
     user_id    BIGINT             NOT NULL,
     name       VARCHAR(255)       NOT NULL,
     Secret     VARCHAR(255)       NOT NULL,
-    created_at TIMESTAMP(3)       NOT NULL,
-    updated_at TIMESTAMP(3)       NOT NULL
+    created_at TIMESTAMP          NOT NULL,
+    updated_at TIMESTAMP          NOT NULL
 );
 
 COMMENT ON COLUMN apps.id IS 'ID';

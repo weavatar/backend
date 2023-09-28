@@ -1,12 +1,12 @@
 CREATE TABLE app_avatars
 (
-    id          BIGINT PRIMARY KEY NOT NULL,
-    app_id      BIGINT             NOT NULL,
-    avatar_hash CHAR(32)           NOT NULL,
-    ban         BOOLEAN DEFAULT '0',
-    checked     BOOLEAN DEFAULT '0',
-    created_at  TIMESTAMP(3)       NOT NULL,
-    updated_at  TIMESTAMP(3)       NOT NULL
+    id          BIGINT PRIMARY KEY    NOT NULL,
+    app_id      BIGINT                NOT NULL,
+    avatar_hash CHAR(32)              NOT NULL,
+    ban         BOOLEAN DEFAULT FALSE NOT NULL,
+    checked     BOOLEAN DEFAULT FALSE NOT NULL,
+    created_at  TIMESTAMP             NOT NULL,
+    updated_at  TIMESTAMP             NOT NULL
 );
 
 COMMENT ON COLUMN app_avatars.id IS 'ID';
