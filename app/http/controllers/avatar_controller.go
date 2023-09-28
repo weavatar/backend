@@ -93,7 +93,7 @@ func (r *AvatarController) Avatar(ctx http.Context) http.Response {
 		return ctx.Response().String(http.StatusInternalServerError, "WeAvatar 服务出现错误")
 	}
 
-	lastModified.SetTimezone(carbon.GMT)
+	lastModified = lastModified.SubHours(8).SetTimezone(carbon.GMT)
 	ctx.Response().Header("Cache-Control", "public, max-age=300")
 	ctx.Response().Header("Avatar-By", "weavatar.com")
 	ctx.Response().Header("Avatar-From", from)
