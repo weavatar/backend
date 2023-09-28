@@ -8,7 +8,6 @@ import (
 	"github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/facades"
 	"github.com/goravel/framework/support/carbon"
-	_ "golang.org/x/image/webp"
 
 	requests "weavatar/app/http/requests/avatar"
 	"weavatar/app/models"
