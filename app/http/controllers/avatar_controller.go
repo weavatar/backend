@@ -8,7 +8,6 @@ import (
 	"github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/facades"
 	"github.com/goravel/framework/support/carbon"
-	_ "golang.org/x/image/webp"
 
 	requests "weavatar/app/http/requests/avatar"
 	"weavatar/app/models"
@@ -30,8 +29,6 @@ func NewAvatarController() *AvatarController {
 // Avatar 获取头像
 func (r *AvatarController) Avatar(ctx http.Context) http.Response {
 	appid, hash, imageExt, size, forceDefault, defaultAvatar := r.avatar.Sanitize(ctx)
-
-	carbon.SetTimezone(carbon.GMT)
 
 	var avatar []byte
 	var lastModified carbon.Carbon
@@ -99,10 +96,8 @@ func (r *AvatarController) Avatar(ctx http.Context) http.Response {
 	ctx.Response().Header("Cache-Control", "public, max-age=300")
 	ctx.Response().Header("Avatar-By", "weavatar.com")
 	ctx.Response().Header("Avatar-From", from)
-	ctx.Response().Header("Last-Modified", lastModified.ToRfc7231String())
-	ctx.Response().Header("Expires", carbon.Now().AddMinutes(5).ToRfc7231String())
-
-	carbon.SetTimezone(carbon.PRC)
+	ctx.Response().Header("Last-Modified", lastModified.SubHours(8).SetTimezone(carbon.GMT).ToRfc7231String())
+	ctx.Response().Header("Expires", carbon.Now().SubHours(8).SetTimezone(carbon.GMT).AddMinutes(5).ToRfc7231String())
 
 	return ctx.Response().Data(http.StatusOK, imageExt, imageData)
 }
@@ -188,14 +183,9 @@ func (r *AvatarController) Store(ctx http.Context) http.Response {
 
 	var avatar models.Avatar
 	hash := helper.MD5(storeAvatarRequest.Raw)
-	_, err = facades.Orm().Query().Exec(`INSERT INTO avatars (hash, created_at, updated_at) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE updated_at=VALUES(updated_at)`, hash, carbon.DateTime{Carbon: carbon.Now()}, carbon.DateTime{Carbon: carbon.Now()})
+	err = facades.Orm().Query().FirstOrCreate(&avatar, models.Avatar{Hash: &hash})
 	if err != nil {
 		facades.Log().Error("[AvatarController][Store] 初始化查询用户头像失败 ", err.Error())
-		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
-	}
-	err = facades.Orm().Query().Where("hash", hash).First(&avatar)
-	if err != nil {
-		facades.Log().Error("[AvatarController][Store] 查询用户头像失败 ", err.Error())
 		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
 	}
 

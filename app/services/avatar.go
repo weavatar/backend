@@ -41,12 +41,19 @@ type Avatar interface {
 
 type AvatarImpl struct {
 	BanImage []byte
+	Client   *req.Client
 }
 
 func NewAvatarImpl() *AvatarImpl {
 	ban, _ := os.ReadFile(facades.Storage().Path("default/ban.png"))
+	client := req.C()
+	client.SetTimeout(5 * time.Second)
+	client.SetCommonRetryCount(2)
+	client.ImpersonateSafari()
+
 	return &AvatarImpl{
 		BanImage: ban,
+		Client:   client,
 	}
 }
 
@@ -125,13 +132,8 @@ func (r *AvatarImpl) GetQQ(hash string) ([]byte, carbon.Carbon, error) {
 	var qq qqHash
 
 	if facades.Storage().Exists("cache/qq/" + hash[:2] + "/" + hash) {
-		gmt, err := time.LoadLocation("GMT")
-		if err != nil {
-			return nil, carbon.Now(), err
-		}
 		img, imgErr := os.ReadFile("cache/qq/" + hash[:2] + "/" + hash)
 		lastModified, err := facades.Storage().LastModified("cache/qq/" + hash[:2] + "/" + hash)
-		lastModified = lastModified.In(gmt)
 		if imgErr == nil && err == nil {
 			return img, carbon.FromStdTime(lastModified), nil
 		}
@@ -145,8 +147,7 @@ func (r *AvatarImpl) GetQQ(hash string) ([]byte, carbon.Carbon, error) {
 		return nil, carbon.Now(), errors.New("未找到对应的 QQ 号")
 	}
 
-	client := req.C()
-	resp, reqErr := client.R().SetQueryParams(map[string]string{
+	resp, reqErr := r.Client.R().SetQueryParams(map[string]string{
 		"b":  "qq",
 		"nk": strconv.Itoa(int(qq.QQ)),
 		"s":  "640",
@@ -162,7 +163,7 @@ func (r *AvatarImpl) GetQQ(hash string) ([]byte, carbon.Carbon, error) {
 	length, lengthErr := strconv.Atoi(resp.GetHeader("Content-Length"))
 	if length < 6400 || lengthErr != nil {
 		// 如果图片小于 6400 字节，则尝试获取 100 尺寸的图片
-		resp, reqErr = client.R().SetQueryParams(map[string]string{
+		resp, reqErr = r.Client.R().SetQueryParams(map[string]string{
 			"b":  "qq",
 			"nk": strconv.Itoa(int(qq.QQ)),
 			"s":  "100",
@@ -179,15 +180,10 @@ func (r *AvatarImpl) GetQQ(hash string) ([]byte, carbon.Carbon, error) {
 	if err := facades.Storage().Put("cache/qq/"+hash[:2]+"/"+hash, resp.String()); err != nil {
 		return nil, carbon.Now(), err
 	}
-	gmt, err := time.LoadLocation("GMT")
-	if err != nil {
-		return nil, carbon.Now(), err
-	}
 	lastModified, err := facades.Storage().LastModified("cache/qq/" + hash[:2] + "/" + hash)
 	if err != nil {
 		return nil, carbon.Now(), err
 	}
-	lastModified = lastModified.In(gmt)
 
 	return resp.Bytes(), carbon.FromStdTime(lastModified), nil
 }
@@ -198,21 +194,14 @@ func (r *AvatarImpl) GetGravatar(hash string) ([]byte, carbon.Carbon, error) {
 	var imgErr error
 
 	if facades.Storage().Exists("cache/gravatar/" + hash[:2] + "/" + hash) {
-		gmt, err := time.LoadLocation("GMT")
-		if err != nil {
-			return nil, carbon.Now(), err
-		}
 		img, imgErr = os.ReadFile("cache/gravatar/" + hash[:2] + "/" + hash)
 		lastModified, err := facades.Storage().LastModified("cache/gravatar/" + hash[:2] + "/" + hash)
-		lastModified = lastModified.In(gmt)
 		if imgErr == nil && err == nil {
 			return img, carbon.FromStdTime(lastModified), nil
 		}
 	}
 
-	client := req.C()
-	// 有一些头像请求1000尺寸的大图(http://0.gravatar.com/avatar/1b6a1437577086c55c785980430123ce.png?s=1000&r=g&d=404), Gravatar会返回404, 不知道为什么，所以使用600尺寸的图片代替
-	resp, reqErr := client.R().Get("http://proxy.server/http://0.gravatar.com/avatar/" + hash + ".png?s=600&r=g&d=404")
+	resp, reqErr := r.Client.R().Get("http://proxy.server/https://secure.gravatar.com/avatar/" + hash + ".png?s=600&r=g&d=404")
 	if reqErr != nil || !resp.IsSuccessState() {
 		return nil, carbon.Now(), errors.New("获取 Gravatar头像 失败")
 	}
@@ -221,12 +210,8 @@ func (r *AvatarImpl) GetGravatar(hash string) ([]byte, carbon.Carbon, error) {
 	if err := facades.Storage().Put("cache/gravatar/"+hash[:2]+"/"+hash, resp.String()); err != nil {
 		return nil, carbon.Now(), err
 	}
-	gmt, err := time.LoadLocation("GMT")
-	if err != nil {
-		return nil, carbon.Now(), err
-	}
+
 	lastModified, err := facades.Storage().LastModified("cache/gravatar/" + hash[:2] + "/" + hash)
-	lastModified = lastModified.In(gmt)
 	if err != nil {
 		return nil, carbon.Now(), err
 	}
@@ -334,20 +319,20 @@ func (r *AvatarImpl) GetDefault(defaultAvatar string, option []string) ([]byte, 
 
 		fontSize := 0
 		hasChinese := false
-		for _, w := range option[0] {
-			if unicode.Is(unicode.Han, w) {
-				hasChinese = true
-				break
-			}
-		}
-
-		// 判断长度
 		letters := []rune(option[0])
 		length := len(letters)
 		if length > 4 {
 			letters = letters[:4]
 			length = 4
 		}
+
+		for _, w := range letters {
+			if unicode.Is(unicode.Han, w) {
+				hasChinese = true
+				break
+			}
+		}
+
 		switch {
 		case length == 1:
 			if hasChinese {
@@ -395,8 +380,7 @@ func (r *AvatarImpl) GetDefault(defaultAvatar string, option []string) ([]byte, 
 		return buf.Bytes(), carbon.Now(), nil
 	}
 
-	client := req.C()
-	resp, reqErr := client.R().Get(defaultAvatar)
+	resp, reqErr := r.Client.R().Get(defaultAvatar)
 	if reqErr != nil || !resp.IsSuccessState() {
 		img, imgErr := os.ReadFile(facades.Storage().Path("default/default.png"))
 		if imgErr != nil {
@@ -475,12 +459,14 @@ func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, 
 				return r.BanImage, carbon.Now(), from, nil
 			} else {
 				img, imgErr = os.ReadFile(facades.Storage().Path("upload/app/" + strconv.Itoa(int(appAvatar.AppID)) + "/" + hash[:2] + "/" + hash))
+				lastModified = appAvatar.UpdatedAt.Carbon
 			}
 		} else {
 			if avatar.Ban {
 				return r.BanImage, carbon.Now(), from, nil
 			} else {
 				img, imgErr = os.ReadFile(facades.Storage().Path("upload/default/" + hash[:2] + "/" + hash))
+				lastModified = avatar.UpdatedAt.Carbon
 			}
 		}
 
