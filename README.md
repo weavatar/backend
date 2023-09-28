@@ -2,7 +2,7 @@
 
 ## 说明
 
-这是 WeAvatar 的后端项目，基于 Goravel 框架开发。
+这是 WeAvatar 的后端项目，使用 AGPLv3 协议开源。
 
 ## 依赖
 

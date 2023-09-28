@@ -21,18 +21,15 @@ func NewCDN() CDN {
 		return *internalCDN
 	}
 
-	driver := facades.Config().GetString("cdn.driver", "starshield")
+	driver := facades.Config().GetString("cdn.driver", "baishan")
 	drivers := strings.Split(driver, ",")
 
 	for _, d := range drivers {
 		config := cast.ToStringMapString(facades.Config().Get("cdn." + d))
 		switch d {
-		case "starshield":
-			internalCDN.Driver = append(internalCDN.Driver, &StarShield{
-				AccessKey:  config["access_key"],
-				SecretKey:  config["secret_key"],
-				InstanceID: config["instance_id"],
-				ZoneID:     config["zone_id"],
+		case "baishan":
+			internalCDN.Driver = append(internalCDN.Driver, &BaiShan{
+				Token: config["token"],
 			})
 		case "upyun":
 			internalCDN.Driver = append(internalCDN.Driver, &UpYun{
@@ -47,11 +44,6 @@ func NewCDN() CDN {
 			internalCDN.Driver = append(internalCDN.Driver, &AnyCast{
 				apiKey:    config["api_key"],
 				apiSecret: config["api_secret"],
-			})
-		case "yundun":
-			internalCDN.Driver = append(internalCDN.Driver, &YunDun{
-				UserName: config["username"],
-				PassWord: config["password"],
 			})
 		}
 	}
