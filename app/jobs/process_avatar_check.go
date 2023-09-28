@@ -2,6 +2,7 @@ package jobs
 
 import (
 	"strconv"
+	"time"
 
 	"github.com/goravel/framework/facades"
 	"github.com/imroc/req/v3"
@@ -74,7 +75,10 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 			imageHash = helper.MD5(fileString)
 		} else {
 			client := req.C()
-			resp, reqErr := client.R().Get("http://proxy.server/http://0.gravatar.com/avatar/" + hash + ".png?s=600&r=g&d=404")
+			client.SetTimeout(5 * time.Second)
+			client.SetCommonRetryCount(2)
+			client.ImpersonateSafari()
+			resp, reqErr := client.R().Get("http://proxy.server/https://secure.gravatar.com/avatar/" + hash + ".png?s=600&r=g&d=404")
 			if reqErr != nil || !resp.IsSuccessState() {
 				return nil
 			}
