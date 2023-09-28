@@ -96,7 +96,7 @@ func (r *AvatarController) Avatar(ctx http.Context) http.Response {
 	ctx.Response().Header("Avatar-By", "weavatar.com")
 	ctx.Response().Header("Avatar-From", from)
 	ctx.Response().Header("Last-Modified", lastModified.SubHours(8).SetTimezone(carbon.GMT).ToRfc7231String())
-	ctx.Response().Header("Expires", carbon.Now().SubHours(8).SetTimezone(carbon.GMT).AddMinutes(5).ToRfc7231String())
+	ctx.Response().Header("Expires", carbon.Now().SetTimezone(carbon.GMT).AddMinutes(5).ToRfc7231String())
 
 	return ctx.Response().Data(http.StatusOK, imageExt, imageData)
 }
