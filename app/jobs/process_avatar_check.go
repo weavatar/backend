@@ -211,6 +211,14 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 		}
 
 		imageHash = helper.MD5(fileString)
+		err = facades.Storage().Put("checker/"+hash[:2]+"/"+hash, fileString)
+		if err != nil {
+			facades.Log().With(map[string]any{
+				"hash": hash,
+				"err":  err.Error(),
+			}).Error("图片审核[文件缓存失败]")
+			return nil
+		}
 	} else {
 		return nil
 	}
