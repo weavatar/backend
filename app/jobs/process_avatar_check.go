@@ -55,7 +55,6 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 			return nil
 		}
 
-		// 首先标记为已审核，因为请求审核的时候会再次访问头像触发审核流程导致套娃
 		avatar.Checked = true
 		err = facades.Orm().Query().Save(&avatar)
 		if err != nil {
@@ -92,7 +91,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 		err = facades.Orm().Query().Where("hash", imageHash).FirstOrFail(&image)
 		if err != nil {
 			checker := imagecheck.NewChecker()
-			ban, checkErr := checker.Check("https://weavatar.com/avatar/" + hash + ".png?s=400&d=404")
+			ban, checkErr := checker.Check("https://weavatar.com/avatar/" + hash + ".png?s=600&d=404")
 			if checkErr != nil {
 				facades.Log().Error("图片审核[审核失败] " + checkErr.Error())
 				avatar.Checked = false
@@ -142,7 +141,6 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 		return nil
 	}
 
-	// 首先标记为已审核，因为请求审核的时候会再次访问头像触发审核流程导致套娃
 	avatar.Checked = true
 	err = facades.Orm().Query().Save(&avatar)
 	if err != nil {
@@ -169,7 +167,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 	err = facades.Orm().Query().Where("hash", imageHash).FirstOrFail(&image)
 	if err != nil {
 		checker := imagecheck.NewChecker()
-		ban, checkErr := checker.Check("https://weavatar.com/avatar/" + hash + ".png?appid=" + strconv.Itoa(int(avatar.AppID)) + "&s=400&d=404")
+		ban, checkErr := checker.Check("https://weavatar.com/avatar/" + hash + ".png?appid=" + strconv.Itoa(int(avatar.AppID)) + "&s=600&d=404")
 		if checkErr != nil {
 			facades.Log().Error("图片审核[审核失败] " + checkErr.Error())
 			avatar.Checked = false
