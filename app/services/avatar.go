@@ -503,21 +503,22 @@ func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, 
 			if imgErr != nil {
 				img, lastModified, _ = r.GetDefaultByType(defaultAvatar, option)
 				from = "weavatar"
-			} else {
-				// QQ 头像自动免审
-				if !avatar.Checked {
+			}
+			// 自动免审默认头像和 QQ 头像
+			if !avatar.Checked {
+				if qq != 0 {
 					raw := strconv.Itoa(int(qq)) + "@qq.com"
 					avatar.Raw = &raw
-					avatar.Checked = true
-					avatar.Ban = false
-					err = facades.Orm().Query().Save(&avatar)
-					if err != nil {
-						facades.Log().With(map[string]any{
-							"qq":     qq,
-							"avatar": avatar,
-							"error":  err.Error(),
-						}).Hint("更新QQ头像的审核状态失败").Error("WeAvatar[数据库错误]")
-					}
+				}
+				avatar.Checked = true
+				avatar.Ban = false
+				err = facades.Orm().Query().Save(&avatar)
+				if err != nil {
+					facades.Log().With(map[string]any{
+						"qq":     qq,
+						"avatar": avatar,
+						"error":  err.Error(),
+					}).Hint("更新头像的审核状态失败").Error("WeAvatar[数据库错误]")
 				}
 			}
 		}
