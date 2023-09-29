@@ -494,7 +494,7 @@ func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, 
 		}
 	}
 
-	if !avatar.Checked {
+	if !avatar.Checked && from != "qq" {
 		go func() {
 			_ = facades.Queue().Job(&jobs.ProcessAvatarCheck{}, []queue.Arg{
 				{Type: "string", Value: hash},

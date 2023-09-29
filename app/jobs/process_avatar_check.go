@@ -72,23 +72,26 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 				facades.Log().Error("图片审核[文件读取失败] " + fileErr.Error())
 				return nil
 			}
+
 			imageHash = helper.MD5(fileString)
 		} else {
 			client := req.C()
 			client.SetTimeout(5 * time.Second)
 			client.SetCommonRetryCount(2)
 			client.ImpersonateSafari()
+
 			resp, reqErr := client.R().Get("http://proxy.server/https://secure.gravatar.com/avatar/" + hash + ".png?s=600&r=g&d=404")
 			if reqErr != nil || !resp.IsSuccessState() {
 				return nil
 			}
+
 			imageHash = helper.MD5(resp.String())
 		}
 
-		checker := imagecheck.NewChecker()
 		var image models.Image
 		err = facades.Orm().Query().Where("hash", imageHash).FirstOrFail(&image)
 		if err != nil {
+			checker := imagecheck.NewChecker()
 			ban, checkErr := checker.Check("https://weavatar.com/avatar/" + hash + ".png?s=400&d=404")
 			if checkErr != nil {
 				facades.Log().Error("图片审核[审核失败] " + checkErr.Error())
@@ -97,8 +100,10 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 				if err != nil {
 					facades.Log().Error("图片审核[数据更新失败] " + err.Error())
 				}
+
 				return nil
 			}
+
 			err = facades.Orm().Query().UpdateOrCreate(&image, &models.Image{
 				Hash: imageHash,
 			}, &models.Image{
@@ -107,6 +112,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 			if err != nil {
 				facades.Log().Error("图片审核[缓存数据创建失败] " + err.Error())
 			}
+
 			avatar.Ban = ban
 		} else {
 			avatar.Ban = image.Ban
@@ -153,15 +159,16 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 			facades.Log().Error("图片审核[文件读取失败] " + fileErr.Error())
 			return nil
 		}
+
 		imageHash = helper.MD5(fileString)
 	} else {
 		return nil
 	}
 
-	checker := imagecheck.NewChecker()
 	var image models.Image
 	err = facades.Orm().Query().Where("hash", imageHash).FirstOrFail(&image)
 	if err != nil {
+		checker := imagecheck.NewChecker()
 		ban, checkErr := checker.Check("https://weavatar.com/avatar/" + hash + ".png?appid=" + strconv.Itoa(int(avatar.AppID)) + "&s=400&d=404")
 		if checkErr != nil {
 			facades.Log().Error("图片审核[审核失败] " + checkErr.Error())
@@ -170,6 +177,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 			if err != nil {
 				facades.Log().Error("图片审核[数据更新失败] " + err.Error())
 			}
+
 			return nil
 		}
 		err = facades.Orm().Query().UpdateOrCreate(&image, &models.Image{
