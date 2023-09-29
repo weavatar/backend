@@ -88,11 +88,12 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 			}
 
 			imageHash = helper.MD5(fileString)
-			err = facades.Storage().Put("checker/"+hash[:2]+"/"+hash, fileString)
+			err = facades.Storage().Put("checker/"+imageHash[:2]+"/"+imageHash, fileString)
 			if err != nil {
 				facades.Log().With(map[string]any{
-					"hash": hash,
-					"err":  err.Error(),
+					"avatarHash": hash,
+					"imageHash":  imageHash,
+					"err":        err.Error(),
 				}).Error("图片审核[文件缓存失败]")
 				return nil
 			}
@@ -108,11 +109,12 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 			}
 
 			imageHash = helper.MD5(resp.String())
-			err = facades.Storage().Put("checker/"+hash[:2]+"/"+hash, resp.String())
+			err = facades.Storage().Put("checker/"+imageHash[:2]+"/"+imageHash, resp.String())
 			if err != nil {
 				facades.Log().With(map[string]any{
-					"hash": hash,
-					"err":  err.Error(),
+					"avatarHash": hash,
+					"imageHash":  imageHash,
+					"err":        err.Error(),
 				}).Error("图片审核[文件缓存失败]")
 				return nil
 			}
@@ -211,11 +213,12 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 		}
 
 		imageHash = helper.MD5(fileString)
-		err = facades.Storage().Put("checker/"+hash[:2]+"/"+hash, fileString)
+		err = facades.Storage().Put("checker/"+imageHash[:2]+"/"+imageHash, fileString)
 		if err != nil {
 			facades.Log().With(map[string]any{
-				"hash": hash,
-				"err":  err.Error(),
+				"avatarHash": hash,
+				"imageHash":  imageHash,
+				"err":        err.Error(),
 			}).Error("图片审核[文件缓存失败]")
 			return nil
 		}
