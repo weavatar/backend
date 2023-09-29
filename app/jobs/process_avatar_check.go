@@ -105,6 +105,10 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 
 			resp, reqErr := client.R().Get("http://proxy.server/https://secure.gravatar.com/avatar/" + hash + ".png?s=600&r=g&d=404")
 			if reqErr != nil || !resp.IsSuccessState() {
+				facades.Log().With(map[string]any{
+					"hash":     hash,
+					"response": resp.String(),
+				}).Error("图片审核[Gravatar头像下载失败]")
 				return nil
 			}
 
