@@ -112,7 +112,7 @@ func (r *AvatarImpl) Sanitize(ctx http.Context) (string, string, string, int, bo
 		}
 	}
 
-	match, _ := regexp.MatchString("^[a-fA-F0-9]{32}$", hash)
+	match, _ := regexp.MatchString("^[a-f0-9]{32}$", hash)
 	if !match {
 		forceDefaultBool = true
 	}
