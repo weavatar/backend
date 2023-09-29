@@ -33,7 +33,7 @@ import (
 // Avatar 头像服务
 type Avatar interface {
 	Sanitize(ctx http.Context) (string, string, string, int, bool, string)
-	GetQQ(hash string) ([]byte, carbon.Carbon, error)
+	GetQQ(hash string) (uint, []byte, carbon.Carbon, error)
 	GetGravatar(hash string) ([]byte, carbon.Carbon, error)
 	GetDefault(defaultAvatar string, option []string) ([]byte, carbon.Carbon, error)
 	GetDefaultByType(avatarType string, option []string) ([]byte, carbon.Carbon, error)
@@ -121,32 +121,31 @@ func (r *AvatarImpl) Sanitize(ctx http.Context) (string, string, string, int, bo
 }
 
 // GetQQ 通过 QQ 号获取头像
-func (r *AvatarImpl) GetQQ(hash string) ([]byte, carbon.Carbon, error) {
+func (r *AvatarImpl) GetQQ(hash string) (uint, []byte, carbon.Carbon, error) {
 	hashIndex, err := strconv.ParseInt(hash[:10], 16, 64)
 	if err != nil {
-		return nil, carbon.Now(), err
+		return 0, nil, carbon.Now(), err
 	}
 	tableIndex := (hashIndex % int64(500)) + 1
 	type qqHash struct {
 		Hash string `gorm:"primaryKey"`
 		QQ   uint   `gorm:"type:bigint;not null"`
 	}
+
 	var qq qqHash
+	if err = facades.Orm().Connection("hash").Query().Table("qq_"+strconv.Itoa(int(tableIndex))).Where("hash", hash).First(&qq); err != nil {
+		return 0, nil, carbon.Now(), err
+	}
+	if qq.QQ == 0 {
+		return 0, nil, carbon.Now(), errors.New("未找到对应的 QQ 号")
+	}
 
 	if facades.Storage().Exists("cache/qq/" + hash[:2] + "/" + hash) {
 		img, imgErr := os.ReadFile("cache/qq/" + hash[:2] + "/" + hash)
 		lastModified, err := facades.Storage().LastModified("cache/qq/" + hash[:2] + "/" + hash)
 		if imgErr == nil && err == nil {
-			return img, carbon.FromStdTime(lastModified), nil
+			return qq.QQ, img, carbon.FromStdTime(lastModified), nil
 		}
-	}
-
-	if err = facades.Orm().Connection("hash").Query().Table("qq_"+strconv.Itoa(int(tableIndex))).Where("hash", hash).First(&qq); err != nil {
-		return nil, carbon.Now(), err
-	}
-
-	if qq.QQ == 0 {
-		return nil, carbon.Now(), errors.New("未找到对应的 QQ 号")
 	}
 
 	resp, reqErr := r.Client.R().SetQueryParams(map[string]string{
@@ -156,9 +155,9 @@ func (r *AvatarImpl) GetQQ(hash string) ([]byte, carbon.Carbon, error) {
 	}).Get("http://q1.qlogo.cn/g")
 	if !resp.IsSuccessState() {
 		if reqErr != nil {
-			return nil, carbon.Now(), reqErr
+			return 0, nil, carbon.Now(), reqErr
 		} else {
-			return nil, carbon.Now(), errors.New("获取 QQ头像 失败")
+			return 0, nil, carbon.Now(), errors.New("获取 QQ头像 失败")
 		}
 	}
 
@@ -172,22 +171,22 @@ func (r *AvatarImpl) GetQQ(hash string) ([]byte, carbon.Carbon, error) {
 		}).Get("http://q1.qlogo.cn/g")
 		if !resp.IsSuccessState() {
 			if reqErr != nil {
-				return nil, carbon.Now(), reqErr
+				return 0, nil, carbon.Now(), reqErr
 			} else {
-				return nil, carbon.Now(), errors.New("获取 QQ头像 失败")
+				return 0, nil, carbon.Now(), errors.New("获取 QQ头像 失败")
 			}
 		}
 	}
 
 	if err := facades.Storage().Put("cache/qq/"+hash[:2]+"/"+hash, resp.String()); err != nil {
-		return nil, carbon.Now(), err
+		return 0, nil, carbon.Now(), err
 	}
 	lastModified, err := facades.Storage().LastModified("cache/qq/" + hash[:2] + "/" + hash)
 	if err != nil {
-		return nil, carbon.Now(), err
+		return 0, nil, carbon.Now(), err
 	}
 
-	return resp.Bytes(), carbon.FromStdTime(lastModified), nil
+	return qq.QQ, resp.Bytes(), carbon.FromStdTime(lastModified), nil
 }
 
 // GetGravatar 通过 Gravatar 获取头像
@@ -441,18 +440,28 @@ func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, 
 	// 取头像数据
 	_, err = facades.Orm().Query().Exec(`INSERT INTO avatars (hash, created_at, updated_at) VALUES (?, ?, ?) ON CONFLICT DO NOTHING`, hash, carbon.DateTime{Carbon: carbon.Now()}, carbon.DateTime{Carbon: carbon.Now()})
 	if err != nil {
-		facades.Log().Error("WeAvatar[数据库错误] ", err.Error())
+		facades.Log().With(map[string]any{
+			"hash":  hash,
+			"error": err.Error(),
+		}).Hint("插入哈希到头像表失败").Error("WeAvatar[数据库错误]")
 		return nil, carbon.Now(), from, err
 	}
 	err = facades.Orm().Query().Where("hash", hash).First(&avatar)
 	if err != nil {
-		facades.Log().Error("WeAvatar[数据库错误] ", err.Error())
+		facades.Log().With(map[string]any{
+			"hash":  hash,
+			"error": err.Error(),
+		}).Hint("从头像表查询哈希失败").Error("WeAvatar[数据库错误]")
 		return nil, carbon.Now(), from, err
 	}
 	if avatar.UserID != nil && avatar.Raw != nil {
 		err = facades.Orm().Query().Where("app_id", appid).Where("avatar_hash", hash).First(&appAvatar)
 		if err != nil {
-			facades.Log().Error("WeAvatar[数据库错误] ", err.Error())
+			facades.Log().With(map[string]any{
+				"hash":   hash,
+				"avatar": avatar,
+				"error":  err.Error(),
+			}).Hint("从APP头像表查询哈希失败").Error("WeAvatar[数据库错误]")
 			return nil, carbon.Now(), from, err
 		}
 
@@ -473,7 +482,10 @@ func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, 
 		}
 
 		if imgErr != nil {
-			facades.Log().Warning("WeAvatar[头像匹配失败] ", imgErr.Error())
+			facades.Log().With(map[string]any{
+				"avatar": avatar,
+				"error":  imgErr.Error(),
+			}).Hint("记录显示用户存在头像，但是无法找到头像文件").Warning("WeAvatar[头像匹配失败]")
 			img, lastModified, _ = r.GetDefaultByType(defaultAvatar, option)
 			return img, lastModified, from, nil
 		}
@@ -485,22 +497,39 @@ func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, 
 		img, lastModified, imgErr = r.GetGravatar(hash)
 		from = "gravatar"
 		if imgErr != nil {
-			img, lastModified, imgErr = r.GetQQ(hash)
+			var qq uint
+			qq, img, lastModified, imgErr = r.GetQQ(hash)
 			from = "qq"
 			if imgErr != nil {
 				img, lastModified, _ = r.GetDefaultByType(defaultAvatar, option)
 				from = "weavatar"
+			} else {
+				// QQ 头像自动免审
+				if !avatar.Checked {
+					raw := strconv.Itoa(int(qq)) + "@qq.com"
+					avatar.Raw = &raw
+					avatar.Checked = true
+					avatar.Ban = false
+					err = facades.Orm().Query().Save(&avatar)
+					if err != nil {
+						facades.Log().With(map[string]any{
+							"qq":     qq,
+							"avatar": avatar,
+							"error":  err.Error(),
+						}).Hint("更新QQ头像的审核状态失败").Error("WeAvatar[数据库错误]")
+					}
+				}
 			}
 		}
 	}
 
 	if !avatar.Checked && from != "qq" {
-		go func() {
+		go func(h string, a string) {
 			_ = facades.Queue().Job(&jobs.ProcessAvatarCheck{}, []queue.Arg{
-				{Type: "string", Value: hash},
-				{Type: "string", Value: appid},
+				{Type: "string", Value: h},
+				{Type: "string", Value: a},
 			}).Dispatch()
-		}()
+		}(hash, appid)
 	}
 
 	return img, lastModified, from, nil
