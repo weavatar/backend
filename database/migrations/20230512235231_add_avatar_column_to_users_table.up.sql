@@ -2,15 +2,15 @@ DROP INDEX idx_users_nickname;
 
 CREATE TABLE users_temp
 (
-    id         BIGINT PRIMARY KEY NOT NULL,
-    open_id    CHAR(32) UNIQUE    NOT NULL,
-    union_id   CHAR(32) UNIQUE    NOT NULL,
-    nickname   VARCHAR(255)       NOT NULL,
+    id         BIGINT PRIMARY KEY         NOT NULL,
+    open_id    CHAR(32) UNIQUE            NOT NULL,
+    union_id   CHAR(32) UNIQUE            NOT NULL,
+    nickname   VARCHAR(255)               NOT NULL,
     avatar     VARCHAR(255) DEFAULT NULL,
-    is_admin   BOOLEAN      DEFAULT FALSE,
-    real_name  BOOLEAN      DEFAULT FALSE,
-    created_at TIMESTAMP          NOT NULL,
-    updated_at TIMESTAMP          NOT NULL,
+    is_admin   BOOLEAN      DEFAULT FALSE NOT NULL,
+    real_name  BOOLEAN      DEFAULT FALSE NOT NULL,
+    created_at TIMESTAMP                  NOT NULL,
+    updated_at TIMESTAMP                  NOT NULL,
     deleted_at TIMESTAMP    DEFAULT NULL
 );
 
