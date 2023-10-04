@@ -54,13 +54,19 @@ unit_test:
 
 build:
   stage: build
+  image: rockylinux:9
   extends: .go_cache
   before_script:
-    - rm -rf /etc/apt/sources.list
-    - rm -rf /etc/apt/sources.list.d/*
-    - wget -O /etc/apt/sources.list https://mirrors.ustc.edu.cn/repogen/conf/debian-http-4-bookworm
-    - apt-get update
-    - apt-get install -y build-essential libvips-dev
+    - sed -i 's|^#baseurl=https://download.example/pub|baseurl=https://mirrors.aliyun.com|' /etc/yum.repos.d/epel*
+    - sed -i 's|^metalink|#metalink|' /etc/yum.repos.d/epel*
+    - dnf install https://rpms.remirepo.net/enterprise/remi-release-9.rpm -y
+    - sed -e 's!^#mirrorlist=!mirrorlist=!g' -e 's!^mirrorlist=!#mirrorlist=!g' -e 's!^#baseurl=!baseurl=!g' -e 's!http://rpms.remirepo.net/enterprise!https://mirrors.tuna.tsinghua.edu.cn/remi/enterprise!g' -i /etc/yum.repos.d/remi*
+    - dnf makecache -y
+    - dnf groupinstall "Development Tools" -y
+    - dnf install -y vips-devel
+    - wget -O go.tar.gz https://dl.google.com/go/go1.21.1.linux-amd64.tar.gz
+    - tar -C /usr/local -xzf go.tar.gz
+    - export PATH=$PATH:/usr/local/go/bin
   script:
     - go mod download
     - CGO_ENABLED=1 GOAMD64=v3 go build -ldflags '-s -w' -o $OUTPUT_NAME
