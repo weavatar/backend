@@ -64,7 +64,7 @@ build:
     - dnf groupinstall "Development Tools" -y
     - /usr/bin/crb enable
     - dnf install -y vips-devel
-    - dnf install -y wget
+    - dnf install -y wget tar
     - wget -O go.tar.gz https://dl.google.com/go/go1.21.1.linux-amd64.tar.gz
     - tar -C /usr/local -xzf go.tar.gz
     - export PATH=$PATH:/usr/local/go/bin
