@@ -26,7 +26,7 @@ type AkskConfig struct {
 }
 
 func TransferRequestMsg(config AkskConfig) model.HttpRequestMsg {
-	var requestMsg = model.HttpRequestMsg{Params: map[string]string{}, Headers: map[string]string{}}
+	var requestMsg = model.HttpRequestMsg{Headers: map[string]string{}}
 	requestMsg.Uri = config.Uri
 	requestMsg.Method = config.Method
 	requestMsg.Url = constant.HttpRequestPrefix + config.Uri
@@ -41,11 +41,15 @@ func TransferRequestMsg(config AkskConfig) model.HttpRequestMsg {
 	return requestMsg
 }
 
-func Invoke(config AkskConfig, jsonStr string) string {
+func Invoke(config AkskConfig, jsonStr string, params ...string) string {
 	var requestMsg = TransferRequestMsg(config)
 
 	if config.Method == "POST" || config.Method == "PUT" || config.Method == "PATCH" || config.Method == "DELETE" {
 		requestMsg.Body = jsonStr
+	}
+
+	if len(params) > 0 {
+		requestMsg.Params = params[0]
 	}
 
 	timeStamp := strconv.FormatInt(time.Now().UTC().Unix(), 10)

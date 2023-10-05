@@ -84,13 +84,18 @@ func (receiver *WangSu) GetUsage(domain string, startTime, endTime carbon.Carbon
 	filters.SetHostnames([]*string{&domain})
 	getASummaryOfRequestsRequest.SetFilters(&filters)
 
+	getASummaryOfRequestsParams := summary.Parameters{}
+	getASummaryOfRequestsParams.SetStartdate(startTime.SetTimezone(carbon.UTC).ToRfc3339String())
+	getASummaryOfRequestsParams.SetEnddate(endTime.SetTimezone(carbon.UTC).ToRfc3339String())
+	getASummaryOfRequestsParams.SetScheme("all")
+
 	var config auth.AkskConfig
 	config.AccessKey = receiver.AccessKey
 	config.SecretKey = receiver.SecretKey
 	config.EndPoint = "open.chinanetcenter.com"
-	config.Uri = "/cdn/report/reqSummary?startdate=" + startTime.SetTimezone(carbon.UTC).ToRfc3339String() + "&enddate=" + endTime.SetTimezone(carbon.UTC).ToRfc3339String() + "&scheme=all"
+	config.Uri = "/cdn/report/reqSummary"
 	config.Method = "POST"
-	response := auth.Invoke(config, getASummaryOfRequestsRequest.String())
+	response := auth.Invoke(config, getASummaryOfRequestsRequest.String(), getASummaryOfRequestsParams.String())
 
 	var data summary.GetASummaryOfRequestsResponse
 	err := sonic.UnmarshalString(response, &data)

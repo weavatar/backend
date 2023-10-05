@@ -1,6 +1,7 @@
 package util
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/imroc/req/v3"
@@ -14,11 +15,12 @@ func Call(requestMsg model.HttpRequestMsg) string {
 	client.SetCommonRetryCount(2)
 	client.ImpersonateSafari()
 	client.EnableDumpAll()
+	fmt.Println(requestMsg)
 
 	request := client.R()
 	request.SetHeaders(requestMsg.Headers)
 
-	resp, _ := client.R().SetHeaders(requestMsg.Headers).SetQueryParams(requestMsg.Params).SetBody(requestMsg.Body).Send(requestMsg.Method, requestMsg.Url)
+	resp, _ := client.R().SetHeaders(requestMsg.Headers).SetQueryString(requestMsg.Params).SetBody(requestMsg.Body).Send(requestMsg.Method, requestMsg.Url)
 
 	return resp.String()
 }
