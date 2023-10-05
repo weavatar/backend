@@ -57,12 +57,15 @@ build:
   image: rockylinux:9
   extends: .go_cache
   before_script:
+    - /usr/bin/crb enable
     - sed -e 's|^mirrorlist=|#mirrorlist=|g' -e 's|^#baseurl=http://dl.rockylinux.org/$contentdir|baseurl=https://mirrors.aliyun.com/rockylinux|g' -i.bak /etc/yum.repos.d/[Rr]ocky*.repo
     - dnf install https://rpms.remirepo.net/enterprise/remi-release-9.rpm -y
     - sed -e 's!^#mirrorlist=!mirrorlist=!g' -e 's!^mirrorlist=!#mirrorlist=!g' -e 's!^#baseurl=!baseurl=!g' -e 's!http://rpms.remirepo.net/enterprise!https://mirrors.tuna.tsinghua.edu.cn/remi/enterprise!g' -i /etc/yum.repos.d/remi*
-    - dnf makecache -y
+    - dnf install epel-release -y
+    - dnf config-manager --set-enabled epel
+    - sed -i 's|^#baseurl=https://download.example/pub|baseurl=https://mirrors.aliyun.com|' /etc/yum.repos.d/epel*
+    - sed -i 's|^metalink|#metalink|' /etc/yum.repos.d/epel*
     - dnf groupinstall "Development Tools" -y
-    - /usr/bin/crb enable
     - dnf install -y vips-devel
     - dnf install -y wget
     - wget -O go.tar.gz https://dl.google.com/go/go1.21.1.linux-amd64.tar.gz
