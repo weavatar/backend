@@ -63,7 +63,7 @@ build:
     - dnf install epel-release -y
     - dnf config-manager --set-enabled epel
     - /usr/bin/crb enable
-    - sed -i 's|^#baseurl=https://download.example/pub|baseurl=https://mirrors.aliyun.com|' /etc/yum.repos.d/epel*
+    - sed -i 's|^#baseurl=https://download.example/pub|baseurl=https://mirrors.ustc.edu.cn|' /etc/yum.repos.d/epel*
     - sed -i 's|^metalink|#metalink|' /etc/yum.repos.d/epel*
     - dnf groupinstall "Development Tools" -y
     - dnf install -y vips-devel
