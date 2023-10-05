@@ -1,7 +1,6 @@
 package util
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/imroc/req/v3"
@@ -14,8 +13,6 @@ func Call(requestMsg model.HttpRequestMsg) string {
 	client.SetTimeout(10 * time.Second)
 	client.SetCommonRetryCount(2)
 	client.ImpersonateSafari()
-	client.EnableDumpAll()
-	fmt.Println(requestMsg)
 
 	request := client.R()
 	request.SetHeaders(requestMsg.Headers)
