@@ -204,7 +204,7 @@ type GetASummaryOfRequestsResponseGroups struct {
 	// {"en" : "Name of a group.  '__all__' is a special group encompassing all groups.", "zh_CN": "分组名称。'__all__' 是一个特殊分组，包含其它所有分组的数据。"}
 	Group *string `json:"group,omitempty" xml:"group,omitempty"`
 	// {"en" : "Data values. The units of measurement are determined by the dataUnit field.", "zh_CN": "请求数。"}
-	Data []*string `json:"data,omitempty" xml:"data,omitempty" type:"Repeated"`
+	Data []*float64 `json:"data,omitempty" xml:"data,omitempty" type:"Repeated"`
 }
 
 func (s GetASummaryOfRequestsResponseGroups) String() string {
@@ -220,7 +220,7 @@ func (s *GetASummaryOfRequestsResponseGroups) SetGroup(v string) *GetASummaryOfR
 	return s
 }
 
-func (s *GetASummaryOfRequestsResponseGroups) SetData(v []*string) *GetASummaryOfRequestsResponseGroups {
+func (s *GetASummaryOfRequestsResponseGroups) SetData(v []*float64) *GetASummaryOfRequestsResponseGroups {
 	s.Data = v
 	return s
 }

@@ -102,9 +102,17 @@ func (receiver *WangSu) GetUsage(domain string, startTime, endTime carbon.Carbon
 	if err != nil {
 		facades.Log().With(map[string]any{
 			"response": response,
+			"error":    err.Error(),
 		}).Error("CDN[网宿][获取用量失败]")
 		return 0
 	}
 
-	return 0
+	sum := float64(0)
+	for _, item := range data.Groups {
+		for _, num := range item.Data {
+			sum += *num
+		}
+	}
+
+	return uint(sum)
 }
