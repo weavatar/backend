@@ -54,13 +54,21 @@ unit_test:
 
 build:
   stage: build
+  image: rockylinux:9
   extends: .go_cache
   before_script:
-    - rm -rf /etc/apt/sources.list
-    - rm -rf /etc/apt/sources.list.d/*
-    - wget -O /etc/apt/sources.list https://mirrors.ustc.edu.cn/repogen/conf/debian-http-4-bookworm
-    - apt-get update
-    - apt-get install -y build-essential libvips-dev
+    - sed -e 's|^mirrorlist=|#mirrorlist=|g' -e 's|^#baseurl=http://dl.rockylinux.org/$contentdir|baseurl=https://mirrors.ustc.edu.cn/rocky|g' -i.bak /etc/yum.repos.d/[Rr]ocky*.repo
+    - dnf install https://mirrors.ustc.edu.cn/remi/enterprise/remi-release-9.rpm -y
+    - sed -e 's!^#mirrorlist=!mirrorlist=!g' -e 's!^mirrorlist=!#mirrorlist=!g' -e 's!^#baseurl=!baseurl=!g' -e 's!http://rpms.remirepo.net/enterprise!https://mirrors.ustc.edu.cn/remi/enterprise!g' -i /etc/yum.repos.d/remi*
+    - sed -i 's|^#baseurl=https://download.example/pub|baseurl=https://mirrors.ustc.edu.cn|' /etc/yum.repos.d/epel*
+    - sed -i 's|^metalink|#metalink|' /etc/yum.repos.d/epel*
+    - /usr/bin/crb enable
+    - dnf groupinstall "Development Tools" -y
+    - dnf install -y vips-devel
+    - dnf install -y wget
+    - wget -O go.tar.gz https://dl.google.com/go/go1.21.1.linux-amd64.tar.gz
+    - tar -C /usr/local -xzf go.tar.gz
+    - export PATH=$PATH:/usr/local/go/bin
   script:
     - go mod download
     - CGO_ENABLED=1 GOAMD64=v3 go build -ldflags '-s -w' -o $OUTPUT_NAME
@@ -92,7 +100,7 @@ deploy_development:
     - sshpass -p $DEVELOPMENT_SERVER_PASSWORD ssh -o StrictHostKeyChecking=no -p $DEVELOPMENT_SERVER_PORT $DEVELOPMENT_SERVER_USER@$DEVELOPMENT_SERVER_IP "supervisorctl stop $OUTPUT_NAME" || true
     - sshpass -p $DEVELOPMENT_SERVER_PASSWORD ssh -o StrictHostKeyChecking=no -p $DEVELOPMENT_SERVER_PORT $DEVELOPMENT_SERVER_USER@$DEVELOPMENT_SERVER_IP "rm -f $DEVELOPMENT_SERVER_PATH/$OUTPUT_NAME && mv $DEVELOPMENT_SERVER_PATH/$OUTPUT_NAME@new $DEVELOPMENT_SERVER_PATH/$OUTPUT_NAME && chmod -R 755 $DEVELOPMENT_SERVER_PATH && chown -R www:www $DEVELOPMENT_SERVER_PATH && supervisorctl start $OUTPUT_NAME"
 
-deploy_production_main:
+deploy_production:
   stage: deploy
   image: alpine:latest
   extends: .go_cache
@@ -111,22 +119,3 @@ deploy_production_main:
     - sshpass -p $PRODUCTION_SERVER_PASSWORD scp -o StrictHostKeyChecking=no -P $PRODUCTION_SERVER_PORT -r $OUTPUT_NAME@new database public storage resources $PRODUCTION_SERVER_USER@$PRODUCTION_SERVER_IP:$PRODUCTION_SERVER_PATH
     - sshpass -p $PRODUCTION_SERVER_PASSWORD ssh -o StrictHostKeyChecking=no -p $PRODUCTION_SERVER_PORT $PRODUCTION_SERVER_USER@$PRODUCTION_SERVER_IP "supervisorctl stop $OUTPUT_NAME" || true
     - sshpass -p $PRODUCTION_SERVER_PASSWORD ssh -o StrictHostKeyChecking=no -p $PRODUCTION_SERVER_PORT $PRODUCTION_SERVER_USER@$PRODUCTION_SERVER_IP "rm -f $PRODUCTION_SERVER_PATH/$OUTPUT_NAME && mv $PRODUCTION_SERVER_PATH/$OUTPUT_NAME@new $PRODUCTION_SERVER_PATH/$OUTPUT_NAME && chmod -R 755 $PRODUCTION_SERVER_PATH && chown -R www:www $PRODUCTION_SERVER_PATH && supervisorctl start $OUTPUT_NAME"
-
-deploy_production_backup:
-  stage: deploy
-  image: alpine:latest
-  extends: .go_cache
-  dependencies:
-    - build
-  environment:
-    name: production
-    url: https://weavatar.com
-  when: manual
-  before_script:
-    - sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
-    - apk add --no-cache openssh-client sshpass
-    - mv $OUTPUT_NAME $OUTPUT_NAME@new
-  script:
-    - sshpass -p $PRODUCTION_BACKUP_SERVER_PASSWORD scp -o StrictHostKeyChecking=no -P $PRODUCTION_BACKUP_SERVER_PORT -r $OUTPUT_NAME@new database public storage resources $PRODUCTION_BACKUP_SERVER_USER@$PRODUCTION_BACKUP_SERVER_IP:$PRODUCTION_BACKUP_SERVER_PATH
-    - sshpass -p $PRODUCTION_BACKUP_SERVER_PASSWORD ssh -o StrictHostKeyChecking=no -p $PRODUCTION_BACKUP_SERVER_PORT $PRODUCTION_BACKUP_SERVER_USER@$PRODUCTION_BACKUP_SERVER_IP "supervisorctl stop $OUTPUT_NAME" || true
-    - sshpass -p $PRODUCTION_BACKUP_SERVER_PASSWORD ssh -o StrictHostKeyChecking=no -p $PRODUCTION_BACKUP_SERVER_PORT $PRODUCTION_BACKUP_SERVER_USER@$PRODUCTION_BACKUP_SERVER_IP "rm -f $PRODUCTION_BACKUP_SERVER_PATH/$OUTPUT_NAME && mv $PRODUCTION_BACKUP_SERVER_PATH/$OUTPUT_NAME@new $PRODUCTION_BACKUP_SERVER_PATH/$OUTPUT_NAME && chmod -R 755 $PRODUCTION_BACKUP_SERVER_PATH && chown -R www:www $PRODUCTION_BACKUP_SERVER_PATH && supervisorctl start $OUTPUT_NAME"

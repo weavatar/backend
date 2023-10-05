@@ -204,7 +204,7 @@ func (r *AvatarImpl) GetGravatar(hash string) ([]byte, carbon.Carbon, error) {
 
 	resp, reqErr := r.Client.R().Get("http://proxy.server/https://secure.gravatar.com/avatar/" + hash + ".png?s=600&r=g&d=404")
 	if reqErr != nil || !resp.IsSuccessState() {
-		return nil, carbon.Now(), errors.New("获取 Gravatar头像 失败")
+		return nil, carbon.Now(), errors.New("获取 Gravatar 头像失败")
 	}
 
 	// 保存图片
