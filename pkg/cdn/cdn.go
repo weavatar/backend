@@ -27,6 +27,11 @@ func NewCDN() CDN {
 	for _, d := range drivers {
 		config := cast.ToStringMapString(facades.Config().Get("cdn." + d))
 		switch d {
+		case "wangsu":
+			internalCDN.Driver = append(internalCDN.Driver, &WangSu{
+				AccessKey: config["access_key"],
+				SecretKey: config["secret_key"],
+			})
 		case "starshield":
 			internalCDN.Driver = append(internalCDN.Driver, &StarShield{
 				AccessKey:  config["access_key"],

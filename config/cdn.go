@@ -7,7 +7,12 @@ import (
 func init() {
 	config := facades.Config()
 	config.Add("cdn", map[string]any{
-		"driver": config.Env("CDN_DRIVER", "starshield"),
+		"driver": config.Env("CDN_DRIVER", "wangsu"),
+		// 网宿
+		"wangsu": map[string]any{
+			"access_key": config.Env("CDN_WANGSU_ACCESS_KEY", ""),
+			"secret_key": config.Env("CDN_WANGSU_SECRET_KEY", ""),
+		},
 		// 星盾
 		"starshield": map[string]any{
 			"access_key":  config.Env("CDN_STARSHIELD_ACCESS_KEY", ""),
