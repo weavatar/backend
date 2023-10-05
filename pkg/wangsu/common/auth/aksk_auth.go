@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bytedance/sonic"
 	"weavatar/pkg/wangsu/common/constant"
 	"weavatar/pkg/wangsu/common/model"
 	"weavatar/pkg/wangsu/common/util"
@@ -26,7 +27,7 @@ type AkskConfig struct {
 }
 
 func TransferRequestMsg(config AkskConfig) model.HttpRequestMsg {
-	var requestMsg = model.HttpRequestMsg{Headers: map[string]string{}}
+	var requestMsg = model.HttpRequestMsg{Params: map[string]string{}, Headers: map[string]string{}}
 	requestMsg.Uri = config.Uri
 	requestMsg.Method = config.Method
 	requestMsg.Url = constant.HttpRequestPrefix + config.Uri
@@ -49,7 +50,11 @@ func Invoke(config AkskConfig, jsonStr string, params ...string) string {
 	}
 
 	if len(params) > 0 {
-		requestMsg.Params = params[0]
+		decodeParams := make(map[string]string)
+		err := sonic.UnmarshalString(params[0], &decodeParams)
+		if err == nil {
+			requestMsg.Params = decodeParams
+		}
 	}
 
 	timeStamp := strconv.FormatInt(time.Now().UTC().Unix(), 10)

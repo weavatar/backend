@@ -20,7 +20,7 @@ func Call(requestMsg model.HttpRequestMsg) string {
 	request := client.R()
 	request.SetHeaders(requestMsg.Headers)
 
-	resp, _ := client.R().SetHeaders(requestMsg.Headers).SetQueryString(requestMsg.Params).SetBody(requestMsg.Body).Send(requestMsg.Method, requestMsg.Url)
+	resp, _ := client.R().SetHeaders(requestMsg.Headers).SetQueryParams(requestMsg.Params).SetBody(requestMsg.Body).Send(requestMsg.Method, requestMsg.Url)
 
 	return resp.String()
 }

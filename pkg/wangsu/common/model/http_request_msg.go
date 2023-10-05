@@ -5,7 +5,7 @@ type HttpRequestMsg struct {
 	Url           string
 	Method        string
 	Host          string
-	Params        string
+	Params        map[string]strings
 	Headers       map[string]string
 	Body          string
 	SignedHeaders string
