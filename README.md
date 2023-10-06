@@ -8,11 +8,11 @@ WeAvatar 是超越 Gravatar 的新一代头像服务，不仅支持用户上传�
 
 ## 依赖
 
-- Debian 12
+- AlmaLinux / RockyLinux 9
 - OpenResty >= 1.21
 - Go >= 1.21
 - PostgreSQL >= 16
-- libvips-dev >= 8.10
+- vips-devel >= 8.10
 
 ## 部署
 
@@ -48,7 +48,7 @@ cp .env.example .env
 ./weavatar artisan hash:insert
 ```
 
-其中 `hash:make` 步骤可选，用于生成 QQ 邮箱的 Hash 表，约占用 150 GB。
+其中 `hash:make` 步骤可选，用于生成 QQ 邮箱的 Hash 表，纯 csv 约占用 150 GB，导入后约占用 450 GB。
 
 ### 6. 启动项目
 
