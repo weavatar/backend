@@ -66,7 +66,7 @@ build:
     - dnf groupinstall "Development Tools" -y
     - dnf install -y vips-devel
     - dnf install -y wget
-    - wget -O go.tar.gz https://dl.google.com/go/go1.21.1.linux-amd64.tar.gz
+    - wget -O go.tar.gz https://mirrors.aliyun.com/golang/go1.21.1.linux-amd64.tar.gz
     - tar -C /usr/local -xzf go.tar.gz
     - export PATH=$PATH:/usr/local/go/bin
   script:
