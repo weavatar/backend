@@ -429,8 +429,8 @@ github.com/ianlancetaylor/demangle v0.0.0-20181102032728-5e5cf60278f6/go.mod h1:
 github.com/ianlancetaylor/demangle v0.0.0-20200824232613-28f6c0f3b639/go.mod h1:aSSvb/t6k1mPoxDqO4vJh6VOCGPwU4O0C2/Eqndh1Sc=
 github.com/imdario/mergo v0.3.16 h1:wwQJbIsHYGMUyLSPrEq1CT16AhnhNJQ51+4fdHUnCl4=
 github.com/imdario/mergo v0.3.16/go.mod h1:WBLT9ZmE3lPoWsEzCh9LPo3TiwVN+ZKEjmz+hD27ysY=
-github.com/imroc/req/v3 v3.42.0 h1:g7wWva3aIJI02mrnqmXe0N5SVkXHQPsYN3Tmw2ZHn3U=
-github.com/imroc/req/v3 v3.42.0/go.mod h1:W7dOrfQORA9nFoj+CafIZ6P5iyk+rWdbp2sffOAvABU=
+github.com/imroc/req/v3 v3.42.1 h1:g82SouLvX7pqwqJjpQJYrVvuI+LOycWhyuwxtLlyQJk=
+github.com/imroc/req/v3 v3.42.1/go.mod h1:W7dOrfQORA9nFoj+CafIZ6P5iyk+rWdbp2sffOAvABU=
 github.com/inconshreveable/mousetrap v1.0.0/go.mod h1:PxqpIevigyE2G7u3NXJIT2ANytuPF1OarO4DADm73n8=
 github.com/ipsn/go-adorable v1.0.0 h1:bIyOri2h+p3hIlxcgcGRI9yt1wQQlCo3LysIA7LQqqo=
 github.com/ipsn/go-adorable v1.0.0/go.mod h1:7QZ95Q2rEvA2kdteyy/QxWO1D84NG7CFGVi3faM/Bos=
