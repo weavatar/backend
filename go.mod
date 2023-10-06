@@ -17,7 +17,7 @@ require (
 	github.com/goravel/fiber v1.1.8
 	github.com/goravel/framework v1.13.1
 	github.com/iancoleman/strcase v0.3.0
-	github.com/imroc/req/v3 v3.42.0
+	github.com/imroc/req/v3 v3.42.1
 	github.com/ipsn/go-adorable v1.0.0
 	github.com/issue9/identicon/v2 v2.1.1
 	github.com/jdcloud-api/jdcloud-sdk-go v1.62.0
