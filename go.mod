@@ -28,7 +28,6 @@ require (
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.759
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.759
 	golang.org/x/exp v0.0.0-20231005195138-3e424a577f31
-	golang.org/x/image v0.13.0
 	google.golang.org/grpc v1.58.2
 	gorm.io/gorm v1.25.4
 )
@@ -189,6 +188,7 @@ require (
 	go.uber.org/atomic v1.11.0 // indirect
 	golang.org/x/arch v0.5.0 // indirect
 	golang.org/x/crypto v0.13.0 // indirect
+	golang.org/x/image v0.13.0 // indirect
 	golang.org/x/mod v0.12.0 // indirect
 	golang.org/x/net v0.15.0 // indirect
 	golang.org/x/oauth2 v0.10.0 // indirect

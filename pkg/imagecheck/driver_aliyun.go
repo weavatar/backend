@@ -80,10 +80,10 @@ func (a *Aliyun) Check(url string) (bool, error) {
 					}
 				}
 			} else {
-				return false, fmt.Errorf("审核调用失败 httpCode:%d, requestId:%s, msg:%s", statusCode, tea.StringValue(body.RequestId), tea.StringValue(body.Msg))
+				return false, fmt.Errorf("审核调用失败 url:%s, httpCode:%d, requestId:%s, msg:%s", url, statusCode, tea.StringValue(body.RequestId), tea.StringValue(body.Msg))
 			}
 		} else {
-			return false, fmt.Errorf("审核调用失败 httpCode:%d, requestId:%s, msg:%s", statusCode, tea.StringValue(body.RequestId), tea.StringValue(body.Msg))
+			return false, fmt.Errorf("审核调用失败 url:%s, httpCode:%d, requestId:%s, msg:%s", url, statusCode, tea.StringValue(body.RequestId), tea.StringValue(body.Msg))
 		}
 	}
 

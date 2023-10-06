@@ -24,7 +24,6 @@ import (
 	"github.com/issue9/identicon/v2"
 	"github.com/o1egl/govatar"
 	"golang.org/x/exp/slices"
-	_ "golang.org/x/image/webp"
 
 	"weavatar/app/jobs"
 	"weavatar/app/models"
