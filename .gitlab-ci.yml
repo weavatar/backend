@@ -64,7 +64,7 @@ build:
     - sed -i 's|^metalink|#metalink|' /etc/yum.repos.d/epel*
     - /usr/bin/crb enable
     - dnf groupinstall "Development Tools" -y
-    - dnf install -y vips-devel
+    - dnf install -y vips vips-heif vips-devel vips-tools
     - dnf install -y wget
     - wget -O go.tar.gz https://mirrors.aliyun.com/golang/go1.21.1.linux-amd64.tar.gz
     - tar -C /usr/local -xzf go.tar.gz

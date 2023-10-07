@@ -78,7 +78,6 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 		// 检查WeAvatar头像是否存在
 		var imageHash string
 		exist := facades.Storage().Exists("upload/default/" + hash[:2] + "/" + hash)
-		var respDebug string
 		if exist {
 			fileString, fileErr := facades.Storage().Get("upload/default/" + hash[:2] + "/" + hash)
 			if fileErr != nil {
@@ -105,7 +104,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 			client.SetCommonRetryCount(2)
 			client.ImpersonateSafari()
 
-			resp, reqErr := client.R().Get("http://proxy.server/https://secure.gravatar.com/avatar/" + hash + ".png?s=600&r=g&d=404")
+			resp, reqErr := client.R().Get("http://proxy.server/https://s.gravatar.com/avatar/" + hash + ".png?s=600&r=g&d=404")
 			if reqErr != nil || !resp.IsSuccessState() {
 				facades.Log().With(map[string]any{
 					"hash":     hash,
@@ -113,8 +112,6 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 				}).Error("图片审核[Gravatar头像下载失败]")
 				return err
 			}
-
-			respDebug = resp.String()
 
 			imageHash = helper.MD5(resp.String())
 			err = facades.Storage().Put("checker/"+imageHash[:2]+"/"+imageHash, resp.String())
@@ -137,7 +134,6 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 				facades.Log().With(map[string]any{
 					"hash":      hash,
 					"imageHash": imageHash,
-					"resp":      respDebug,
 					"err":       checkErr.Error(),
 				}).Error("图片审核[审核失败]")
 				avatar.Checked = false

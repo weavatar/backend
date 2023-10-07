@@ -20,6 +20,7 @@ import (
 	"github.com/goravel/framework/support/carbon"
 	"github.com/goravel/framework/testing"
 	"github.com/goravel/framework/validation"
+	"github.com/goravel/redis"
 
 	"weavatar/app/providers"
 )
@@ -73,6 +74,7 @@ func init() {
 			&log.ServiceProvider{},
 			&console.ServiceProvider{},
 			&database.ServiceProvider{},
+			&redis.ServiceProvider{},
 			&cache.ServiceProvider{},
 			&http.ServiceProvider{},
 			&route.ServiceProvider{},
