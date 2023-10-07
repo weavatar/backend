@@ -1,6 +1,7 @@
 package jobs
 
 import (
+	"errors"
 	"strconv"
 	"time"
 
@@ -24,14 +25,14 @@ func (receiver *ProcessAvatarCheck) Signature() string {
 // Handle Execute the job.
 func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 	if status := facades.Config().GetString("app.status", "main"); status != "main" {
-		return nil
+		return errors.New("图片审核[当前环境不允许执行此操作]")
 	}
 
 	if len(args) < 2 {
 		facades.Log().With(map[string]any{
 			"args": args,
 		}).Error("图片审核[队列参数不足]")
-		return nil
+		return errors.New("图片审核[队列参数不足]")
 	}
 
 	hash, ok := args[0].(string)
@@ -39,7 +40,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 		facades.Log().With(map[string]any{
 			"hash": hash,
 		}).Error("图片审核[队列参数断言失败]")
-		return nil
+		return errors.New("图片审核[队列参数断言失败]")
 	}
 
 	appID, ok2 := args[1].(string)
@@ -47,7 +48,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 		facades.Log().With(map[string]any{
 			"appID": appID,
 		}).Error("图片审核[队列参数断言失败]")
-		return nil
+		return errors.New("图片审核[队列参数断言失败]")
 	}
 
 	if appID == "0" {
@@ -58,7 +59,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 				"hash": hash,
 				"err":  err.Error(),
 			}).Error("图片审核[数据查询失败]")
-			return nil
+			return err
 		}
 		if avatar.Checked || avatar.Hash == nil {
 			return nil
@@ -71,12 +72,13 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 				"avatar": avatar,
 				"err":    err.Error(),
 			}).Error("图片审核[数据库更新失败]")
-			return nil
+			return err
 		}
 
 		// 检查WeAvatar头像是否存在
 		var imageHash string
 		exist := facades.Storage().Exists("upload/default/" + hash[:2] + "/" + hash)
+		var respDebug string
 		if exist {
 			fileString, fileErr := facades.Storage().Get("upload/default/" + hash[:2] + "/" + hash)
 			if fileErr != nil {
@@ -84,7 +86,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 					"hash": hash,
 					"err":  fileErr.Error(),
 				}).Error("图片审核[文件读取失败]")
-				return nil
+				return err
 			}
 
 			imageHash = helper.MD5(fileString)
@@ -95,7 +97,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 					"imageHash":  imageHash,
 					"err":        err.Error(),
 				}).Error("图片审核[文件缓存失败]")
-				return nil
+				return err
 			}
 		} else {
 			client := req.C()
@@ -109,8 +111,10 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 					"hash":     hash,
 					"response": resp.String(),
 				}).Error("图片审核[Gravatar头像下载失败]")
-				return nil
+				return err
 			}
+
+			respDebug = resp.String()
 
 			imageHash = helper.MD5(resp.String())
 			err = facades.Storage().Put("checker/"+imageHash[:2]+"/"+imageHash, resp.String())
@@ -120,7 +124,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 					"imageHash":  imageHash,
 					"err":        err.Error(),
 				}).Error("图片审核[文件缓存失败]")
-				return nil
+				return err
 			}
 		}
 
@@ -131,8 +135,10 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 			ban, checkErr := checker.Check("https://weavatar.com/avatar/" + hash + ".png?s=600&d=404")
 			if checkErr != nil {
 				facades.Log().With(map[string]any{
-					"hash": hash,
-					"err":  checkErr.Error(),
+					"hash":      hash,
+					"imageHash": imageHash,
+					"resp":      respDebug,
+					"err":       checkErr.Error(),
 				}).Error("图片审核[审核失败]")
 				avatar.Checked = false
 				err = facades.Orm().Query().Save(&avatar)
@@ -143,7 +149,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 					}).Error("图片审核[数据更新失败]")
 				}
 
-				return nil
+				return err
 			}
 
 			err = facades.Orm().Query().UpdateOrCreate(&image, &models.Image{
@@ -169,7 +175,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 				"avatar": avatar,
 				"err":    err.Error(),
 			}).Error("图片审核[数据更新失败]")
-			return nil
+			return err
 		}
 
 		if avatar.Ban {
@@ -187,7 +193,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 			"hash": hash,
 			"err":  err.Error(),
 		}).Error("图片审核[数据查询失败]")
-		return nil
+		return err
 	}
 	if avatar.Checked || len(avatar.AvatarHash) == 0 {
 		return nil
@@ -200,7 +206,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 			"avatar": avatar,
 			"err":    err.Error(),
 		}).Error("图片审核[数据库更新失败]")
-		return nil
+		return err
 	}
 
 	// 检查WeAvatar APP头像是否存在
@@ -213,7 +219,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 				"hash": hash,
 				"err":  fileErr.Error(),
 			}).Error("图片审核[文件读取失败]")
-			return nil
+			return fileErr
 		}
 
 		imageHash = helper.MD5(fileString)
@@ -224,10 +230,10 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 				"imageHash":  imageHash,
 				"err":        err.Error(),
 			}).Error("图片审核[文件缓存失败]")
-			return nil
+			return err
 		}
 	} else {
-		return nil
+		return errors.New("图片审核[APP头像不存在]")
 	}
 
 	var image models.Image
@@ -249,7 +255,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 				}).Error("图片审核[数据更新失败]")
 			}
 
-			return nil
+			return checkErr
 		}
 		err = facades.Orm().Query().UpdateOrCreate(&image, &models.Image{
 			Hash: imageHash,
@@ -273,7 +279,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 			"avatar": avatar,
 			"err":    err.Error(),
 		}).Error("图片审核[数据更新失败]")
-		return nil
+		return err
 	}
 
 	if avatar.Ban {
