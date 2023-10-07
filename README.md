@@ -18,8 +18,10 @@ WeAvatar 是超越 Gravatar 的新一代头像服务，不仅支持用户上传�
 
 ### 1. 安装依赖
 
+先导入 Remi 源。
+
 ```bash
-apt-get install -y libvips-dev
+dnf install -y vips vips-heif vips-devel vips-tools
 ```
 
 ### 2. 安装环境

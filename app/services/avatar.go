@@ -24,8 +24,8 @@ import (
 	"github.com/issue9/identicon/v2"
 	"github.com/o1egl/govatar"
 	"golang.org/x/exp/slices"
-
 	"weavatar/app/jobs"
+
 	"weavatar/app/models"
 )
 
@@ -201,7 +201,7 @@ func (r *AvatarImpl) GetGravatar(hash string) ([]byte, carbon.Carbon, error) {
 		}
 	}
 
-	resp, reqErr := r.Client.R().Get("http://proxy.server/https://secure.gravatar.com/avatar/" + hash + ".png?s=600&r=g&d=404")
+	resp, reqErr := r.Client.R().Get("http://proxy.server/https://s.gravatar.com/avatar/" + hash + ".png?s=600&r=g&d=404")
 	if reqErr != nil || !resp.IsSuccessState() {
 		return nil, carbon.Now(), errors.New("获取 Gravatar 头像失败")
 	}
@@ -524,12 +524,17 @@ func (r *AvatarImpl) GetAvatar(appid string, hash string, defaultAvatar string, 
 	}
 
 	if !avatar.Checked && from != "qq" {
-		go func(h string, a string) {
-			_ = facades.Queue().Job(&jobs.ProcessAvatarCheck{}, []queue.Arg{
-				{Type: "string", Value: h},
-				{Type: "string", Value: a},
-			}).Dispatch()
-		}(hash, appid)
+		err := facades.Queue().Job(&jobs.ProcessAvatarCheck{}, []queue.Arg{
+			{Type: "string", Value: hash},
+			{Type: "string", Value: appid},
+		}).Dispatch()
+		if err != nil {
+			facades.Log().With(map[string]any{
+				"hash":  hash,
+				"appid": appid,
+				"error": err.Error(),
+			}).Error("WeAvatar[任务分发失败]")
+		}
 	}
 
 	return img, lastModified, from, nil
