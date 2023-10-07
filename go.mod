@@ -15,7 +15,7 @@ require (
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/gookit/color v1.5.4
 	github.com/goravel/fiber v1.1.8
-	github.com/goravel/framework v1.13.1
+	github.com/goravel/framework v1.13.2
 	github.com/iancoleman/strcase v0.3.0
 	github.com/imroc/req/v3 v3.42.1
 	github.com/ipsn/go-adorable v1.0.0
@@ -90,7 +90,7 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
 	github.com/golang-jwt/jwt/v5 v5.0.0 // indirect
 	github.com/golang-migrate/migrate/v4 v4.16.2 // indirect
-	github.com/golang-module/carbon/v2 v2.2.6 // indirect
+	github.com/golang-module/carbon/v2 v2.2.8 // indirect
 	github.com/golang-sql/civil v0.0.0-20220223132316-b832511892a9 // indirect
 	github.com/golang-sql/sqlexp v0.1.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
