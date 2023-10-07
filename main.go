@@ -20,5 +20,12 @@ func main() {
 	// 计划任务，启动！
 	go facades.Schedule().Run()
 
+	// 队列，启动！
+	go func() {
+		if err := facades.Queue().Worker(nil).Run(); err != nil {
+			facades.Log().Errorf("Queue run error: %v", err)
+		}
+	}()
+
 	select {}
 }
