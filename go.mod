@@ -9,7 +9,7 @@ require (
 	github.com/alibabacloud-go/green-20220302 v1.0.8
 	github.com/alibabacloud-go/tea v1.2.1
 	github.com/alibabacloud-go/tea-utils/v2 v2.0.4
-	github.com/bytedance/sonic v1.10.1
+	github.com/bytedance/sonic v1.10.2
 	github.com/davidbyttow/govips/v2 v2.13.0
 	github.com/gertd/go-pluralize v0.2.1
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
@@ -26,8 +26,8 @@ require (
 	github.com/o1egl/govatar v0.4.1
 	github.com/spf13/cast v1.5.1
 	github.com/stretchr/testify v1.8.4
-	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.759
-	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.759
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.761
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.761
 	golang.org/x/exp v0.0.0-20231005195138-3e424a577f31
 	google.golang.org/grpc v1.58.2
 	gorm.io/gorm v1.25.4
