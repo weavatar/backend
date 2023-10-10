@@ -26,8 +26,8 @@ require (
 	github.com/o1egl/govatar v0.4.1
 	github.com/spf13/cast v1.5.1
 	github.com/stretchr/testify v1.8.4
-	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.761
-	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.761
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.762
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.762
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d
 	google.golang.org/grpc v1.58.2
 	gorm.io/gorm v1.25.5
