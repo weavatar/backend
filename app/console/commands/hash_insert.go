@@ -69,6 +69,12 @@ func (receiver *HashInsert) Handle(ctx console.Context) error {
 		if err != nil {
 			panic(err)
 		}
+		sql = fmt.Sprintf(`ALTER TABLE qq_%d OWNER TO hash;`, i)
+		color.Greenf("正在设置表所有者: %d\n", i)
+		_, err = facades.Orm().Connection("hash").Query().Exec(sql)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	color.Greenln("建表完成")
@@ -92,14 +98,16 @@ func (receiver *HashInsert) Handle(ctx console.Context) error {
 		if err != nil {
 			panic(err)
 		}
-		_, err = facades.Orm().Connection("hash").Query().Exec(fmt.Sprintf(`VACUUM FULL ANALYZE qq_%d;`, i))
-		if err != nil {
-			panic(err)
-		}
 		color.Greenf("索引创建完成: %d\n", i)
 	}
 
 	color.Warnln("索引创建完成")
+
+	_, err = facades.Orm().Connection("hash").Query().Exec(`VACUUM FULL ANALYZE;`)
+	if err != nil {
+		panic(err)
+	}
+
 	color.Warnln("运行结束")
 
 	return nil
