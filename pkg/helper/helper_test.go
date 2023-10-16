@@ -46,3 +46,15 @@ func (s *HelperTestSuite) TestRandomString() {
 func (s *HelperTestSuite) TestMD5() {
 	s.Equal("e10adc3949ba59abbe56e057f20f883e", MD5("123456"))
 }
+
+func (s *HelperTestSuite) TestIsURL() {
+	s.True(IsURL("https://weavatar.com"))
+	s.True(IsURL("https://weavatar.com?name=HaoZi"))
+	s.True(IsURL("http://weavatar.com"))
+	s.True(IsURL("http://www.weavatar.com"))
+	s.False(IsURL("www.weavatar.com"))
+	s.False(IsURL("weavatar.com"))
+	s.False(IsURL("weavatar.com?name=HaoZi"))
+
+	s.False(IsURL("weavatar"))
+}

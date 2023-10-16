@@ -43,7 +43,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 		return errors.New("图片审核[队列参数断言失败]")
 	}
 
-	appID, ok2 := args[1].(string)
+	appID, ok2 := args[1].(uint)
 	if !ok2 {
 		facades.Log().With(map[string]any{
 			"appID": appID,
@@ -51,7 +51,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 		return errors.New("图片审核[队列参数断言失败]")
 	}
 
-	if appID == "0" {
+	if appID == 0 {
 		var avatar models.Avatar
 		err := facades.Orm().Query().Where("hash", hash).First(&avatar)
 		if err != nil {

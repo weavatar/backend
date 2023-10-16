@@ -6,6 +6,7 @@ import (
 	"crypto/rand"
 	"fmt"
 	"io"
+	"net/url"
 	"reflect"
 )
 
@@ -73,4 +74,14 @@ func RandomString(length int) string {
 // MD5 生成字符串的 MD5 值
 func MD5(str string) string {
 	return fmt.Sprintf("%x", md5.Sum([]byte(str)))
+}
+
+// IsURL 判断字符串是否是 URL
+func IsURL(str string) bool {
+	parsed, err := url.Parse(str)
+	if err != nil || (parsed.Scheme != "http" && parsed.Scheme != "https") || len(parsed.Host) == 0 {
+		return false
+	}
+
+	return true
 }
