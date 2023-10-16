@@ -1,6 +1,8 @@
 package imagecheck
 
 import (
+	"sync"
+
 	"github.com/goravel/framework/facades"
 	"github.com/spf13/cast"
 )
@@ -10,27 +12,26 @@ type Checker struct {
 }
 
 var internal = &Checker{}
+var once sync.Once
 
 func NewChecker() Checker {
-	if internal.Driver != nil {
-		return *internal
-	}
-
-	driver := facades.Config().GetString("imagecheck.driver", "aliyun")
-	config := cast.ToStringMapString(facades.Config().Get("imagecheck." + driver))
-	switch driver {
-	case "aliyun":
-		internal.Driver = &Aliyun{
-			AccessKeyId:     config["access_key_id"],
-			AccessKeySecret: config["access_key_secret"],
+	once.Do(func() {
+		driver := facades.Config().GetString("imagecheck.driver", "aliyun")
+		config := cast.ToStringMapString(facades.Config().Get("imagecheck." + driver))
+		switch driver {
+		case "aliyun":
+			internal.Driver = &Aliyun{
+				AccessKeyId:     config["access_key_id"],
+				AccessKeySecret: config["access_key_secret"],
+			}
+		case "cos":
+			internal.Driver = &COS{
+				AccessKey: config["access_key"],
+				SecretKey: config["secret_key"],
+				Bucket:    config["bucket"],
+			}
 		}
-	case "cos":
-		internal.Driver = &COS{
-			AccessKey: config["access_key"],
-			SecretKey: config["secret_key"],
-			Bucket:    config["bucket"],
-		}
-	}
+	})
 
 	return *internal
 }

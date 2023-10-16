@@ -2,6 +2,7 @@ package cdn
 
 import (
 	"strings"
+	"sync"
 
 	"github.com/goravel/framework/facades"
 	"github.com/goravel/framework/support/carbon"
@@ -14,57 +15,56 @@ type CDN struct {
 }
 
 var internalCDN = &CDN{}
+var once sync.Once
 
 // NewCDN 创建CDN实例
 func NewCDN() CDN {
-	if len(internalCDN.Driver) > 0 {
-		return *internalCDN
-	}
+	once.Do(func() {
+		driver := facades.Config().GetString("cdn.driver", "ctyun")
+		drivers := strings.Split(driver, ",")
 
-	driver := facades.Config().GetString("cdn.driver", "ctyun")
-	drivers := strings.Split(driver, ",")
-
-	for _, d := range drivers {
-		config := cast.ToStringMapString(facades.Config().Get("cdn." + d))
-		switch d {
-		case "ctyun":
-			internalCDN.Driver = append(internalCDN.Driver, &CTYun{
-				AppID:       config["app_id"],
-				AppSecret:   config["app_secret"],
-				ApiEndpoint: "https://open.ctcdn.cn",
-			})
-		case "wangsu":
-			internalCDN.Driver = append(internalCDN.Driver, &WangSu{
-				AccessKey: config["access_key"],
-				SecretKey: config["secret_key"],
-			})
-		case "starshield":
-			internalCDN.Driver = append(internalCDN.Driver, &StarShield{
-				AccessKey:  config["access_key"],
-				SecretKey:  config["secret_key"],
-				InstanceID: config["instance_id"],
-				ZoneID:     config["zone_id"],
-			})
-		case "baishan":
-			internalCDN.Driver = append(internalCDN.Driver, &BaiShan{
-				Token: config["token"],
-			})
-		case "upyun":
-			internalCDN.Driver = append(internalCDN.Driver, &UpYun{
-				Token: config["token"],
-			})
-		case "ddun":
-			internalCDN.Driver = append(internalCDN.Driver, &DDun{
-				apiKey:    config["api_key"],
-				apiSecret: config["api_secret"],
-			})
-		case "anycast":
-			internalCDN.Driver = append(internalCDN.Driver, &AnyCast{
-				apiKey:    config["api_key"],
-				apiSecret: config["api_secret"],
-			})
+		for _, d := range drivers {
+			config := cast.ToStringMapString(facades.Config().Get("cdn." + d))
+			switch d {
+			case "ctyun":
+				internalCDN.Driver = append(internalCDN.Driver, &CTYun{
+					AppID:       config["app_id"],
+					AppSecret:   config["app_secret"],
+					ApiEndpoint: "https://open.ctcdn.cn",
+				})
+			case "wangsu":
+				internalCDN.Driver = append(internalCDN.Driver, &WangSu{
+					AccessKey: config["access_key"],
+					SecretKey: config["secret_key"],
+				})
+			case "starshield":
+				internalCDN.Driver = append(internalCDN.Driver, &StarShield{
+					AccessKey:  config["access_key"],
+					SecretKey:  config["secret_key"],
+					InstanceID: config["instance_id"],
+					ZoneID:     config["zone_id"],
+				})
+			case "baishan":
+				internalCDN.Driver = append(internalCDN.Driver, &BaiShan{
+					Token: config["token"],
+				})
+			case "upyun":
+				internalCDN.Driver = append(internalCDN.Driver, &UpYun{
+					Token: config["token"],
+				})
+			case "ddun":
+				internalCDN.Driver = append(internalCDN.Driver, &DDun{
+					apiKey:    config["api_key"],
+					apiSecret: config["api_secret"],
+				})
+			case "anycast":
+				internalCDN.Driver = append(internalCDN.Driver, &AnyCast{
+					apiKey:    config["api_key"],
+					apiSecret: config["api_secret"],
+				})
+			}
 		}
-	}
+	})
 
 	return *internalCDN
 }
