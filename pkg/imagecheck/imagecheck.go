@@ -9,30 +9,26 @@ type Checker struct {
 	Driver
 }
 
-var internal = &Checker{}
-
 func NewChecker() Checker {
-	if internal.Driver != nil {
-		return *internal
-	}
-
 	driver := facades.Config().GetString("imagecheck.driver", "aliyun")
 	config := cast.ToStringMapString(facades.Config().Get("imagecheck." + driver))
+	var newDriver Driver
+
 	switch driver {
 	case "aliyun":
-		internal.Driver = &Aliyun{
+		newDriver = &Aliyun{
 			AccessKeyId:     config["access_key_id"],
 			AccessKeySecret: config["access_key_secret"],
 		}
 	case "cos":
-		internal.Driver = &COS{
+		newDriver = &COS{
 			AccessKey: config["access_key"],
 			SecretKey: config["secret_key"],
 			Bucket:    config["bucket"],
 		}
 	}
 
-	return *internal
+	return Checker{Driver: newDriver}
 }
 
 // Check 检查图片是否违规 true: 违规 false: 未违规
