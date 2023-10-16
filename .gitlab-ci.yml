@@ -54,10 +54,10 @@ unit_test:
 
 build:
   stage: build
-  image: rockylinux:9
+  image: almalinux:9
   extends: .go_cache
   before_script:
-    - sed -e 's|^mirrorlist=|#mirrorlist=|g' -e 's|^#baseurl=http://dl.rockylinux.org/$contentdir|baseurl=https://mirrors.ustc.edu.cn/rocky|g' -i.bak /etc/yum.repos.d/[Rr]ocky*.repo
+    - sed -e 's|^mirrorlist=|#mirrorlist=|g' -e 's|^# baseurl=https://repo.almalinux.org|baseurl=https://mirrors.cloud.tencent.com|g' -i.bak /etc/yum.repos.d/[Aa]lmalinux*.repo
     - dnf install https://mirrors.ustc.edu.cn/remi/enterprise/remi-release-9.rpm -y
     - sed -e 's!^#mirrorlist=!mirrorlist=!g' -e 's!^mirrorlist=!#mirrorlist=!g' -e 's!^#baseurl=!baseurl=!g' -e 's!http://rpms.remirepo.net/enterprise!https://mirrors.ustc.edu.cn/remi/enterprise!g' -i /etc/yum.repos.d/remi*
     - sed -i 's|^#baseurl=https://download.example/pub|baseurl=https://mirrors.ustc.edu.cn|' /etc/yum.repos.d/epel*
@@ -66,7 +66,7 @@ build:
     - dnf groupinstall "Development Tools" -y
     - dnf install -y vips vips-heif vips-devel vips-tools
     - dnf install -y wget
-    - wget -O go.tar.gz https://mirrors.aliyun.com/golang/go1.21.1.linux-amd64.tar.gz
+    - wget -O go.tar.gz https://mirrors.aliyun.com/golang/go1.21.3.linux-amd64.tar.gz
     - tar -C /usr/local -xzf go.tar.gz
     - export PATH=$PATH:/usr/local/go/bin
   script:

@@ -99,14 +99,14 @@ func (b *BaiShan) RefreshPath(paths []string) bool {
 }
 
 // GetUsage 获取使用量
-func (b *BaiShan) GetUsage(domains string, startTime, endTime carbon.Carbon) uint {
+func (b *BaiShan) GetUsage(domain string, startTime, endTime carbon.Carbon) uint {
 	client := req.C()
 	client.SetTimeout(60 * time.Second)
 
 	var usage BaiShanUsageResponse
 	resp, err := client.R().SetQueryParams(map[string]string{
 		"token":      b.Token,
-		"domains":    domains,
+		"domains":    domain,
 		"start_time": startTime.ToDateTimeString(),
 		"end_time":   endTime.ToDateTimeString(),
 	}).SetSuccessResult(&usage).Get("https://cdn.api.baishan.com/v2/stat/request/eachDomain")

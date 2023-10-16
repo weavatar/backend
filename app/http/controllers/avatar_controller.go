@@ -44,6 +44,11 @@ func (r *AvatarController) Avatar(ctx http.Context) http.Response {
 	if forceDefault {
 		avatar, lastModified, err = r.avatar.GetDefaultByType(defaultAvatar, option)
 	} else {
+		// 判断 defaultAvatar 是否是合法 URL 并返回 302
+		if helper.IsURL(defaultAvatar) {
+			return ctx.Response().Redirect(http.StatusFound, defaultAvatar)
+		}
+
 		avatar, lastModified, from, err = r.avatar.GetAvatar(appid, hash, defaultAvatar, option)
 	}
 
