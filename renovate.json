@@ -18,5 +18,9 @@
         "*"
       ]
     }
+  ],
+  "ignoreDeps": [
+    "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common",
+    "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms"
   ]
 }
