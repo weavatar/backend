@@ -153,7 +153,7 @@ func (r *AvatarImpl) GetQQ(hash string) (qq int, img []byte, lastModified carbon
 	}
 
 	if facades.Storage().Exists("cache/qq/" + hash[:2] + "/" + hash) {
-		img, err = os.ReadFile("cache/qq/" + hash[:2] + "/" + hash)
+		img, err = os.ReadFile(facades.Storage().Path("cache/qq/" + hash[:2] + "/" + hash))
 		lastModifiedStd, lastModifiedErr := facades.Storage().LastModified("cache/qq/" + hash[:2] + "/" + hash)
 		if err == nil && lastModifiedErr == nil {
 			return qqModel.QQ, img, carbon.FromStdTime(lastModifiedStd), nil
@@ -204,7 +204,7 @@ func (r *AvatarImpl) GetQQ(hash string) (qq int, img []byte, lastModified carbon
 // GetGravatar 通过 Gravatar 获取头像
 func (r *AvatarImpl) GetGravatar(hash string) (img []byte, lastModified carbon.Carbon, err error) {
 	if facades.Storage().Exists("cache/gravatar/" + hash[:2] + "/" + hash) {
-		img, err = os.ReadFile("cache/gravatar/" + hash[:2] + "/" + hash)
+		img, err = os.ReadFile(facades.Storage().Path("cache/gravatar/" + hash[:2] + "/" + hash))
 		lastModifiedStd, lastModifiedErr := facades.Storage().LastModified("cache/gravatar/" + hash[:2] + "/" + hash)
 		if err == nil && lastModifiedErr == nil {
 			return img, carbon.FromStdTime(lastModifiedStd), nil
