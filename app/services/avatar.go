@@ -205,19 +205,7 @@ func (r *AvatarImpl) GetQQ(hash string) (qq int, img []byte, lastModified carbon
 func (r *AvatarImpl) GetGravatar(hash string) (img []byte, lastModified carbon.Carbon, err error) {
 	if facades.Storage().Exists("cache/gravatar/" + hash[:2] + "/" + hash) {
 		img, err = os.ReadFile(facades.Storage().Path("cache/gravatar/" + hash[:2] + "/" + hash))
-		facades.Log().With(map[string]any{
-			"hash": hash,
-			"err":  err,
-			"path": facades.Storage().Path("cache/gravatar/" + hash[:2] + "/" + hash),
-			"img":  img,
-		}).Debug("WeAvatar[Gravatar缓存]")
 		lastModifiedStd, lastModifiedErr := facades.Storage().LastModified("cache/gravatar/" + hash[:2] + "/" + hash)
-		facades.Log().With(map[string]any{
-			"hash": hash,
-			"err":  lastModifiedErr,
-			"path": facades.Storage().Path("cache/gravatar/" + hash[:2] + "/" + hash),
-			"img":  img,
-		}).Debug("WeAvatar[Gravatar缓存2]")
 		if err == nil && lastModifiedErr == nil {
 			return img, carbon.FromStdTime(lastModifiedStd), nil
 		}
