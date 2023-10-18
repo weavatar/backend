@@ -154,7 +154,7 @@ func (r *AvatarImpl) GetQQ(hash string) (qq int, img []byte, lastModified carbon
 
 	if facades.Storage().Exists("cache/qq/" + hash[:2] + "/" + hash) {
 		img, err = os.ReadFile(facades.Storage().Path("cache/qq/" + hash[:2] + "/" + hash))
-		lastModifiedStd, lastModifiedErr := facades.Storage().LastModified(facades.Storage().Path("cache/qq/" + hash[:2] + "/" + hash))
+		lastModifiedStd, lastModifiedErr := facades.Storage().LastModified("cache/qq/" + hash[:2] + "/" + hash)
 		if err == nil && lastModifiedErr == nil {
 			return qqModel.QQ, img, carbon.FromStdTime(lastModifiedStd), nil
 		}
@@ -193,7 +193,7 @@ func (r *AvatarImpl) GetQQ(hash string) (qq int, img []byte, lastModified carbon
 	if err := facades.Storage().Put("cache/qq/"+hash[:2]+"/"+hash, resp.String()); err != nil {
 		return 0, nil, carbon.Now(), err
 	}
-	lastModifiedStd, err := facades.Storage().LastModified(facades.Storage().Path("cache/qq/" + hash[:2] + "/" + hash))
+	lastModifiedStd, err := facades.Storage().LastModified("cache/qq/" + hash[:2] + "/" + hash)
 	if err != nil {
 		return 0, nil, carbon.Now(), err
 	}
@@ -211,7 +211,7 @@ func (r *AvatarImpl) GetGravatar(hash string) (img []byte, lastModified carbon.C
 			"path": facades.Storage().Path("cache/gravatar/" + hash[:2] + "/" + hash),
 			"img":  img,
 		}).Debug("WeAvatar[Gravatar缓存]")
-		lastModifiedStd, lastModifiedErr := facades.Storage().LastModified(facades.Storage().Path("cache/gravatar/" + hash[:2] + "/" + hash))
+		lastModifiedStd, lastModifiedErr := facades.Storage().LastModified("cache/gravatar/" + hash[:2] + "/" + hash)
 		facades.Log().With(map[string]any{
 			"hash": hash,
 			"err":  lastModifiedErr,
@@ -233,7 +233,7 @@ func (r *AvatarImpl) GetGravatar(hash string) (img []byte, lastModified carbon.C
 		return nil, carbon.Now(), err
 	}
 
-	lastModifiedStd, lastModifiedErr := facades.Storage().LastModified(facades.Storage().Path("cache/gravatar/" + hash[:2] + "/" + hash))
+	lastModifiedStd, lastModifiedErr := facades.Storage().LastModified("cache/gravatar/" + hash[:2] + "/" + hash)
 	if lastModifiedErr != nil {
 		return nil, carbon.Now(), err
 	}
