@@ -153,10 +153,10 @@ func (r *AvatarImpl) GetQQ(hash string) (qq int, img []byte, lastModified carbon
 	}
 
 	if facades.Storage().Exists("cache/qq/" + hash[:2] + "/" + hash) {
-		img, imgErr := os.ReadFile("cache/qq/" + hash[:2] + "/" + hash)
-		lastModified, err := facades.Storage().LastModified("cache/qq/" + hash[:2] + "/" + hash)
-		if imgErr == nil && err == nil {
-			return qqModel.QQ, img, carbon.FromStdTime(lastModified), nil
+		img, err = os.ReadFile("cache/qq/" + hash[:2] + "/" + hash)
+		lastModifiedStd, lastModifiedErr := facades.Storage().LastModified("cache/qq/" + hash[:2] + "/" + hash)
+		if err == nil && lastModifiedErr == nil {
+			return qqModel.QQ, img, carbon.FromStdTime(lastModifiedStd), nil
 		}
 	}
 
@@ -203,19 +203,12 @@ func (r *AvatarImpl) GetQQ(hash string) (qq int, img []byte, lastModified carbon
 
 // GetGravatar 通过 Gravatar 获取头像
 func (r *AvatarImpl) GetGravatar(hash string) (img []byte, lastModified carbon.Carbon, err error) {
-	var lastModifiedStd time.Time
-
 	if facades.Storage().Exists("cache/gravatar/" + hash[:2] + "/" + hash) {
 		img, err = os.ReadFile("cache/gravatar/" + hash[:2] + "/" + hash)
-		if err != nil {
-			return img, carbon.Now(), err
+		lastModifiedStd, lastModifiedErr := facades.Storage().LastModified("cache/gravatar/" + hash[:2] + "/" + hash)
+		if err == nil && lastModifiedErr == nil {
+			return img, carbon.FromStdTime(lastModifiedStd), nil
 		}
-		lastModifiedStd, err = facades.Storage().LastModified("cache/gravatar/" + hash[:2] + "/" + hash)
-		if err != nil {
-			return img, carbon.Now(), err
-		}
-
-		return img, carbon.FromStdTime(lastModifiedStd), nil
 	}
 
 	resp, reqErr := r.Client.R().Get("http://proxy.server/https://s.gravatar.com/avatar/" + hash + ".png?s=600&r=g&d=404")
@@ -228,8 +221,8 @@ func (r *AvatarImpl) GetGravatar(hash string) (img []byte, lastModified carbon.C
 		return nil, carbon.Now(), err
 	}
 
-	lastModifiedStd, err = facades.Storage().LastModified("cache/gravatar/" + hash[:2] + "/" + hash)
-	if err != nil {
+	lastModifiedStd, lastModifiedErr := facades.Storage().LastModified("cache/gravatar/" + hash[:2] + "/" + hash)
+	if lastModifiedErr != nil {
 		return nil, carbon.Now(), err
 	}
 
