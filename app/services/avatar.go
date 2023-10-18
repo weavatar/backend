@@ -208,6 +208,7 @@ func (r *AvatarImpl) GetGravatar(hash string) (img []byte, lastModified carbon.C
 		facades.Log().With(map[string]any{
 			"hash": hash,
 			"err":  err.Error(),
+			"path": facades.Storage().Path("cache/gravatar/" + hash[:2] + "/" + hash),
 			"img":  img,
 		}).Debug("WeAvatar[Gravatar缓存]")
 		lastModifiedStd, lastModifiedErr := facades.Storage().LastModified(facades.Storage().Path("cache/gravatar/" + hash[:2] + "/" + hash))
