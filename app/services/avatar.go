@@ -207,6 +207,12 @@ func (r *AvatarImpl) GetGravatar(hash string) (img []byte, lastModified carbon.C
 		img, err = os.ReadFile("cache/gravatar/" + hash[:2] + "/" + hash)
 		lastModifiedStd, lastModifiedErr := facades.Storage().LastModified("cache/gravatar/" + hash[:2] + "/" + hash)
 		if err == nil && lastModifiedErr == nil {
+			if lastModifiedErr != nil {
+				facades.Log().With(map[string]any{
+					"hash":  hash,
+					"error": lastModifiedErr.Error(),
+				}).Hint("获取 Gravatar 头像最后修改时间失败").Error("WeAvatar[文件系统错误]")
+			}
 			return img, carbon.FromStdTime(lastModifiedStd), nil
 		}
 	}
