@@ -13,8 +13,8 @@ require (
 	github.com/gertd/go-pluralize v0.2.1
 	github.com/goki/freetype v1.0.1
 	github.com/gookit/color v1.5.4
-	github.com/goravel/fiber v1.1.8
-	github.com/goravel/framework v1.13.2
+	github.com/goravel/fiber v1.1.11
+	github.com/goravel/framework v1.13.4
 	github.com/goravel/redis v1.1.0
 	github.com/haozi-team/letteravatar v1.0.4
 	github.com/iancoleman/strcase v0.3.0
@@ -28,7 +28,7 @@ require (
 	github.com/stretchr/testify v1.8.4
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.767
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.767
-	golang.org/x/exp v0.0.0-20231006140011-7918f672742d
+	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa
 	google.golang.org/grpc v1.59.0
 	gorm.io/gorm v1.25.5
 )
@@ -82,7 +82,7 @@ require (
 	github.com/go-redsync/redsync/v4 v4.8.1 // indirect
 	github.com/go-sql-driver/mysql v1.7.1 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
-	github.com/gofiber/fiber/v2 v2.49.2 // indirect
+	github.com/gofiber/fiber/v2 v2.50.0 // indirect
 	github.com/gofiber/template v1.8.2 // indirect
 	github.com/gofiber/template/html/v2 v2.0.5 // indirect
 	github.com/gofiber/utils v1.1.0 // indirect
@@ -161,6 +161,7 @@ require (
 	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/rotisserie/eris v0.5.4 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
+	github.com/savioxavier/termlink v1.3.0 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/spf13/afero v1.9.5 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
@@ -188,15 +189,15 @@ require (
 	go.opencensus.io v0.24.0 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
 	golang.org/x/arch v0.5.0 // indirect
-	golang.org/x/crypto v0.14.0 // indirect
+	golang.org/x/crypto v0.15.0 // indirect
 	golang.org/x/image v0.13.0 // indirect
-	golang.org/x/mod v0.13.0 // indirect
-	golang.org/x/net v0.17.0 // indirect
+	golang.org/x/mod v0.14.0 // indirect
+	golang.org/x/net v0.18.0 // indirect
 	golang.org/x/oauth2 v0.11.0 // indirect
-	golang.org/x/sync v0.4.0 // indirect
-	golang.org/x/sys v0.13.0 // indirect
-	golang.org/x/text v0.13.0 // indirect
-	golang.org/x/tools v0.14.0 // indirect
+	golang.org/x/sync v0.5.0 // indirect
+	golang.org/x/sys v0.14.0 // indirect
+	golang.org/x/text v0.14.0 // indirect
+	golang.org/x/tools v0.15.0 // indirect
 	google.golang.org/api v0.128.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20231002182017-d307bd883b97 // indirect
