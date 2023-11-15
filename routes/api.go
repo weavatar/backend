@@ -48,4 +48,8 @@ func Api() {
 		route.Middleware(middleware.Jwt()).Get("checkBind", systemController.CheckBind)
 		route.Get("cdnUsage", systemController.CdnUsage)
 	})
+
+	facades.Route().Fallback(func(ctx http.Context) http.Response {
+		return ctx.Response().Status(http.StatusNotFound).String(http.StatusText(http.StatusNotFound))
+	})
 }
