@@ -78,6 +78,10 @@ func MD5(str string) string {
 
 // IsURL 判断字符串是否是 URL
 func IsURL(str string) bool {
+	unescape, err := url.QueryUnescape(str)
+	if err == nil {
+		str = unescape
+	}
 	parsed, err := url.Parse(str)
 	if err != nil || (parsed.Scheme != "http" && parsed.Scheme != "https") || len(parsed.Host) == 0 {
 		return false
