@@ -384,13 +384,8 @@ func (r *AvatarImpl) GetDefault(defaultAvatar string, option []string) (img []by
 		return buf.Bytes(), carbon.Now(), nil
 	}
 
-	// 都不是的话，返回默认头像
-	img, err = os.ReadFile(facades.Storage().Path("default/default.png"))
-	if err != nil {
-		return nil, carbon.Now(), err
-	}
-
-	return img, carbon.Now(), nil
+	// 都不是的话，返回 nil（自定义 URL）
+	return nil, carbon.Now(), nil
 }
 
 // GetDefaultByType 通过默认头像类型获取头像
@@ -498,7 +493,7 @@ func (r *AvatarImpl) GetAvatar(appid uint, hash string, defaultAvatar string, op
 			// 自动免审默认头像和 QQ 头像
 			if !avatar.Checked {
 				if qq != 0 {
-					raw := strconv.Itoa(int(qq)) + "@qq.com"
+					raw := strconv.Itoa(qq) + "@qq.com"
 					avatar.Raw = &raw
 				}
 				avatar.Checked = true
