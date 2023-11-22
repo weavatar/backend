@@ -31,9 +31,20 @@ golangci_lint:
   extends: .go_cache
   allow_failure: true
   before_script:
-    - rm -rf /etc/apt/sources.list
-    - rm -rf /etc/apt/sources.list.d/*
-    - wget -O /etc/apt/sources.list https://mirrors.ustc.edu.cn/repogen/conf/debian-http-4-bookworm
+    - |
+      cat > /etc/apt/sources.list << EOF
+      deb https://mirror.sjtu.edu.cn/debian/ bookworm main contrib non-free non-free-firmware
+      deb-src https://mirror.sjtu.edu.cn/debian/ bookworm main contrib non-free non-free-firmware
+      
+      deb https://mirror.sjtu.edu.cn/debian/ bookworm-updates main contrib non-free non-free-firmware
+      deb-src https://mirror.sjtu.edu.cn/debian/ bookworm-updates main contrib non-free non-free-firmware
+      
+      deb https://mirror.sjtu.edu.cn/debian/ bookworm-backports main contrib non-free non-free-firmware
+      deb-src https://mirror.sjtu.edu.cn/debian/ bookworm-backports main contrib non-free non-free-firmware
+      
+      deb https://mirror.sjtu.edu.cn/debian-security/ bookworm-security main contrib non-free non-free-firmware
+      deb-src https://mirror.sjtu.edu.cn/debian-security/ bookworm-security main contrib non-free non-free-firmware
+      EOF
     - apt-get update
     - apt-get install -y build-essential libvips-dev
   script:
@@ -44,9 +55,20 @@ unit_test:
   extends: .go_cache
   allow_failure: true
   before_script:
-    - rm -rf /etc/apt/sources.list
-    - rm -rf /etc/apt/sources.list.d/*
-    - wget -O /etc/apt/sources.list https://mirrors.ustc.edu.cn/repogen/conf/debian-http-4-bookworm
+    - |
+      cat > /etc/apt/sources.list << EOF
+      deb https://mirror.sjtu.edu.cn/debian/ bookworm main contrib non-free non-free-firmware
+      deb-src https://mirror.sjtu.edu.cn/debian/ bookworm main contrib non-free non-free-firmware
+      
+      deb https://mirror.sjtu.edu.cn/debian/ bookworm-updates main contrib non-free non-free-firmware
+      deb-src https://mirror.sjtu.edu.cn/debian/ bookworm-updates main contrib non-free non-free-firmware
+      
+      deb https://mirror.sjtu.edu.cn/debian/ bookworm-backports main contrib non-free non-free-firmware
+      deb-src https://mirror.sjtu.edu.cn/debian/ bookworm-backports main contrib non-free non-free-firmware
+      
+      deb https://mirror.sjtu.edu.cn/debian-security/ bookworm-security main contrib non-free non-free-firmware
+      deb-src https://mirror.sjtu.edu.cn/debian-security/ bookworm-security main contrib non-free non-free-firmware
+      EOF
     - apt-get update
     - apt-get install -y build-essential libvips-dev
   script:
@@ -57,11 +79,11 @@ build:
   image: almalinux:9
   extends: .go_cache
   before_script:
-    - sed -e 's|^mirrorlist=|#mirrorlist=|g' -e 's|^# baseurl=https://repo.almalinux.org|baseurl=https://mirrors.cloud.tencent.com|g' -i.bak /etc/yum.repos.d/[Aa]lmalinux*.repo
-    - dnf install https://mirrors.ustc.edu.cn/remi/enterprise/remi-release-9.rpm -y
-    - sed -e 's!^#mirrorlist=!mirrorlist=!g' -e 's!^mirrorlist=!#mirrorlist=!g' -e 's!^#baseurl=!baseurl=!g' -e 's!http://rpms.remirepo.net/enterprise!https://mirrors.ustc.edu.cn/remi/enterprise!g' -i /etc/yum.repos.d/remi*
-    - sed -i 's|^#baseurl=https://download.example/pub|baseurl=https://mirrors.ustc.edu.cn|' /etc/yum.repos.d/epel*
-    - sed -i 's|^metalink|#metalink|' /etc/yum.repos.d/epel*
+    - sed -e 's|^mirrorlist=|#mirrorlist=|g' -e 's|^# baseurl=https://repo.almalinux.org|baseurl=https://mirror.sjtu.edu.cn|g' -i.bak /etc/yum.repos.d/[Aa]lmalinux*.repo
+    - dnf install https://mirror.sjtu.edu.cn/remi/enterprise/remi-release-9.rpm -y
+    - sed -e 's!^#mirrorlist=!mirrorlist=!g' -e 's!^mirrorlist=!#mirrorlist=!g' -e 's!^#baseurl=!baseurl=!g' -e 's!http://rpms.remirepo.net/enterprise!https://mirror.sjtu.edu.cn/remi/enterprise!g' -i /etc/yum.repos.d/remi*
+    - sed -i 's|^#baseurl=https://download.example/pub/epel|baseurl=https://mirror.sjtu.edu.cn/fedora/epel|' /etc/yum.repos.d/epel*
+    - sed -i 's|^metalink=|#metalink=|' /etc/yum.repos.d/epel*
     - /usr/bin/crb enable
     - dnf groupinstall "Development Tools" -y
     - dnf install -y vips vips-heif vips-devel vips-tools
