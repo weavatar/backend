@@ -62,6 +62,11 @@ func NewCDN() CDN {
 					apiKey:    config["api_key"],
 					apiSecret: config["api_secret"],
 				})
+			case "yundun":
+				internalCDN.Driver = append(internalCDN.Driver, &YunDun{
+					UserName: config["username"],
+					PassWord: config["password"],
+				})
 			}
 		}
 	})

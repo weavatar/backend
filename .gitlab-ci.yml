@@ -31,6 +31,8 @@ golangci_lint:
   extends: .go_cache
   allow_failure: true
   before_script:
+    - rm -rf /etc/apt/sources.list.d/*
+    - rm -f /etc/apt/sources.list
     - |
       cat > /etc/apt/sources.list << EOF
       deb https://mirror.sjtu.edu.cn/debian/ bookworm main contrib non-free non-free-firmware
@@ -55,6 +57,8 @@ unit_test:
   extends: .go_cache
   allow_failure: true
   before_script:
+    - rm -rf /etc/apt/sources.list.d/*
+    - rm -f /etc/apt/sources.list
     - |
       cat > /etc/apt/sources.list << EOF
       deb https://mirror.sjtu.edu.cn/debian/ bookworm main contrib non-free non-free-firmware

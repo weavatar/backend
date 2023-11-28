@@ -43,5 +43,10 @@ func init() {
 			"api_key":    config.Env("CDN_ANYCAST_API_KEY", ""),
 			"api_secret": config.Env("CDN_ANYCAST_API_SECRET", ""),
 		},
+		// 云盾
+		"yundun": map[string]any{
+			"username": config.Env("CDN_YUNDUN_USERNAME", ""),
+			"password": config.Env("CDN_YUNDUN_PASSWORD", ""),
+		},
 	})
 }
