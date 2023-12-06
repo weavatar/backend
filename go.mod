@@ -14,7 +14,7 @@ require (
 	github.com/goki/freetype v1.0.1
 	github.com/gookit/color v1.5.4
 	github.com/goravel/fiber v1.1.12
-	github.com/goravel/framework v1.13.4
+	github.com/goravel/framework v1.13.5
 	github.com/goravel/redis v1.1.0
 	github.com/haozi-team/letteravatar v1.0.4
 	github.com/iancoleman/strcase v0.3.0
@@ -24,11 +24,11 @@ require (
 	github.com/jdcloud-api/jdcloud-sdk-go v1.62.0
 	github.com/mojocn/base64Captcha v1.3.5
 	github.com/o1egl/govatar v0.4.1
-	github.com/spf13/cast v1.5.1
+	github.com/spf13/cast v1.6.0
 	github.com/stretchr/testify v1.8.4
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.767
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.767
-	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa
+	golang.org/x/exp v0.0.0-20231206192017-f3f8817b8deb
 	google.golang.org/grpc v1.59.0
 	gorm.io/gorm v1.25.5
 )
@@ -193,15 +193,15 @@ require (
 	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
 	golang.org/x/arch v0.6.0 // indirect
-	golang.org/x/crypto v0.15.0 // indirect
+	golang.org/x/crypto v0.16.0 // indirect
 	golang.org/x/image v0.13.0 // indirect
 	golang.org/x/mod v0.14.0 // indirect
-	golang.org/x/net v0.18.0 // indirect
+	golang.org/x/net v0.19.0 // indirect
 	golang.org/x/oauth2 v0.13.0 // indirect
 	golang.org/x/sync v0.5.0 // indirect
-	golang.org/x/sys v0.14.0 // indirect
+	golang.org/x/sys v0.15.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
-	golang.org/x/tools v0.15.0 // indirect
+	golang.org/x/tools v0.16.0 // indirect
 	google.golang.org/api v0.149.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20231106174013-bbf56f31fb17 // indirect
