@@ -22,14 +22,14 @@ require (
 	github.com/ipsn/go-adorable v1.0.0
 	github.com/issue9/identicon/v2 v2.1.1
 	github.com/jdcloud-api/jdcloud-sdk-go v1.62.0
-	github.com/mojocn/base64Captcha v1.3.5
+	github.com/mojocn/base64Captcha v1.3.6
 	github.com/o1egl/govatar v0.4.1
 	github.com/spf13/cast v1.6.0
 	github.com/stretchr/testify v1.8.4
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.767
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.767
 	golang.org/x/exp v0.0.0-20231206192017-f3f8817b8deb
-	google.golang.org/grpc v1.59.0
+	google.golang.org/grpc v1.60.0
 	gorm.io/gorm v1.25.5
 )
 
@@ -203,7 +203,7 @@ require (
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/tools v0.16.0 // indirect
 	google.golang.org/api v0.149.0 // indirect
-	google.golang.org/appengine v1.6.7 // indirect
+	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/genproto v0.0.0-20231106174013-bbf56f31fb17 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20231030173426-d783a09b4405 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20231120223509-83a465c0220f // indirect
