@@ -5,7 +5,7 @@ go 1.21
 require (
 	github.com/alibabacloud-go/darabonba-openapi/v2 v2.0.5
 	github.com/alibabacloud-go/dysmsapi-20170525/v3 v3.0.6
-	github.com/alibabacloud-go/green-20220302 v1.1.0
+	github.com/alibabacloud-go/green-20220302 v1.2.0
 	github.com/alibabacloud-go/tea v1.2.1
 	github.com/alibabacloud-go/tea-utils/v2 v2.0.4
 	github.com/bytedance/sonic v1.10.2
@@ -28,8 +28,8 @@ require (
 	github.com/stretchr/testify v1.8.4
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.767
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.767
-	golang.org/x/exp v0.0.0-20231206192017-f3f8817b8deb
-	google.golang.org/grpc v1.60.0
+	golang.org/x/exp v0.0.0-20231219180239-dc181d75b848
+	google.golang.org/grpc v1.60.1
 	gorm.io/gorm v1.25.5
 )
 
