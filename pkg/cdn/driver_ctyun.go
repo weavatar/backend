@@ -68,12 +68,12 @@ func (c *CTYun) RefreshUrl(urls []string) bool {
 	})
 
 	for i, url := range urls {
-		urls[i] = "https://" + url
+		urls[i] = "https://" + url + ".*"
 	}
 
 	data := map[string]any{
 		"values":    urls,
-		"task_type": 4,
+		"task_type": 3,
 	}
 
 	var resp CTYunRefreshResponse
