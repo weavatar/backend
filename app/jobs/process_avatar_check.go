@@ -17,9 +17,6 @@ import (
 type ProcessAvatarCheck struct {
 }
 
-// urls 待刷新的URL列表
-var urls []string
-
 // Signature The name and signature of the job.
 func (receiver *ProcessAvatarCheck) Signature() string {
 	return "process_avatar_check"
@@ -178,12 +175,8 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 		}
 
 		if avatar.Ban {
-			urls = append(urls, "weavatar.com/avatar/"+hash)
-		}
-		if len(urls) >= 30 {
 			cdn := packagecdn.NewCDN()
-			cdn.RefreshUrl(urls)
-			urls = []string{}
+			cdn.RefreshUrl([]string{"weavatar.com/avatar/" + hash})
 		}
 
 		return nil
@@ -286,12 +279,8 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 	}
 
 	if avatar.Ban {
-		urls = append(urls, "weavatar.com/avatar/"+hash)
-	}
-	if len(urls) >= 30 {
 		cdn := packagecdn.NewCDN()
-		cdn.RefreshUrl(urls)
-		urls = []string{}
+		cdn.RefreshUrl([]string{"weavatar.com/avatar/" + hash})
 	}
 
 	return nil
