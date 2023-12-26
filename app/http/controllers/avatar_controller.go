@@ -102,7 +102,7 @@ func (r *AvatarController) Avatar(ctx http.Context) http.Response {
 	ctx.Response().Header("Last-Modified", lastModified.SubHours(8).SetTimezone(carbon.GMT).ToRfc7231String())
 	ctx.Response().Header("Expires", carbon.Now().SetTimezone(carbon.GMT).AddMinutes(5).ToRfc7231String())
 
-	return ctx.Response().Data(http.StatusOK, imageExt, imageData)
+	return ctx.Response().Data(http.StatusOK, "image/"+imageExt, imageData)
 }
 
 // Index 获取头像列表
