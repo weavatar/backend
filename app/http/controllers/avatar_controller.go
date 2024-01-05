@@ -1,9 +1,11 @@
 package controllers
 
 import (
+	"image"
 	"os"
+	"os/exec"
+	"strconv"
 
-	"github.com/davidbyttow/govips/v2/vips"
 	"github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/facades"
 	"github.com/goravel/framework/support/carbon"
@@ -61,38 +63,32 @@ func (r *AvatarController) Avatar(ctx http.Context) http.Response {
 		return ctx.Response().String(http.StatusInternalServerError, "WeAvatar 服务出现错误")
 	}
 
-	img, err := vips.NewImageFromBuffer(avatar)
+	// 创建一个临时文件
+	file, err := os.CreateTemp("", "weavatar")
 	if err != nil {
-		facades.Log().Error("WeAvatar[生成头像错误] ", err.Error())
+		facades.Log().Error("WeAvatar[创建临时文件错误] ", err.Error())
 		return ctx.Response().String(http.StatusInternalServerError, "WeAvatar 服务出现错误")
 	}
-	err = img.Thumbnail(size, size, vips.InterestingCentre)
+	defer os.Remove(file.Name())
+
+	// 写入临时文件
+	_, err = file.Write(avatar)
 	if err != nil {
-		facades.Log().Error("WeAvatar[缩放头像错误] ", err.Error())
+		facades.Log().Error("WeAvatar[写入临时文件错误] ", err.Error())
 		return ctx.Response().String(http.StatusInternalServerError, "WeAvatar 服务出现错误")
 	}
 
-	var imageData []byte
-	switch imageExt {
-	case "webp":
-		imageData, _, err = img.ExportWebp(vips.NewWebpExportParams())
-	case "png":
-		imageData, _, err = img.ExportPng(vips.NewPngExportParams())
-	case "jpg", "jpeg":
-		imageData, _, err = img.ExportJpeg(vips.NewJpegExportParams())
-	case "gif":
-		imageData, _, err = img.ExportGIF(vips.NewGifExportParams())
-	case "tiff":
-		imageData, _, err = img.ExportTiff(vips.NewTiffExportParams())
-	case "heif":
-		imageData, _, err = img.ExportHeif(vips.NewHeifExportParams())
-	case "avif":
-		imageData, _, err = img.ExportAvif(vips.NewAvifExportParams())
-	default:
-		imageData, _, err = img.ExportWebp(vips.NewWebpExportParams())
-	}
+	// 调用 vips 处理图片
+	output, err := exec.Command("vipsthumbnail", file.Name(), "-s", strconv.Itoa(size), "--smartcrop", "attention", "-o", file.Name()+"."+imageExt).Output()
 	if err != nil {
-		facades.Log().Error("WeAvatar[编码头像错误] ", err.Error())
+		facades.Log().Error("WeAvatar[调用 vips 处理图片错误] ", err.Error(), string(output))
+		return ctx.Response().String(http.StatusInternalServerError, "WeAvatar 服务出现错误")
+	}
+	defer os.Remove(file.Name() + "." + imageExt)
+
+	imageData, err := os.ReadFile(file.Name() + "." + imageExt)
+	if err != nil {
+		facades.Log().Error("WeAvatar[读取临时文件错误] ", err.Error())
 		return ctx.Response().String(http.StatusInternalServerError, "WeAvatar 服务出现错误")
 	}
 
@@ -169,18 +165,22 @@ func (r *AvatarController) Store(ctx http.Context) http.Response {
 		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
 	}
 
-	file, fileErr := os.ReadFile(upload.File())
-	if fileErr != nil {
-		facades.Log().Error("[AvatarController][Store] 读取上传失败 ", fileErr.Error())
+	file, err := os.Open(upload.File())
+	if err != nil {
+		facades.Log().Error("[AvatarController][Update] 读取上传失败 ", err.Error())
 		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
 	}
+	defer file.Close()
 
-	img, err := vips.NewImageFromBuffer(file)
+	img, _, err := image.Decode(file)
 	if err != nil {
 		facades.Log().Error("[AvatarController][Store] 解析图片失败 ", err.Error())
 		return Error(ctx, http.StatusInternalServerError, "无法解析图片")
 	}
-	if img.Width() != img.Height() {
+
+	bounds := img.Bounds()
+	width, height := bounds.Max.X, bounds.Max.Y
+	if width != height {
 		return Error(ctx, http.StatusUnprocessableEntity, "图片长宽必须相等")
 	}
 
@@ -192,9 +192,8 @@ func (r *AvatarController) Store(ctx http.Context) http.Response {
 		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
 	}
 
-	saveErr := facades.Storage().Put("upload/default/"+hash[:2]+"/"+hash, string(file))
-	if saveErr != nil {
-		facades.Log().Error("[AvatarController][Store] 保存用户头像失败 ", saveErr.Error())
+	if _, err = upload.StoreAs("upload/default/"+hash[:2], hash); err != nil {
+		facades.Log().Error("[AvatarController][Update] 保存用户头像失败 ", err.Error())
 		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
 	}
 
@@ -251,18 +250,22 @@ func (r *AvatarController) Update(ctx http.Context) http.Response {
 		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
 	}
 
-	file, fileErr := os.ReadFile(upload.File())
-	if fileErr != nil {
-		facades.Log().Error("[AvatarController][Update] 读取上传失败 ", fileErr.Error())
+	file, err := os.Open(upload.File())
+	if err != nil {
+		facades.Log().Error("[AvatarController][Update] 读取上传失败 ", err.Error())
 		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
 	}
+	defer file.Close()
 
-	img, err := vips.NewImageFromBuffer(file)
+	img, _, err := image.Decode(file)
 	if err != nil {
 		facades.Log().Error("[AvatarController][Store] 解析图片失败 ", err.Error())
 		return Error(ctx, http.StatusInternalServerError, "无法解析图片")
 	}
-	if img.Width() != img.Height() {
+
+	bounds := img.Bounds()
+	width, height := bounds.Max.X, bounds.Max.Y
+	if width != height {
 		return Error(ctx, http.StatusUnprocessableEntity, "图片长宽必须相等")
 	}
 
@@ -274,9 +277,8 @@ func (r *AvatarController) Update(ctx http.Context) http.Response {
 		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
 	}
 
-	saveErr := facades.Storage().Put("upload/default/"+hash[:2]+"/"+hash, string(file))
-	if saveErr != nil {
-		facades.Log().Error("[AvatarController][Update] 保存用户头像失败 ", saveErr.Error())
+	if _, err = upload.StoreAs("upload/default/"+hash[:2], hash); err != nil {
+		facades.Log().Error("[AvatarController][Update] 保存用户头像失败 ", err.Error())
 		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
 	}
 
