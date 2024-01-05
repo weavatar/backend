@@ -28,7 +28,7 @@ func NewAvatarController() *AvatarController {
 
 // Avatar 获取头像
 func (r *AvatarController) Avatar(ctx http.Context) http.Response {
-	appid, hash, imageExt, size, forceDefault, defaultAvatar := r.avatar.Sanitize(ctx)
+	appid, hash, ext, size, forceDefault, defaultAvatar := r.avatar.Sanitize(ctx)
 
 	var avatar []byte
 	var lastModified carbon.Carbon
@@ -64,7 +64,7 @@ func (r *AvatarController) Avatar(ctx http.Context) http.Response {
 	}
 
 	// 创建一个临时文件
-	file, err := os.CreateTemp("", "weavatar")
+	file, err := os.CreateTemp("", "weavatar-")
 	if err != nil {
 		facades.Log().Error("WeAvatar[创建临时文件错误] ", err.Error())
 		return ctx.Response().String(http.StatusInternalServerError, "WeAvatar 服务出现错误")
@@ -79,14 +79,14 @@ func (r *AvatarController) Avatar(ctx http.Context) http.Response {
 	}
 
 	// 调用 vips 处理图片
-	output, err := exec.Command("vipsthumbnail", file.Name(), "-s", strconv.Itoa(size), "--smartcrop", "attention", "-o", file.Name()+"."+imageExt).Output()
+	output, err := exec.Command("vipsthumbnail", file.Name(), "-s", strconv.Itoa(size), "--smartcrop", "attention", "-o", file.Name()+"."+ext).Output()
 	if err != nil {
 		facades.Log().Error("WeAvatar[调用 vips 处理图片错误] ", err.Error(), string(output))
 		return ctx.Response().String(http.StatusInternalServerError, "WeAvatar 服务出现错误")
 	}
-	defer os.Remove(file.Name() + "." + imageExt)
+	defer os.Remove(file.Name() + "." + ext)
 
-	imageData, err := os.ReadFile(file.Name() + "." + imageExt)
+	data, err := os.ReadFile(file.Name() + "." + ext)
 	if err != nil {
 		facades.Log().Error("WeAvatar[读取临时文件错误] ", err.Error())
 		return ctx.Response().String(http.StatusInternalServerError, "WeAvatar 服务出现错误")
@@ -98,7 +98,7 @@ func (r *AvatarController) Avatar(ctx http.Context) http.Response {
 	ctx.Response().Header("Last-Modified", lastModified.SubHours(8).SetTimezone(carbon.GMT).ToRfc7231String())
 	ctx.Response().Header("Expires", carbon.Now().SetTimezone(carbon.GMT).AddMinutes(5).ToRfc7231String())
 
-	return ctx.Response().Data(http.StatusOK, "image/"+imageExt, imageData)
+	return ctx.Response().Data(http.StatusOK, "image/"+ext, data)
 }
 
 // Index 获取头像列表

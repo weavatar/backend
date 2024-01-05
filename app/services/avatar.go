@@ -31,7 +31,7 @@ import (
 
 // Avatar 头像服务
 type Avatar interface {
-	Sanitize(ctx http.Context) (appid uint, hash string, imageExt string, size int, forceDefault bool, defaultAvatar string)
+	Sanitize(ctx http.Context) (appid uint, hash string, ext string, size int, forceDefault bool, defaultAvatar string)
 	GetQQ(hash string) (qq int, img []byte, lastModified carbon.Carbon, err error)
 	GetGravatar(hash string) (img []byte, lastModified carbon.Carbon, err error)
 	GetDefault(defaultAvatar string, option []string) ([]byte, carbon.Carbon, error)
@@ -72,19 +72,19 @@ func NewAvatarImpl() *AvatarImpl {
 }
 
 // Sanitize 消毒头像请求
-func (r *AvatarImpl) Sanitize(ctx http.Context) (appid uint, hash string, imageExt string, size int, forceDefault bool, defaultAvatar string) {
+func (r *AvatarImpl) Sanitize(ctx http.Context) (appid uint, hash string, ext string, size int, forceDefault bool, defaultAvatar string) {
 	hashExt := strings.Split(ctx.Request().Input("hash", ""), ".")
 	appid = uint(ctx.Request().InputInt("appid", 0))
 
 	hash = strings.ToLower(hashExt[0]) // Hash 转小写
-	imageExt = "webp"                  // 默认为 WEBP 格式
+	ext = "webp"                       // 默认为 WEBP 格式
 
 	if len(hashExt) > 1 {
-		imageExt = hashExt[1]
+		ext = hashExt[1]
 	}
 	imageSlices := []string{"png", "jpg", "jpeg", "gif", "webp", "tiff", "avif", "jxl"} // heif 由于 vips 的 bug 暂时移除
-	if !slices.Contains(imageSlices, imageExt) {
-		imageExt = "webp"
+	if !slices.Contains(imageSlices, ext) {
+		ext = "webp"
 	}
 
 	sizeStr := ctx.Request().Input("s", "")
@@ -129,7 +129,7 @@ func (r *AvatarImpl) Sanitize(ctx http.Context) (appid uint, hash string, imageE
 		forceDefault = true
 	}
 
-	return appid, hash, imageExt, size, forceDefault, defaultAvatar
+	return appid, hash, ext, size, forceDefault, defaultAvatar
 }
 
 // GetQQ 通过 QQ 号获取头像
