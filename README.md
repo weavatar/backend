@@ -12,7 +12,7 @@ WeAvatar 是超越 Gravatar 的新一代头像服务，不仅支持用户上传�
 - OpenResty >= 1.21
 - Go >= 1.21
 - PostgreSQL >= 16
-- vips-devel >= 8.10
+- vips >= 8.15
 
 ## 部署
 
@@ -21,7 +21,7 @@ WeAvatar 是超越 Gravatar 的新一代头像服务，不仅支持用户上传�
 先导入 Remi 源。
 
 ```bash
-dnf install -y vips vips-heif vips-devel vips-tools
+dnf install -y vips vips-heif vips-tools
 ```
 
 ### 2. 安装环境
