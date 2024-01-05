@@ -82,7 +82,7 @@ func (r *AvatarImpl) Sanitize(ctx http.Context) (appid uint, hash string, imageE
 	if len(hashExt) > 1 {
 		imageExt = hashExt[1]
 	}
-	imageSlices := []string{"png", "jpg", "jpeg", "gif", "webp", "tiff", "avif"} // heif 由于 vips 的 bug 暂时移除
+	imageSlices := []string{"png", "jpg", "jpeg", "gif", "webp", "tiff", "avif", "jxl"} // heif 由于 vips 的 bug 暂时移除
 	if !slices.Contains(imageSlices, imageExt) {
 		imageExt = "webp"
 	}

@@ -1,4 +1,4 @@
-image: golang:bookworm
+image: golang:alpine
 
 # 在每个任务执行前运行
 before_script:
@@ -16,7 +16,6 @@ before_script:
 
 # 全局变量
 variables:
-  OUTPUT_NAME: "framework"
   GO111MODULE: "on"
   GOPROXY: "https://goproxy.cn,direct"
 
@@ -27,28 +26,9 @@ stages:
 
 golangci_lint:
   stage: prepare
-  image: golangci/golangci-lint:latest
+  image: golangci/golangci-lint:latest-alpine
   extends: .go_cache
   allow_failure: true
-  before_script:
-    - rm -rf /etc/apt/sources.list.d/*
-    - rm -f /etc/apt/sources.list
-    - |
-      cat > /etc/apt/sources.list << EOF
-      deb https://mirror.sjtu.edu.cn/debian/ bookworm main contrib non-free non-free-firmware
-      deb-src https://mirror.sjtu.edu.cn/debian/ bookworm main contrib non-free non-free-firmware
-      
-      deb https://mirror.sjtu.edu.cn/debian/ bookworm-updates main contrib non-free non-free-firmware
-      deb-src https://mirror.sjtu.edu.cn/debian/ bookworm-updates main contrib non-free non-free-firmware
-      
-      deb https://mirror.sjtu.edu.cn/debian/ bookworm-backports main contrib non-free non-free-firmware
-      deb-src https://mirror.sjtu.edu.cn/debian/ bookworm-backports main contrib non-free non-free-firmware
-      
-      deb https://mirror.sjtu.edu.cn/debian-security/ bookworm-security main contrib non-free non-free-firmware
-      deb-src https://mirror.sjtu.edu.cn/debian-security/ bookworm-security main contrib non-free non-free-firmware
-      EOF
-    - apt-get update
-    - apt-get install -y build-essential libvips-dev
   script:
     - golangci-lint run --timeout 30m
 
@@ -56,48 +36,15 @@ unit_test:
   stage: prepare
   extends: .go_cache
   allow_failure: true
-  before_script:
-    - rm -rf /etc/apt/sources.list.d/*
-    - rm -f /etc/apt/sources.list
-    - |
-      cat > /etc/apt/sources.list << EOF
-      deb https://mirror.sjtu.edu.cn/debian/ bookworm main contrib non-free non-free-firmware
-      deb-src https://mirror.sjtu.edu.cn/debian/ bookworm main contrib non-free non-free-firmware
-      
-      deb https://mirror.sjtu.edu.cn/debian/ bookworm-updates main contrib non-free non-free-firmware
-      deb-src https://mirror.sjtu.edu.cn/debian/ bookworm-updates main contrib non-free non-free-firmware
-      
-      deb https://mirror.sjtu.edu.cn/debian/ bookworm-backports main contrib non-free non-free-firmware
-      deb-src https://mirror.sjtu.edu.cn/debian/ bookworm-backports main contrib non-free non-free-firmware
-      
-      deb https://mirror.sjtu.edu.cn/debian-security/ bookworm-security main contrib non-free non-free-firmware
-      deb-src https://mirror.sjtu.edu.cn/debian-security/ bookworm-security main contrib non-free non-free-firmware
-      EOF
-    - apt-get update
-    - apt-get install -y build-essential libvips-dev
   script:
     - go test -v -coverprofile=coverage.txt -covermode=atomic ./...
 
 build:
   stage: build
-  image: almalinux:9
   extends: .go_cache
-  before_script:
-    - sed -e 's|^mirrorlist=|#mirrorlist=|g' -e 's|^# baseurl=https://repo.almalinux.org|baseurl=https://mirror.sjtu.edu.cn|g' -i.bak /etc/yum.repos.d/[Aa]lmalinux*.repo
-    - dnf install https://mirror.sjtu.edu.cn/remi/enterprise/remi-release-9.rpm -y
-    - sed -e 's!^#mirrorlist=!mirrorlist=!g' -e 's!^mirrorlist=!#mirrorlist=!g' -e 's!^#baseurl=!baseurl=!g' -e 's!http://rpms.remirepo.net/enterprise!https://mirror.sjtu.edu.cn/remi/enterprise!g' -i /etc/yum.repos.d/remi*
-    - sed -i 's|^#baseurl=https://download.example/pub/epel|baseurl=https://mirror.sjtu.edu.cn/fedora/epel|' /etc/yum.repos.d/epel*
-    - sed -i 's|^metalink=|#metalink=|' /etc/yum.repos.d/epel*
-    - /usr/bin/crb enable
-    - dnf groupinstall "Development Tools" -y
-    - dnf install -y vips vips-heif vips-devel vips-tools
-    - dnf install -y wget
-    - wget -O go.tar.gz https://mirrors.aliyun.com/golang/go1.21.3.linux-amd64.tar.gz
-    - tar -C /usr/local -xzf go.tar.gz
-    - export PATH=$PATH:/usr/local/go/bin
   script:
     - go mod download
-    - CGO_ENABLED=1 GOAMD64=v3 go build -ldflags '-s -w' -o $OUTPUT_NAME
+    - CGO_ENABLED=0 GOAMD64=v3 go build -ldflags '-s -w --extldflags "-static"' -o $OUTPUT_NAME
   artifacts:
     name: "$OUTPUT_NAME"
     paths:
