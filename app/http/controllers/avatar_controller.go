@@ -1,8 +1,8 @@
 package controllers
 
 import (
+	"bytes"
 	"image"
-	"io"
 	"os"
 	"os/exec"
 	"strconv"
@@ -166,14 +166,13 @@ func (r *AvatarController) Store(ctx http.Context) http.Response {
 		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
 	}
 
-	file, err := os.Open(upload.File())
+	file, err := os.ReadFile(upload.File())
 	if err != nil {
 		facades.Log().Error("[AvatarController][Store] 读取上传失败 ", err.Error())
 		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
 	}
-	defer file.Close()
 
-	img, _, err := image.Decode(file)
+	img, _, err := image.Decode(bytes.NewReader(file))
 	if err != nil {
 		facades.Log().Error("[AvatarController][Store] 解析图片失败 ", err.Error())
 		return Error(ctx, http.StatusInternalServerError, "无法解析图片")
@@ -193,12 +192,7 @@ func (r *AvatarController) Store(ctx http.Context) http.Response {
 		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
 	}
 
-	content, err := io.ReadAll(file)
-	if err != nil {
-		facades.Log().Error("[AvatarController][Store] 读取上传失败 ", err.Error())
-		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
-	}
-	if err = facades.Storage().Put("upload/default/"+hash[:2]+"/"+hash, string(content)); err != nil {
+	if err = facades.Storage().Put("upload/default/"+hash[:2]+"/"+hash, string(file)); err != nil {
 		facades.Log().Error("[AvatarController][Store] 保存用户头像失败 ", err.Error())
 		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
 	}
@@ -256,14 +250,13 @@ func (r *AvatarController) Update(ctx http.Context) http.Response {
 		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
 	}
 
-	file, err := os.Open(upload.File())
+	file, err := os.ReadFile(upload.File())
 	if err != nil {
 		facades.Log().Error("[AvatarController][Update] 读取上传失败 ", err.Error())
 		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
 	}
-	defer file.Close()
 
-	img, _, err := image.Decode(file)
+	img, _, err := image.Decode(bytes.NewReader(file))
 	if err != nil {
 		facades.Log().Error("[AvatarController][Store] 解析图片失败 ", err.Error())
 		return Error(ctx, http.StatusInternalServerError, "无法解析图片")
@@ -283,12 +276,7 @@ func (r *AvatarController) Update(ctx http.Context) http.Response {
 		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
 	}
 
-	content, err := io.ReadAll(file)
-	if err != nil {
-		facades.Log().Error("[AvatarController][Update] 读取上传失败 ", err.Error())
-		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
-	}
-	if err = facades.Storage().Put("upload/default/"+hash[:2]+"/"+hash, string(content)); err != nil {
+	if err = facades.Storage().Put("upload/default/"+hash[:2]+"/"+hash, string(file)); err != nil {
 		facades.Log().Error("[AvatarController][Update] 保存用户头像失败 ", err.Error())
 		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
 	}
