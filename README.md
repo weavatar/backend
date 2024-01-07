@@ -18,11 +18,15 @@ WeAvatar 是超越 Gravatar 的新一代头像服务，不仅支持用户上传�
 
 ### 1. 安装依赖
 
-先导入 Remi 源。
+先导入 [Remi](https://blog.remirepo.net/pages/Config-en) 源和 [RPM Fusion](https://rpmfusion.org/Configuration) 源再运行命令。
 
 ```bash
 dnf install -y vips vips-heif vips-tools
+dnf install -y libheif-freeworld
+vipsthumbnail -v
 ```
+
+确保 vipsthumbnail 命令能正确输出版本号，否则 WeAvatar 主程序无法生成头像。
 
 ### 2. 安装环境
 
@@ -32,7 +36,7 @@ dnf install -y vips vips-heif vips-tools
 
 需要配置 `hosts` 文件，将 `proxy.server` 指向反向代理服务器的 IP 地址。
 
-规则请参考 [https://jihulab.com/haozi-team/mirror-conf](https://jihulab.com/haozi-team/mirror-conf)。
+规则请参考 [https://git.haozi.net/opensource/mirror-conf](https://git.haozi.net/opensource/mirror-conf)。
 
 ### 4. 配置 .env
 

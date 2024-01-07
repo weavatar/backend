@@ -82,12 +82,12 @@ func (r *AvatarImpl) Sanitize(ctx http.Context) (appid uint, hash string, ext st
 	if len(hashExt) > 1 {
 		ext = hashExt[1]
 	}
-	imageSlices := []string{"png", "jpg", "jpeg", "gif", "webp", "tiff", "avif", "jxl"} // heif 由于 vips 的 bug 暂时移除
+	imageSlices := []string{"png", "jpg", "jpeg", "gif", "webp", "tiff", "heif", "heic", "avif", "jxl"}
 	if !slices.Contains(imageSlices, ext) {
 		ext = "webp"
 	}
 
-	sizeStr := ctx.Request().Input("s", "")
+	sizeStr := ctx.Request().Input("s")
 	if len(sizeStr) == 0 {
 		sizeStr = ctx.Request().Input("size", "80")
 	}
