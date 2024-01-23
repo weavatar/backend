@@ -48,24 +48,16 @@ func NewCDN() CDN {
 				internalCDN.Driver = append(internalCDN.Driver, &BaiShan{
 					Token: config["token"],
 				})
-			case "upyun":
-				internalCDN.Driver = append(internalCDN.Driver, &UpYun{
-					Token: config["token"],
-				})
-			case "ddun":
-				internalCDN.Driver = append(internalCDN.Driver, &DDun{
-					apiKey:    config["api_key"],
-					apiSecret: config["api_secret"],
-				})
-			case "anycast":
-				internalCDN.Driver = append(internalCDN.Driver, &AnyCast{
-					apiKey:    config["api_key"],
-					apiSecret: config["api_secret"],
-				})
 			case "yundun":
 				internalCDN.Driver = append(internalCDN.Driver, &YunDun{
 					UserName: config["username"],
 					PassWord: config["password"],
+				})
+			case "cloudflare":
+				internalCDN.Driver = append(internalCDN.Driver, &CloudFlare{
+					Key:    config["key"],
+					Email:  config["email"],
+					ZoneID: config["zone_id"],
 				})
 			}
 		}

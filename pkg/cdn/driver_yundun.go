@@ -103,9 +103,9 @@ type YunDunErrorResponse struct {
 func (y *YunDun) RefreshUrl(urls []string) bool {
 	client, err := y.login()
 	if err != nil {
-		facades.Log().With(map[string]any{
+		facades.Log().Tags("CDN", "云盾").With(map[string]any{
 			"err": err.Error(),
-		}).Error("CDN[云盾][登录失败]")
+		}).Error("登录失败")
 		return false
 	}
 
@@ -119,11 +119,11 @@ func (y *YunDun) RefreshUrl(urls []string) bool {
 	var errorResponse YunDunErrorResponse
 	resp, err := client.R().SetBody(data).SetSuccessResult(&refreshResponse).SetErrorResult(&errorResponse).Put(refreshURL)
 	if err != nil {
-		facades.Log().With(map[string]any{
+		facades.Log().Tags("CDN", "云盾").With(map[string]any{
 			"urls":  urls,
 			"resp":  resp.String(),
 			"error": err.Error(),
-		}).Error("CDN[云盾][URL刷新失败]")
+		}).Error("URL刷新失败")
 		return false
 	}
 
@@ -131,10 +131,10 @@ func (y *YunDun) RefreshUrl(urls []string) bool {
 		return true
 	}
 
-	facades.Log().With(map[string]any{
+	facades.Log().Tags("CDN", "云盾").With(map[string]any{
 		"urls":  urls,
 		"error": errorResponse.Status.Message,
-	}).Error("CDN[云盾][URL刷新失败]")
+	}).Error("URL刷新失败")
 	return false
 }
 
@@ -142,9 +142,9 @@ func (y *YunDun) RefreshUrl(urls []string) bool {
 func (y *YunDun) RefreshPath(paths []string) bool {
 	client, err := y.login()
 	if err != nil {
-		facades.Log().With(map[string]any{
+		facades.Log().Tags("CDN", "云盾").With(map[string]any{
 			"err": err.Error(),
-		}).Error("CDN[云盾][登录失败]")
+		}).Error("登录失败")
 		return false
 	}
 
@@ -158,11 +158,11 @@ func (y *YunDun) RefreshPath(paths []string) bool {
 	var errorResponse YunDunErrorResponse
 	resp, err := client.R().SetBody(data).SetSuccessResult(&refreshResponse).SetErrorResult(&errorResponse).Put(refreshURL)
 	if err != nil {
-		facades.Log().With(map[string]any{
+		facades.Log().Tags("CDN", "云盾").With(map[string]any{
 			"paths": paths,
 			"resp":  resp.String(),
 			"error": err.Error(),
-		}).Error("CDN[云盾][路径刷新失败]")
+		}).Error("路径刷新失败")
 		return false
 	}
 
@@ -170,10 +170,10 @@ func (y *YunDun) RefreshPath(paths []string) bool {
 		return true
 	}
 
-	facades.Log().With(map[string]any{
+	facades.Log().Tags("CDN", "云盾").With(map[string]any{
 		"paths": paths,
 		"error": errorResponse.Status.Message,
-	}).Error("CDN[云盾][路径刷新失败]")
+	}).Error("路径刷新失败")
 	return false
 }
 
@@ -182,9 +182,9 @@ func (y *YunDun) GetUsage(domain string, startTime, endTime carbon.Carbon) uint 
 
 	client, err := y.login()
 	if err != nil {
-		facades.Log().With(map[string]any{
+		facades.Log().Tags("CDN", "云盾").With(map[string]any{
 			"err": err.Error(),
-		}).Error("CDN[云盾][登录失败]")
+		}).Error("登录失败")
 		return 0
 	}
 
@@ -202,13 +202,13 @@ func (y *YunDun) GetUsage(domain string, startTime, endTime carbon.Carbon) uint 
 
 	resp, err := client.R().SetBodyJsonMarshal(request).SetSuccessResult(&usageResponse).SetErrorResult(&errorResponse).Post("https://www.yundun.com/api/V4/stati.data.get")
 	if err != nil {
-		facades.Log().With(map[string]any{
+		facades.Log().Tags("CDN", "云盾").With(map[string]any{
 			"domain": domain,
 			"start":  startTime.ToDateTimeString(),
 			"end":    endTime.ToDateTimeString(),
 			"resp":   resp.String(),
 			"error":  err.Error(),
-		}).Error("CDN[云盾][获取用量失败]")
+		}).Error("获取用量失败")
 		return 0
 	}
 
@@ -216,12 +216,12 @@ func (y *YunDun) GetUsage(domain string, startTime, endTime carbon.Carbon) uint 
 		return uint(usageResponse.Data.TotalTimes.Total.Total)
 	}
 
-	facades.Log().With(map[string]any{
+	facades.Log().Tags("CDN", "云盾").With(map[string]any{
 		"domain": domain,
 		"start":  startTime.ToDateTimeString(),
 		"end":    endTime.ToDateTimeString(),
 		"error":  errorResponse.Status.Message,
-	}).Error("CDN[云盾][获取用量失败]")
+	}).Error("获取用量失败")
 	return 0
 }
 
