@@ -126,8 +126,9 @@ func (s *CloudFlare) GetUsage(domain string, startTime, endTime carbon.Carbon) u
         `,
 		Variables: map[string]any{
 			"zoneTag": s.ZoneID,
-			"start":   startTime.ToDateString(),
-			"end":     endTime.ToDateString(),
+			// CloudFlare 不这样写的话取不到数据
+			"start": startTime.Yesterday().ToDateString(),
+			"end":   endTime.ToDateString(),
 		},
 	}
 
