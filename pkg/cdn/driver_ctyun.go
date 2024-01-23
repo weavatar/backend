@@ -51,9 +51,9 @@ func (c *CTYun) RefreshUrl(urls []string) bool {
 
 	timestamp, signature, err := c.getSignature(api)
 	if err != nil {
-		facades.Log().With(map[string]any{
+		facades.Log().Tags("CDN", "天翼云").With(map[string]any{
 			"err": err.Error(),
-		}).Error("CDN[天翼云][计算签名失败]")
+		}).Error("计算签名失败")
 		return false
 	}
 
@@ -79,19 +79,19 @@ func (c *CTYun) RefreshUrl(urls []string) bool {
 	var resp CTYunRefreshResponse
 	_, err = client.R().SetBody(data).SetSuccessResult(&resp).SetErrorResult(&resp).Post(c.ApiEndpoint + api)
 	if err != nil {
-		facades.Log().With(map[string]any{
+		facades.Log().Tags("CDN", "天翼云").With(map[string]any{
 			"code":    resp.Code,
 			"message": resp.Message,
 			"err":     err.Error(),
-		}).Error("CDN[天翼云][URL缓存刷新失败]")
+		}).Error("URL缓存刷新失败")
 		return false
 	}
 
 	if resp.Code != 100000 {
-		facades.Log().With(map[string]any{
+		facades.Log().Tags("CDN", "天翼云").With(map[string]any{
 			"code":    resp.Code,
 			"message": resp.Message,
-		}).Error("CDN[天翼云][URL缓存刷新失败]")
+		}).Error("URL缓存刷新失败")
 		return false
 	}
 
@@ -104,9 +104,9 @@ func (c *CTYun) RefreshPath(paths []string) bool {
 
 	timestamp, signature, err := c.getSignature(api)
 	if err != nil {
-		facades.Log().With(map[string]any{
+		facades.Log().Tags("CDN", "天翼云").With(map[string]any{
 			"err": err.Error(),
-		}).Error("CDN[天翼云][计算签名失败]")
+		}).Error("计算签名失败")
 		return false
 	}
 
@@ -133,19 +133,19 @@ func (c *CTYun) RefreshPath(paths []string) bool {
 	var resp CTYunRefreshResponse
 	_, err = client.R().SetBody(data).SetSuccessResult(&resp).SetErrorResult(&resp).Post(c.ApiEndpoint + api)
 	if err != nil {
-		facades.Log().With(map[string]any{
+		facades.Log().Tags("CDN", "天翼云").With(map[string]any{
 			"code":    resp.Code,
 			"message": resp.Message,
 			"err":     err.Error(),
-		}).Error("CDN[天翼云][路径缓存刷新失败]")
+		}).Error("路径缓存刷新失败")
 		return false
 	}
 
 	if resp.Code != 100000 {
-		facades.Log().With(map[string]any{
+		facades.Log().Tags("CDN", "天翼云").With(map[string]any{
 			"code":    resp.Code,
 			"message": resp.Message,
-		}).Error("CDN[天翼云][路径缓存刷新失败]")
+		}).Error("路径缓存刷新失败")
 		return false
 	}
 
@@ -158,9 +158,9 @@ func (c *CTYun) GetUsage(domain string, startTime, endTime carbon.Carbon) uint {
 
 	timestamp, signature, err := c.getSignature(api)
 	if err != nil {
-		facades.Log().With(map[string]any{
+		facades.Log().Tags("CDN", "天翼云").With(map[string]any{
 			"err": err.Error(),
-		}).Error("CDN[天翼云][计算签名失败]")
+		}).Error("计算签名失败")
 		return 0
 	}
 
@@ -182,20 +182,20 @@ func (c *CTYun) GetUsage(domain string, startTime, endTime carbon.Carbon) uint {
 		"end_time":   endTime.Timestamp(),
 	}).SetSuccessResult(&usage).Post(c.ApiEndpoint + api)
 	if err != nil {
-		facades.Log().With(map[string]any{
+		facades.Log().Tags("CDN", "天翼云").With(map[string]any{
 			"code":    usage.Code,
 			"message": usage.Message,
 			"err":     err.Error(),
-		}).Error("CDN[天翼云][获取用量失败]")
+		}).Error("获取用量失败")
 		return 0
 	}
 
 	if usage.Code != 100000 {
-		facades.Log().With(map[string]any{
+		facades.Log().Tags("CDN", "天翼云").With(map[string]any{
 			"code":     usage.Code,
 			"message":  usage.Message,
 			"response": resp.String(),
-		}).Error("CDN[天翼云][获取用量失败]")
+		}).Error("获取用量失败")
 		return 0
 	}
 

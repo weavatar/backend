@@ -29,24 +29,16 @@ func init() {
 		"baishan": map[string]any{
 			"token": config.Env("CDN_BAISHAN_TOKEN", ""),
 		},
-		// 又拍云
-		"upyun": map[string]any{
-			"token": config.Env("CDN_UPYUN_TOKEN", ""),
-		},
-		// 盾云CDN
-		"ddun": map[string]any{
-			"api_key":    config.Env("CDN_DDUN_API_KEY", ""),
-			"api_secret": config.Env("CDN_DDUN_API_SECRET", ""),
-		},
-		// AnyCast
-		"anycast": map[string]any{
-			"api_key":    config.Env("CDN_ANYCAST_API_KEY", ""),
-			"api_secret": config.Env("CDN_ANYCAST_API_SECRET", ""),
-		},
 		// 云盾
 		"yundun": map[string]any{
 			"username": config.Env("CDN_YUNDUN_USERNAME", ""),
 			"password": config.Env("CDN_YUNDUN_PASSWORD", ""),
+		},
+		// CloudFlare
+		"cloudflare": map[string]any{
+			"key":     config.Env("CDN_CLOUDFLARE_KEY", ""),
+			"email":   config.Env("CDN_CLOUDFLARE_EMAIL", ""),
+			"zone_id": config.Env("CDN_CLOUDFLARE_ZONE_ID", ""),
 		},
 	})
 }

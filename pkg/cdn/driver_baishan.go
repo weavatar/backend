@@ -42,19 +42,19 @@ func (b *BaiShan) RefreshUrl(urls []string) bool {
 	var resp BaiShanRefreshResponse
 	_, err := client.R().SetBody(data).SetSuccessResult(&resp).SetErrorResult(&resp).Post("https://cdn.api.baishan.com/v2/cache/refresh?token=" + b.Token)
 	if err != nil {
-		facades.Log().With(map[string]any{
+		facades.Log().Tags("CDN", "白山云").With(map[string]any{
 			"code": resp.Code,
 			"data": resp.Data,
 			"err":  err.Error(),
-		}).Error("CDN[白山][URL缓存刷新失败]")
+		}).Error("URL缓存刷新失败")
 		return false
 	}
 
 	if resp.Code != 0 {
-		facades.Log().With(map[string]any{
+		facades.Log().Tags("CDN", "白山云").With(map[string]any{
 			"code": resp.Code,
 			"data": resp.Data,
-		}).Error("CDN[白山][URL缓存刷新失败]")
+		}).Error("URL缓存刷新失败")
 		return false
 	}
 
@@ -79,19 +79,19 @@ func (b *BaiShan) RefreshPath(paths []string) bool {
 	var resp BaiShanRefreshResponse
 	_, err := client.R().SetBody(data).SetSuccessResult(&resp).SetErrorResult(&resp).Post(refreshURL)
 	if err != nil {
-		facades.Log().With(map[string]any{
+		facades.Log().Tags("CDN", "白山云").With(map[string]any{
 			"code": resp.Code,
 			"data": resp.Data,
 			"err":  err.Error(),
-		}).Error("CDN[白山][路径缓存刷新失败]")
+		}).Error("路径缓存刷新失败")
 		return false
 	}
 
 	if resp.Code != 0 {
-		facades.Log().With(map[string]any{
+		facades.Log().Tags("CDN", "白山云").With(map[string]any{
 			"code": resp.Code,
 			"data": resp.Data,
-		}).Error("CDN[白山][路径缓存刷新失败]")
+		}).Error("路径缓存刷新失败")
 		return false
 	}
 
@@ -111,20 +111,20 @@ func (b *BaiShan) GetUsage(domain string, startTime, endTime carbon.Carbon) uint
 		"end_time":   endTime.ToDateTimeString(),
 	}).SetSuccessResult(&usage).Get("https://cdn.api.baishan.com/v2/stat/request/eachDomain")
 	if err != nil {
-		facades.Log().With(map[string]any{
+		facades.Log().Tags("CDN", "白山云").With(map[string]any{
 			"code": usage.Code,
 			"data": usage.Data,
 			"err":  err.Error(),
-		}).Error("CDN[白山][获取用量失败]")
+		}).Error("获取用量失败")
 		return 0
 	}
 
 	if usage.Code != 0 {
-		facades.Log().With(map[string]any{
+		facades.Log().Tags("CDN", "白山云").With(map[string]any{
 			"code":     usage.Code,
 			"data":     usage.Data,
 			"response": resp.String(),
-		}).Error("CDN[白山][获取用量失败]")
+		}).Error("获取用量失败")
 		return 0
 	}
 

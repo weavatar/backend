@@ -35,10 +35,10 @@ func (receiver *WangSu) RefreshUrl(urls []string) bool {
 	response := auth.Invoke(config, createAPurgeRequestRequest.String())
 
 	if len(response) != 0 {
-		facades.Log().With(map[string]any{
+		facades.Log().Tags("CDN", "网宿").With(map[string]any{
 			"urls":     urls,
 			"response": response,
-		}).Error("CDN[网宿][URL缓存刷新失败]")
+		}).Error("URL缓存刷新失败")
 		return false
 	}
 
@@ -66,10 +66,10 @@ func (receiver *WangSu) RefreshPath(paths []string) bool {
 	response := auth.Invoke(config, createAPurgeRequestRequest.String())
 
 	if len(response) != 0 {
-		facades.Log().With(map[string]any{
+		facades.Log().Tags("CDN", "网宿").With(map[string]any{
 			"paths":    paths,
 			"response": response,
-		}).Error("CDN[网宿][路径缓存刷新失败]")
+		}).Error("路径缓存刷新失败")
 		return false
 	}
 
@@ -100,10 +100,10 @@ func (receiver *WangSu) GetUsage(domain string, startTime, endTime carbon.Carbon
 	var data summary.GetASummaryOfRequestsResponse
 	err := sonic.UnmarshalString(response, &data)
 	if err != nil {
-		facades.Log().With(map[string]any{
+		facades.Log().Tags("CDN", "网宿").With(map[string]any{
 			"response": response,
 			"error":    err.Error(),
-		}).Error("CDN[网宿][获取用量失败]")
+		}).Error("获取用量失败")
 		return 0
 	}
 

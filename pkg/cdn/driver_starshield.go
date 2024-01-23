@@ -41,11 +41,16 @@ func (s *StarShield) RefreshUrl(urls []string) bool {
 
 	resp, err := client.PurgeFilesByCache_TagsAndHostOrPrefix(request)
 	if err != nil {
-		facades.Log().Error("CDN[星盾] ", " [URL缓存刷新失败]: ", resp)
+		facades.Log().Tags("CDN", "星盾").With(map[string]any{
+			"err":  err.Error(),
+			"resp": resp,
+		}).Error("URL缓存刷新失败")
 		return false
 	}
 	if resp.Error.Code != 0 {
-		facades.Log().Error("CDN[星盾] ", " [URL缓存刷新失败]: ", resp)
+		facades.Log().Tags("CDN", "星盾").With(map[string]any{
+			"resp": resp,
+		}).Error("URL缓存刷新失败")
 		return false
 	}
 
@@ -63,11 +68,16 @@ func (s *StarShield) RefreshPath(paths []string) bool {
 
 	resp, err := client.PurgeFilesByCache_TagsAndHostOrPrefix(request)
 	if err != nil {
-		facades.Log().Error("CDN[星盾] ", " [目录缓存刷新失败]: ", resp)
+		facades.Log().Tags("CDN", "星盾").With(map[string]any{
+			"err":  err.Error(),
+			"resp": resp,
+		}).Error("目录缓存刷新失败")
 		return false
 	}
 	if resp.Error.Code != 0 {
-		facades.Log().Error("CDN[星盾] ", " [目录缓存刷新失败]: ", resp)
+		facades.Log().Tags("CDN", "星盾").With(map[string]any{
+			"resp": resp,
+		}).Error("目录缓存刷新失败")
 		return false
 	}
 
@@ -84,11 +94,16 @@ func (s *StarShield) GetUsage(domain string, startTime, endTime carbon.Carbon) u
 
 	resp, err := client.ZoneRequestSum(request)
 	if err != nil {
-		facades.Log().Error("CDN[星盾] ", " [获取用量失败]: ", resp)
+		facades.Log().Tags("CDN", "星盾").With(map[string]any{
+			"err":  err.Error(),
+			"resp": resp,
+		}).Error("获取用量失败")
 		return 0
 	}
 	if resp.Error.Code != 0 {
-		facades.Log().Error("CDN[星盾] ", " [获取用量失败]: ", resp)
+		facades.Log().Tags("CDN", "星盾").With(map[string]any{
+			"resp": resp,
+		}).Error("获取用量失败")
 		return 0
 	}
 
