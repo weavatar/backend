@@ -81,7 +81,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 			client.SetCommonRetryCount(2)
 			client.ImpersonateSafari()
 
-			resp, err := client.R().Get("http://proxy.server/https://s.gravatar.com/avatar/" + hash + ".png?s=600&r=g&d=404")
+			resp, err := client.R().Get("http://proxy.server/https://0.gravatar.com/avatar/" + hash + ".png?s=600&r=g&d=404")
 			if err != nil || !resp.IsSuccessState() {
 				facades.Log().With(map[string]any{
 					"hash":     hash,
