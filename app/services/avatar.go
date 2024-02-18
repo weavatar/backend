@@ -25,6 +25,7 @@ import (
 	"github.com/o1egl/govatar"
 	"golang.org/x/exp/slices"
 	"weavatar/app/jobs"
+
 	"weavatar/app/models"
 	"weavatar/pkg/helper"
 )
@@ -424,47 +425,31 @@ func (r *AvatarImpl) GetAvatar(appid uint, hash string, defaultAvatar string, op
 	from = "weavatar"
 
 	// 取头像数据
-	_, err = facades.Orm().Query().Exec(`INSERT INTO avatars (hash, created_at, updated_at) VALUES (?, ?, ?) ON CONFLICT DO NOTHING`, hash, carbon.DateTime{Carbon: carbon.Now()}, carbon.DateTime{Carbon: carbon.Now()})
-	if err != nil {
+	if err = facades.Orm().Query().Where("hash", hash).First(&avatar); err != nil {
 		facades.Log().With(map[string]any{
 			"hash":  hash,
 			"error": err.Error(),
-		}).Hint("插入哈希到头像表失败").Error("WeAvatar[数据库错误]")
+		}).Error("数据库错误")
 		return nil, carbon.Now(), from, err
 	}
-	err = facades.Orm().Query().Where("hash", hash).First(&avatar)
-	if err != nil {
-		facades.Log().With(map[string]any{
-			"hash":  hash,
-			"error": err.Error(),
-		}).Hint("从头像表查询哈希失败").Error("WeAvatar[数据库错误]")
-		return nil, carbon.Now(), from, err
-	}
-	if avatar.UserID != nil && avatar.Raw != nil {
+
+	if appid != 0 {
 		err = facades.Orm().Query().Where("app_id", appid).Where("avatar_hash", hash).First(&appAvatar)
 		if err != nil {
 			facades.Log().With(map[string]any{
 				"hash":   hash,
 				"avatar": avatar,
 				"error":  err.Error(),
-			}).Hint("从APP头像表查询哈希失败").Error("WeAvatar[数据库错误]")
+			}).Error("数据库错误")
 			return nil, carbon.Now(), from, err
 		}
 
 		if appAvatar.AppID != 0 {
-			if appAvatar.Ban {
-				return r.BanImage, carbon.Now(), from, nil
-			} else {
-				img, err = os.ReadFile(facades.Storage().Path("upload/app/" + strconv.Itoa(int(appAvatar.AppID)) + "/" + hash[:2] + "/" + hash))
-				lastModified = appAvatar.UpdatedAt.Carbon
-			}
+			img, err = os.ReadFile(facades.Storage().Path("upload/app/" + strconv.Itoa(int(appAvatar.AppID)) + "/" + hash[:2] + "/" + hash))
+			lastModified = appAvatar.UpdatedAt.Carbon
 		} else {
-			if avatar.Ban {
-				return r.BanImage, carbon.Now(), from, nil
-			} else {
-				img, err = os.ReadFile(facades.Storage().Path("upload/default/" + hash[:2] + "/" + hash))
-				lastModified = avatar.UpdatedAt.Carbon
-			}
+			img, err = os.ReadFile(facades.Storage().Path("upload/default/" + hash[:2] + "/" + hash))
+			lastModified = avatar.UpdatedAt.Carbon
 		}
 
 		if err != nil {
@@ -476,54 +461,42 @@ func (r *AvatarImpl) GetAvatar(appid uint, hash string, defaultAvatar string, op
 			return img, lastModified, from, nil
 		}
 	} else {
-		if avatar.Ban {
-			return r.BanImage, carbon.Now(), from, nil
-		}
-
 		img, lastModified, err = r.GetGravatar(hash)
 		from = "gravatar"
 		if err != nil {
-			var qq int
-			qq, img, lastModified, err = r.GetQQ(hash)
+			_, img, lastModified, err = r.GetQQ(hash)
 			from = "qq"
 			if err != nil {
 				img, lastModified, _ = r.GetDefaultByType(defaultAvatar, option)
 				from = "weavatar"
 			}
-			// 自动免审默认头像和 QQ 头像
-			if !avatar.Checked {
-				if qq != 0 {
-					raw := strconv.Itoa(qq) + "@qq.com"
-					avatar.Raw = &raw
-				}
-				avatar.Checked = true
-				avatar.Ban = false
-				err = facades.Orm().Query().Save(&avatar)
-				if err != nil {
-					facades.Log().With(map[string]any{
-						"qq":     qq,
-						"avatar": avatar,
-						"error":  err.Error(),
-					}).Hint("更新头像的审核状态失败").Error("WeAvatar[数据库错误]")
-				}
-			}
 		}
 	}
 
-	if !avatar.Checked && from != "qq" {
-		go func(h string, a uint) {
-			err := facades.Queue().Job(&jobs.ProcessAvatarCheck{}, []queue.Arg{
-				{Type: "string", Value: hash},
-				{Type: "uint", Value: appid},
-			}).Dispatch()
-			if err != nil {
-				facades.Log().With(map[string]any{
-					"hash":  hash,
-					"appid": appid,
-					"error": err.Error(),
-				}).Error("WeAvatar[任务分发失败]")
-			}
-		}(hash, appid)
+	// 检查图片是否被封禁
+	if from != "qq" {
+		imageHash := helper.MD5(string(img))
+		var imgModel models.Image
+		if err = facades.Orm().Query().Where("hash", imageHash).FirstOrFail(&imgModel); err != nil {
+			// 审核无记录的图片
+			go func(h string, a uint) {
+				err := facades.Queue().Job(&jobs.ProcessAvatarCheck{}, []queue.Arg{
+					{Type: "string", Value: h},
+					{Type: "uint", Value: a},
+				}).Dispatch()
+				if err != nil {
+					facades.Log().With(map[string]any{
+						"hash":  h,
+						"appid": a,
+						"error": err.Error(),
+					}).Error("WeAvatar[任务分发失败]")
+				}
+			}(hash, appid)
+		}
+
+		if imgModel.Ban {
+			img = r.BanImage
+		}
 	}
 
 	return img, lastModified, from, nil

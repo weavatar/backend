@@ -9,8 +9,8 @@ type App struct {
 	UserID    uint            `gorm:"type:bigint(20);not null;index" json:"user_id"`
 	Name      string          `gorm:"type:varchar(255);not null" json:"name"`
 	Secret    string          `gorm:"type:varchar(255);not null" json:"-"`
-	CreatedAt carbon.DateTime `gorm:"column:created_at" json:"created_at"`
-	UpdatedAt carbon.DateTime `gorm:"column:updated_at" json:"updated_at"`
+	CreatedAt carbon.DateTime `gorm:"autoCreateTime;column:created_at" json:"created_at"`
+	UpdatedAt carbon.DateTime `gorm:"autoUpdateTime;column:updated_at" json:"updated_at"`
 
 	// 关联
 	AppAvatar []*AppAvatar `gorm:"many2many:app_avatars;joinForeignKey:AppID;joinReferences:AvatarHash"`
