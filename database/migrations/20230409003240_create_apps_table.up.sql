@@ -3,15 +3,16 @@ CREATE TABLE apps
     id         BIGINT PRIMARY KEY NOT NULL,
     user_id    BIGINT             NOT NULL,
     name       VARCHAR(255)       NOT NULL,
-    Secret     VARCHAR(255)       NOT NULL,
+    secret     VARCHAR(255)       NOT NULL,
     created_at TIMESTAMP          NOT NULL,
     updated_at TIMESTAMP          NOT NULL
 );
 
+COMMENT ON TABLE apps IS '应用';
 COMMENT ON COLUMN apps.id IS 'ID';
 COMMENT ON COLUMN apps.user_id IS '用户ID';
 COMMENT ON COLUMN apps.name IS '应用名称';
-COMMENT ON COLUMN apps.Secret IS '应用密钥';
+COMMENT ON COLUMN apps.secret IS '应用密钥';
 COMMENT ON COLUMN apps.created_at IS '创建时间';
 COMMENT ON COLUMN apps.updated_at IS '更新时间';
 

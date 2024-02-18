@@ -62,7 +62,7 @@ func (r *SystemController) CheckBind(ctx http.Context) http.Response {
 		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
 	}
 
-	if avatar.UserID == nil {
+	if avatar.UserID == 0 {
 		return Success(ctx, http.Json{
 			"bind": false,
 		})

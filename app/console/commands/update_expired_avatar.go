@@ -6,12 +6,9 @@ import (
 
 	"github.com/goravel/framework/contracts/console"
 	"github.com/goravel/framework/contracts/console/command"
-	"github.com/goravel/framework/contracts/queue"
 	"github.com/goravel/framework/facades"
 	"github.com/goravel/framework/support/carbon"
 	"github.com/spf13/cast"
-
-	"weavatar/app/jobs"
 )
 
 type UpdateExpiredAvatar struct {
@@ -66,12 +63,8 @@ func (receiver *UpdateExpiredAvatar) Handle(ctx console.Context) error {
 
 			// 修改时间超过7天或者强制更新
 			if (modTime.DiffAbsInSeconds(carbon.Now()) > 604800 || cast.ToBool(ctx.Option("force"))) && len(filename) == 32 {
-				err = facades.Queue().Job(&jobs.ProcessAvatarUpdate{}, []queue.Arg{
-					{Type: "string", Value: filename},
-					{Type: "string", Value: filepath.Join("cache", relPath)},
-				}).Dispatch()
-				if err != nil {
-					facades.Log().Error("更新过期头像[分发任务时出错] ", err.Error())
+				if err = facades.Storage().Delete(filepath.Join("cache", relPath)); err != nil {
+					facades.Log().Error("更新过期头像[删除失败] ", err.Error())
 				}
 			}
 		}

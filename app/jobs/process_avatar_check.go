@@ -51,39 +51,16 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 		return errors.New("图片审核[队列参数断言失败]")
 	}
 
+	var imageHash string
+
 	if appID == 0 {
-		var avatar models.Avatar
-		err := facades.Orm().Query().Where("hash", hash).First(&avatar)
-		if err != nil {
-			facades.Log().With(map[string]any{
-				"hash": hash,
-				"err":  err.Error(),
-			}).Error("图片审核[数据查询失败]")
-			return err
-		}
-		if avatar.Checked || avatar.Hash == nil {
-			return nil
-		}
-
-		avatar.Checked = true
-		err = facades.Orm().Query().Save(&avatar)
-		if err != nil {
-			facades.Log().With(map[string]any{
-				"avatar": avatar,
-				"err":    err.Error(),
-			}).Error("图片审核[数据库更新失败]")
-			return err
-		}
-
-		// 检查WeAvatar头像是否存在
-		var imageHash string
-		exist := facades.Storage().Exists("upload/default/" + hash[:2] + "/" + hash)
-		if exist {
-			fileString, fileErr := facades.Storage().Get("upload/default/" + hash[:2] + "/" + hash)
-			if fileErr != nil {
+		// 默认头像
+		if exist := facades.Storage().Exists("upload/default/" + hash[:2] + "/" + hash); exist {
+			fileString, err := facades.Storage().Get("upload/default/" + hash[:2] + "/" + hash)
+			if err != nil {
 				facades.Log().With(map[string]any{
 					"hash": hash,
-					"err":  fileErr.Error(),
+					"err":  err.Error(),
 				}).Error("图片审核[文件读取失败]")
 				return err
 			}
@@ -104,8 +81,8 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 			client.SetCommonRetryCount(2)
 			client.ImpersonateSafari()
 
-			resp, reqErr := client.R().Get("http://proxy.server/https://s.gravatar.com/avatar/" + hash + ".png?s=600&r=g&d=404")
-			if reqErr != nil || !resp.IsSuccessState() {
+			resp, err := client.R().Get("http://proxy.server/https://s.gravatar.com/avatar/" + hash + ".png?s=600&r=g&d=404")
+			if err != nil || !resp.IsSuccessState() {
 				facades.Log().With(map[string]any{
 					"hash":     hash,
 					"response": resp.String(),
@@ -124,135 +101,58 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 				return err
 			}
 		}
-
-		var image models.Image
-		err = facades.Orm().Query().Where("hash", imageHash).FirstOrFail(&image)
+	} else {
+		// APP头像
+		var avatar models.AppAvatar
+		err := facades.Orm().Query().Where("avatar_hash", hash).First(&avatar)
 		if err != nil {
-			checker := imagecheck.NewChecker()
-			ban, checkErr := checker.Check("https://weavatar.com/avatar/" + hash + ".png?s=600&d=404")
-			if checkErr != nil {
+			facades.Log().With(map[string]any{
+				"hash":  hash,
+				"appID": appID,
+				"err":   err.Error(),
+			}).Error("图片审核[数据查询失败]")
+			return err
+		}
+		if exist := facades.Storage().Exists("upload/app/" + strconv.Itoa(int(avatar.AppID)) + "/" + hash[:2] + "/" + hash); exist {
+			fileString, fileErr := facades.Storage().Get("upload/app/" + strconv.Itoa(int(avatar.AppID)) + "/" + hash[:2] + "/" + hash)
+			if fileErr != nil {
 				facades.Log().With(map[string]any{
-					"hash":      hash,
-					"imageHash": imageHash,
-					"err":       checkErr.Error(),
-				}).Error("图片审核[审核失败]")
-				avatar.Checked = false
-				err = facades.Orm().Query().Save(&avatar)
-				if err != nil {
-					facades.Log().With(map[string]any{
-						"avatar": avatar,
-						"err":    err.Error(),
-					}).Error("图片审核[数据更新失败]")
-				}
-
-				return err
+					"hash":  hash,
+					"appID": appID,
+					"err":   fileErr.Error(),
+				}).Error("图片审核[文件读取失败]")
+				return fileErr
 			}
 
-			err = facades.Orm().Query().UpdateOrCreate(&image, &models.Image{
-				Hash: imageHash,
-			}, &models.Image{
-				Ban: ban,
-			})
+			imageHash = helper.MD5(fileString)
+			err = facades.Storage().Put("checker/"+imageHash[:2]+"/"+imageHash, fileString)
 			if err != nil {
 				facades.Log().With(map[string]any{
-					"hash": hash,
-					"err":  err.Error(),
-				}).Error("图片审核[缓存数据创建失败]")
+					"avatarHash": hash,
+					"imageHash":  imageHash,
+					"appID":      appID,
+					"err":        err.Error(),
+				}).Error("图片审核[文件缓存失败]")
+				return err
 			}
-
-			avatar.Ban = ban
 		} else {
-			avatar.Ban = image.Ban
+			return errors.New("图片审核[APP头像不存在]")
 		}
-
-		err = facades.Orm().Query().Save(&avatar)
-		if err != nil {
-			facades.Log().With(map[string]any{
-				"avatar": avatar,
-				"err":    err.Error(),
-			}).Error("图片审核[数据更新失败]")
-			return err
-		}
-
-		if avatar.Ban {
-			cdn := packagecdn.NewCDN()
-			cdn.RefreshUrl([]string{"weavatar.com/avatar/" + hash})
-		}
-
-		return nil
-	}
-
-	var avatar models.AppAvatar
-	err := facades.Orm().Query().Where("avatar_hash", hash).First(&avatar)
-	if err != nil {
-		facades.Log().With(map[string]any{
-			"hash": hash,
-			"err":  err.Error(),
-		}).Error("图片审核[数据查询失败]")
-		return err
-	}
-	if avatar.Checked || len(avatar.AvatarHash) == 0 {
-		return nil
-	}
-
-	avatar.Checked = true
-	err = facades.Orm().Query().Save(&avatar)
-	if err != nil {
-		facades.Log().With(map[string]any{
-			"avatar": avatar,
-			"err":    err.Error(),
-		}).Error("图片审核[数据库更新失败]")
-		return err
-	}
-
-	// 检查WeAvatar APP头像是否存在
-	var imageHash string
-	exist := facades.Storage().Exists("upload/app/" + strconv.Itoa(int(avatar.AppID)) + "/" + hash[:2] + "/" + hash)
-	if exist {
-		fileString, fileErr := facades.Storage().Get("upload/app/" + strconv.Itoa(int(avatar.AppID)) + "/" + hash[:2] + "/" + hash)
-		if fileErr != nil {
-			facades.Log().With(map[string]any{
-				"hash": hash,
-				"err":  fileErr.Error(),
-			}).Error("图片审核[文件读取失败]")
-			return fileErr
-		}
-
-		imageHash = helper.MD5(fileString)
-		err = facades.Storage().Put("checker/"+imageHash[:2]+"/"+imageHash, fileString)
-		if err != nil {
-			facades.Log().With(map[string]any{
-				"avatarHash": hash,
-				"imageHash":  imageHash,
-				"err":        err.Error(),
-			}).Error("图片审核[文件缓存失败]")
-			return err
-		}
-	} else {
-		return errors.New("图片审核[APP头像不存在]")
 	}
 
 	var image models.Image
-	err = facades.Orm().Query().Where("hash", imageHash).FirstOrFail(&image)
-	if err != nil {
+	if err := facades.Orm().Query().Where("hash", imageHash).FirstOrFail(&image); err != nil {
 		checker := imagecheck.NewChecker()
-		ban, checkErr := checker.Check("https://weavatar.com/avatar/" + hash + ".png?appid=" + strconv.Itoa(int(avatar.AppID)) + "&s=600&d=404")
+		ban, checkErr := checker.Check("https://weavatar.com/avatar/" + hash + ".png?s=600&d=404")
 		if checkErr != nil {
 			facades.Log().With(map[string]any{
-				"hash": hash,
-				"err":  checkErr.Error(),
+				"hash":      hash,
+				"imageHash": imageHash,
+				"err":       checkErr.Error(),
 			}).Error("图片审核[审核失败]")
-			avatar.Checked = false
-			err = facades.Orm().Query().Save(&avatar)
-			if err != nil {
-				facades.Log().With(map[string]any{
-					"avatar": avatar,
-					"err":    err.Error(),
-				}).Error("图片审核[数据更新失败]")
-			}
-
-			return checkErr
+			return err
 		}
+
 		err = facades.Orm().Query().UpdateOrCreate(&image, &models.Image{
 			Hash: imageHash,
 		}, &models.Image{
@@ -262,23 +162,11 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 			facades.Log().With(map[string]any{
 				"hash": hash,
 				"err":  err.Error(),
-			}).Error("图片审核[缓存数据创建失败]")
+			}).Error("图片审核[数据创建失败]")
 		}
-		avatar.Ban = ban
-	} else {
-		avatar.Ban = image.Ban
 	}
 
-	err = facades.Orm().Query().Save(&avatar)
-	if err != nil {
-		facades.Log().With(map[string]any{
-			"avatar": avatar,
-			"err":    err.Error(),
-		}).Error("图片审核[数据更新失败]")
-		return err
-	}
-
-	if avatar.Ban {
+	if image.Ban {
 		cdn := packagecdn.NewCDN()
 		cdn.RefreshUrl([]string{"weavatar.com/avatar/" + hash})
 	}

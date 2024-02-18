@@ -48,7 +48,7 @@ func (s *CloudFlare) RefreshUrl(urls []string) bool {
 	}
 
 	resp, err := api.PurgeCache(context.Background(), s.ZoneID, cloudflare.PurgeCacheRequest{
-		Prefixes: urls,
+		Files: urls,
 	})
 	if err != nil {
 		facades.Log().Tags("CDN", "CloudFlare").With(map[string]any{
@@ -79,7 +79,7 @@ func (s *CloudFlare) RefreshPath(paths []string) bool {
 	}
 
 	resp, err := api.PurgeCache(context.Background(), s.ZoneID, cloudflare.PurgeCacheRequest{
-		Prefixes: paths,
+		Files: paths,
 	})
 	if err != nil {
 		facades.Log().Tags("CDN", "CloudFlare").With(map[string]any{

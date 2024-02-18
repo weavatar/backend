@@ -14,8 +14,8 @@ type User struct {
 	Avatar    string          `gorm:"type:varchar(255);not null" json:"avatar"`
 	IsAdmin   bool            `gorm:"type:boolean;default:false" json:"is_admin"`
 	RealName  bool            `gorm:"type:boolean;default:false" json:"real_name"`
-	CreatedAt carbon.DateTime `gorm:"column:created_at" json:"created_at"`
-	UpdatedAt carbon.DateTime `gorm:"column:updated_at" json:"updated_at"`
+	CreatedAt carbon.DateTime `gorm:"autoCreateTime;column:created_at" json:"created_at"`
+	UpdatedAt carbon.DateTime `gorm:"autoUpdateTime;column:updated_at" json:"updated_at"`
 	DeletedAt gorm.DeletedAt  `gorm:"column:deleted_at" json:"-"`
 
 	// 关联

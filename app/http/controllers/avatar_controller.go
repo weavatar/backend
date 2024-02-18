@@ -140,7 +140,7 @@ func (r *AvatarController) Show(ctx http.Context) http.Response {
 		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
 	}
 
-	if avatar.Hash == nil {
+	if avatar.Hash == "" {
 		return Error(ctx, http.StatusNotFound, "头像不存在")
 	}
 
@@ -186,7 +186,7 @@ func (r *AvatarController) Store(ctx http.Context) http.Response {
 
 	var avatar models.Avatar
 	hash := helper.MD5(storeAvatarRequest.Raw)
-	err = facades.Orm().Query().FirstOrCreate(&avatar, models.Avatar{Hash: &hash})
+	err = facades.Orm().Query().FirstOrCreate(&avatar, models.Avatar{Hash: hash})
 	if err != nil {
 		facades.Log().Error("[AvatarController][Store] 初始化查询用户头像失败 ", err.Error())
 		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
@@ -197,10 +197,8 @@ func (r *AvatarController) Store(ctx http.Context) http.Response {
 		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
 	}
 
-	avatar.UserID = &user.ID
-	avatar.Raw = &storeAvatarRequest.Raw
-	avatar.Ban = false
-	avatar.Checked = false
+	avatar.UserID = user.ID
+	avatar.Raw = storeAvatarRequest.Raw
 	err = facades.Orm().Query().Save(&avatar)
 	if err != nil {
 		facades.Log().Error("[AvatarController][Store] 添加用户头像失败 ", err.Error())
@@ -239,7 +237,7 @@ func (r *AvatarController) Update(ctx http.Context) http.Response {
 		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
 	}
 
-	if avatar.Hash == nil {
+	if avatar.Hash == "" {
 		return Error(ctx, http.StatusNotFound, "头像不存在")
 	}
 
@@ -268,8 +266,6 @@ func (r *AvatarController) Update(ctx http.Context) http.Response {
 		return Error(ctx, http.StatusUnprocessableEntity, "图片长宽必须相等")
 	}
 
-	avatar.Checked = false
-	avatar.Ban = false
 	err = facades.Orm().Query().Save(&avatar)
 	if err != nil {
 		facades.Log().Error("[AvatarController][Update] 更新用户头像失败 ", err.Error())
@@ -297,28 +293,22 @@ func (r *AvatarController) Destroy(ctx http.Context) http.Response {
 	}
 
 	var avatar models.Avatar
-	err := facades.Orm().Query().Where("hash", hash).Where("user_id", user.ID).First(&avatar)
-	if err != nil {
+	if err := facades.Orm().Query().Where("hash", hash).Where("user_id", user.ID).First(&avatar); err != nil {
 		facades.Log().Error("[AvatarController][Destroy] 查询用户头像失败 ", err.Error())
 		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
 	}
 
-	if avatar.Hash == nil {
+	if avatar.Hash == "" {
 		return Error(ctx, http.StatusNotFound, "头像不存在")
 	}
 
-	avatar.Checked = false
-	avatar.Ban = false
-	avatar.UserID = nil
-	err = facades.Orm().Query().Save(&avatar)
-	if err != nil {
+	if _, err := facades.Orm().Query().Delete(&avatar); err != nil {
 		facades.Log().Error("[AvatarController][Destroy] 删除用户头像失败 ", err.Error())
 		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
 	}
 
-	delErr := facades.Storage().Delete("upload/default/" + hash[:2] + "/" + hash)
-	if delErr != nil {
-		facades.Log().Error("[AvatarController][Destroy] 删除用户头像失败 ", delErr.Error())
+	if err := facades.Storage().Delete("upload/default/" + hash[:2] + "/" + hash); err != nil {
+		facades.Log().Error("[AvatarController][Destroy] 删除用户头像失败 ", err.Error())
 		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
 	}
 

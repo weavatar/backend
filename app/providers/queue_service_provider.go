@@ -22,6 +22,5 @@ func (receiver *QueueServiceProvider) Boot(app foundation.Application) {
 func (receiver *QueueServiceProvider) Jobs() []queue.Job {
 	return []queue.Job{
 		&jobs.ProcessAvatarCheck{},
-		&jobs.ProcessAvatarUpdate{},
 	}
 }
