@@ -186,7 +186,7 @@ func (r *AvatarController) Store(ctx http.Context) http.Response {
 
 	var avatar models.Avatar
 	hash := helper.MD5(storeAvatarRequest.Raw)
-	err = facades.Orm().Query().FirstOrCreate(&avatar, models.Avatar{Hash: hash})
+	err = facades.Orm().Query().FirstOrNew(&avatar, models.Avatar{Hash: hash})
 	if err != nil {
 		facades.Log().Error("[AvatarController][Store] 初始化查询用户头像失败 ", err.Error())
 		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
@@ -266,6 +266,7 @@ func (r *AvatarController) Update(ctx http.Context) http.Response {
 		return Error(ctx, http.StatusUnprocessableEntity, "图片长宽必须相等")
 	}
 
+	// 这里保存一下是为了刷新 updated_at
 	err = facades.Orm().Query().Save(&avatar)
 	if err != nil {
 		facades.Log().Error("[AvatarController][Update] 更新用户头像失败 ", err.Error())

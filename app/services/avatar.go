@@ -24,8 +24,8 @@ import (
 	"github.com/issue9/identicon/v2"
 	"github.com/o1egl/govatar"
 	"golang.org/x/exp/slices"
-	"weavatar/app/jobs"
 
+	"weavatar/app/jobs"
 	"weavatar/app/models"
 	"weavatar/pkg/helper"
 )
@@ -438,12 +438,12 @@ func (r *AvatarImpl) GetAvatar(appid uint, hash string, defaultAvatar string, op
 	if avatar.Hash != "" {
 		img, err = os.ReadFile(facades.Storage().Path("upload/default/" + hash[:2] + "/" + hash))
 		lastModified = avatar.UpdatedAt.Carbon
-		return r.checkBan(img, hash, appid), lastModified, "weavatar", nil
+		return r.checkBan(img, hash, 0), lastModified, "weavatar", nil
 	}
 
 	img, lastModified, err = r.GetGravatar(hash)
 	if err == nil {
-		return r.checkBan(img, hash, appid), lastModified, "gravatar", nil
+		return r.checkBan(img, hash, 0), lastModified, "gravatar", nil
 	}
 
 	_, img, lastModified, err = r.GetQQ(hash)
