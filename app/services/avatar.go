@@ -24,8 +24,8 @@ import (
 	"github.com/issue9/identicon/v2"
 	"github.com/o1egl/govatar"
 	"golang.org/x/exp/slices"
-	"weavatar/app/jobs"
 
+	"weavatar/app/jobs"
 	"weavatar/app/models"
 	"weavatar/pkg/helper"
 )
@@ -437,13 +437,15 @@ func (r *AvatarImpl) GetAvatar(appid uint, hash string, defaultAvatar string, op
 
 	if avatar.Hash != "" {
 		img, err = os.ReadFile(facades.Storage().Path("upload/default/" + hash[:2] + "/" + hash))
-		lastModified = avatar.UpdatedAt.Carbon
-		return r.checkBan(img, hash, appid), lastModified, "weavatar", nil
+		if err == nil {
+			lastModified = avatar.UpdatedAt.Carbon
+			return r.checkBan(img, hash, 0), lastModified, "weavatar", nil
+		}
 	}
 
 	img, lastModified, err = r.GetGravatar(hash)
 	if err == nil {
-		return r.checkBan(img, hash, appid), lastModified, "gravatar", nil
+		return r.checkBan(img, hash, 0), lastModified, "gravatar", nil
 	}
 
 	_, img, lastModified, err = r.GetQQ(hash)
@@ -468,8 +470,10 @@ func (r *AvatarImpl) getAppAvatar(appid uint, hash string) (img []byte, lastModi
 
 	if appAvatar.AppID != 0 {
 		img, err = os.ReadFile(facades.Storage().Path("upload/app/" + strconv.Itoa(int(appAvatar.AppID)) + "/" + hash[:2] + "/" + hash))
-		lastModified = appAvatar.UpdatedAt.Carbon
-		return img, lastModified, nil
+		if err == nil {
+			lastModified = appAvatar.UpdatedAt.Carbon
+			return img, lastModified, nil
+		}
 	}
 
 	return nil, carbon.Now(), errors.New("未找到应用头像")

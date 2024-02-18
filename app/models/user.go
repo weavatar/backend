@@ -8,12 +8,12 @@ import (
 
 type User struct {
 	ID        uint            `gorm:"primaryKey" json:"id"`
-	OpenID    string          `gorm:"type:char(32);not null;unique" json:"open_id"`
-	UnionID   string          `gorm:"type:char(32);not null;unique" json:"union_id"`
-	Nickname  string          `gorm:"type:varchar(255);not null;index" json:"nickname"`
-	Avatar    string          `gorm:"type:varchar(255);not null" json:"avatar"`
-	IsAdmin   bool            `gorm:"type:boolean;default:false" json:"is_admin"`
-	RealName  bool            `gorm:"type:boolean;default:false" json:"real_name"`
+	OpenID    string          `json:"open_id"`
+	UnionID   string          `json:"union_id"`
+	Nickname  string          `json:"nickname"`
+	Avatar    string          `json:"avatar"`
+	IsAdmin   bool            `json:"is_admin"`
+	RealName  bool            `json:"real_name"`
 	CreatedAt carbon.DateTime `gorm:"autoCreateTime;column:created_at" json:"created_at"`
 	UpdatedAt carbon.DateTime `gorm:"autoUpdateTime;column:updated_at" json:"updated_at"`
 	DeletedAt gorm.DeletedAt  `gorm:"column:deleted_at" json:"-"`

@@ -1,9 +1,9 @@
 package cdn
 
 import (
-	"github.com/bytedance/sonic"
 	"github.com/goravel/framework/facades"
 	"github.com/goravel/framework/support/carbon"
+	"github.com/goravel/framework/support/json"
 
 	"weavatar/pkg/wangsu/api/client/purge"
 	"weavatar/pkg/wangsu/api/client/summary"
@@ -98,7 +98,7 @@ func (receiver *WangSu) GetUsage(domain string, startTime, endTime carbon.Carbon
 	response := auth.Invoke(config, getASummaryOfRequestsRequest.String(), getASummaryOfRequestsParams.String())
 
 	var data summary.GetASummaryOfRequestsResponse
-	err := sonic.UnmarshalString(response, &data)
+	err := json.UnmarshalString(response, &data)
 	if err != nil {
 		facades.Log().Tags("CDN", "网宿").With(map[string]any{
 			"response": response,

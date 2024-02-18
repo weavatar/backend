@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bytedance/sonic"
+	"github.com/goravel/framework/support/json"
 
 	"weavatar/pkg/wangsu/common/constant"
 	"weavatar/pkg/wangsu/common/model"
@@ -52,7 +52,7 @@ func Invoke(config AkskConfig, jsonStr string, params ...string) string {
 
 	if len(params) > 0 {
 		decodeParams := make(map[string]string)
-		err := sonic.UnmarshalString(params[0], &decodeParams)
+		err := json.UnmarshalString(params[0], &decodeParams)
 		if err == nil {
 			requestMsg.Params = decodeParams
 		}

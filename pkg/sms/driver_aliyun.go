@@ -7,7 +7,7 @@ import (
 	dysmsapi20170525 "github.com/alibabacloud-go/dysmsapi-20170525/v3/client"
 	util "github.com/alibabacloud-go/tea-utils/v2/service"
 	"github.com/alibabacloud-go/tea/tea"
-	"github.com/bytedance/sonic"
+	"github.com/goravel/framework/support/json"
 )
 
 type Aliyun struct{}
@@ -18,7 +18,7 @@ func (a *Aliyun) Send(phone string, message Message, config map[string]string) e
 		return err
 	}
 
-	param, err := sonic.Marshal(message.Data)
+	param, err := json.Marshal(message.Data)
 	if err != nil {
 		return err
 	}

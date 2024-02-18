@@ -8,7 +8,7 @@ import (
 	green20220302 "github.com/alibabacloud-go/green-20220302/client"
 	util "github.com/alibabacloud-go/tea-utils/v2/service"
 	"github.com/alibabacloud-go/tea/tea"
-	"github.com/bytedance/sonic"
+	"github.com/goravel/framework/support/json"
 )
 
 type Aliyun struct {
@@ -23,7 +23,7 @@ func (a *Aliyun) Check(url string) (bool, error) {
 		return false, err
 	}
 
-	parameters, err := sonic.MarshalString(map[string]string{
+	parameters, err := json.MarshalString(map[string]string{
 		"imageUrl": url,
 	})
 	if err != nil {
