@@ -1,10 +1,10 @@
 CREATE TABLE avatars
 (
-    hash       CHAR(32) PRIMARY KEY  NOT NULL,
-    raw        VARCHAR(255) UNIQUE,
-    user_id    BIGINT  DEFAULT NULL,
-    created_at TIMESTAMP             NOT NULL,
-    updated_at TIMESTAMP             NOT NULL
+    hash       CHAR(32) PRIMARY KEY NOT NULL,
+    raw        TEXT UNIQUE          NOT NULL,
+    user_id    BIGINT               NOT NULL,
+    created_at TIMESTAMP            NOT NULL,
+    updated_at TIMESTAMP            NOT NULL
 );
 
 COMMENT ON TABLE avatars IS '头像';
