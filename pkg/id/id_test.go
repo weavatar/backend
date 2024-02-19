@@ -13,7 +13,8 @@ type IDTestSuite struct {
 }
 
 func TestIDTestSuite(t *testing.T) {
-	mockConfig := mock.Config()
+	facades := mock.Factory()
+	mockConfig := facades.Config()
 	mockConfig.On("GetInt", "id.node").Return(0).Once()
 
 	suite.Run(t, &IDTestSuite{

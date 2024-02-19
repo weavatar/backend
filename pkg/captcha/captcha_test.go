@@ -15,8 +15,8 @@ type CaptchaTestSuite struct {
 }
 
 func TestCaptchaTestSuite(t *testing.T) {
-	facade := mock.Factory()
-	mockConfig := facade.Config()
+	facades := mock.Factory()
+	mockConfig := facades.Config()
 	mockConfig.On("GetString", "app.name").Return("WeAvatar").Once()
 	mockConfig.On("GetInt", "captcha.height").Return(80).Once()
 	mockConfig.On("GetInt", "captcha.width").Return(240).Once()
@@ -26,7 +26,7 @@ func TestCaptchaTestSuite(t *testing.T) {
 	mockConfig.On("GetInt", "captcha.expire_time").Return(5).Once()
 	mockConfig.On("GetInt", "captcha.debug_expire_time").Return(10).Once()
 	mockConfig.On("GetBool", "app.debug").Return(true).Once()
-	mockCache := facade.Cache()
+	mockCache := facades.Cache()
 	mockCache.On("Put", testifymock.Anything, testifymock.Anything, time.Minute*time.Duration(10)).Return(nil).Once()
 
 	suite.Run(t, &CaptchaTestSuite{
