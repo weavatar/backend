@@ -105,7 +105,7 @@ func (r *AvatarController) Avatar(ctx http.Context) http.Response {
 // Index 获取头像列表
 func (r *AvatarController) Index(ctx http.Context) http.Response {
 	var user models.User
-	if err := facades.Auth().User(ctx, &user); err != nil {
+	if err := facades.Auth(ctx).User(&user); err != nil {
 		return Error(ctx, http.StatusUnauthorized, "登录已过期")
 	}
 
@@ -129,7 +129,7 @@ func (r *AvatarController) Index(ctx http.Context) http.Response {
 // Show 获取头像详情
 func (r *AvatarController) Show(ctx http.Context) http.Response {
 	var user models.User
-	if err := facades.Auth().User(ctx, &user); err != nil {
+	if err := facades.Auth(ctx).User(&user); err != nil {
 		return Error(ctx, http.StatusUnauthorized, "登录已过期")
 	}
 
@@ -150,7 +150,7 @@ func (r *AvatarController) Show(ctx http.Context) http.Response {
 // Store 添加头像
 func (r *AvatarController) Store(ctx http.Context) http.Response {
 	var user models.User
-	if err := facades.Auth().User(ctx, &user); err != nil {
+	if err := facades.Auth(ctx).User(&user); err != nil {
 		Error(ctx, http.StatusUnauthorized, "登录已过期")
 	}
 
@@ -215,7 +215,7 @@ func (r *AvatarController) Store(ctx http.Context) http.Response {
 // Update 更新头像
 func (r *AvatarController) Update(ctx http.Context) http.Response {
 	var user models.User
-	if err := facades.Auth().User(ctx, &user); err != nil {
+	if err := facades.Auth(ctx).User(&user); err != nil {
 		return Error(ctx, http.StatusUnauthorized, "登录已过期")
 	}
 
@@ -284,7 +284,7 @@ func (r *AvatarController) Update(ctx http.Context) http.Response {
 // Destroy 删除头像
 func (r *AvatarController) Destroy(ctx http.Context) http.Response {
 	var user models.User
-	if err := facades.Auth().User(ctx, &user); err != nil {
+	if err := facades.Auth(ctx).User(&user); err != nil {
 		return Error(ctx, http.StatusUnauthorized, "登录已过期")
 	}
 

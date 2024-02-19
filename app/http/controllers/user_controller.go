@@ -85,7 +85,7 @@ func (r *UserController) OauthCallback(ctx http.Context) http.Response {
 		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
 	}
 
-	token, loginErr := facades.Auth().LoginUsingID(ctx, user.ID)
+	token, loginErr := facades.Auth(ctx).LoginUsingID(user.ID)
 	if loginErr != nil {
 		facades.Log().Error("[UserController][OauthCallback] 登录失败 ", loginErr.Error())
 		return Error(ctx, http.StatusInternalServerError, loginErr.Error())
@@ -98,7 +98,7 @@ func (r *UserController) OauthCallback(ctx http.Context) http.Response {
 
 func (r *UserController) GetInfo(ctx http.Context) http.Response {
 	var user models.User
-	if err := facades.Auth().User(ctx, &user); err != nil {
+	if err := facades.Auth(ctx).User(&user); err != nil {
 		return Error(ctx, http.StatusUnauthorized, "登录已过期")
 	}
 
@@ -119,7 +119,7 @@ func (r *UserController) UpdateInfo(ctx http.Context) http.Response {
 	}
 
 	var user models.User
-	if err := facades.Auth().User(ctx, &user); err != nil {
+	if err := facades.Auth(ctx).User(&user); err != nil {
 		return Error(ctx, http.StatusUnauthorized, "登录已过期")
 	}
 
@@ -134,7 +134,7 @@ func (r *UserController) UpdateInfo(ctx http.Context) http.Response {
 }
 
 func (r *UserController) Logout(ctx http.Context) http.Response {
-	if err := facades.Auth().Logout(ctx); err != nil {
+	if err := facades.Auth(ctx).Logout(); err != nil {
 		facades.Log().Error("[UserController][Logout] 登出失败 ", err.Error())
 		return Error(ctx, http.StatusInternalServerError, err.Error())
 	}
