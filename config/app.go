@@ -20,7 +20,6 @@ import (
 	"github.com/goravel/framework/support/carbon"
 	"github.com/goravel/framework/testing"
 	"github.com/goravel/framework/validation"
-	"github.com/goravel/redis"
 
 	"weavatar/app/providers"
 )
@@ -59,6 +58,20 @@ func init() {
 		// ahead and set this to a sensible default for you out of the box.
 		"timezone": carbon.PRC,
 
+		// Application Locale Configuration
+		//
+		// The application locale determines the default locale that will be used
+		// by the translation service provider.You are free to set this value
+		// to any of the locales which will be supported by the application.
+		"locale": "zh_CN",
+
+		// Application Fallback Locale
+		//
+		// The fallback locale determines the locale to use when the current one
+		// is not available.You may change the value to correspond to any of
+		// the language folders that are provided through your application.
+		"fallback_locale": "zh_CN",
+
 		// Encryption Key
 		//
 		// 32 character string, otherwise these encrypted strings
@@ -74,7 +87,6 @@ func init() {
 			&log.ServiceProvider{},
 			&console.ServiceProvider{},
 			&database.ServiceProvider{},
-			&redis.ServiceProvider{},
 			&cache.ServiceProvider{},
 			&http.ServiceProvider{},
 			&route.ServiceProvider{},

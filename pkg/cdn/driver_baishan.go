@@ -46,7 +46,7 @@ func (b *BaiShan) RefreshUrl(urls []string) bool {
 			"code": resp.Code,
 			"data": resp.Data,
 			"err":  err.Error(),
-		}).Error("URL缓存刷新失败")
+		}).Warning("URL缓存刷新失败")
 		return false
 	}
 
@@ -54,7 +54,7 @@ func (b *BaiShan) RefreshUrl(urls []string) bool {
 		facades.Log().Tags("CDN", "白山云").With(map[string]any{
 			"code": resp.Code,
 			"data": resp.Data,
-		}).Error("URL缓存刷新失败")
+		}).Warning("URL缓存刷新失败")
 		return false
 	}
 
@@ -83,7 +83,7 @@ func (b *BaiShan) RefreshPath(paths []string) bool {
 			"code": resp.Code,
 			"data": resp.Data,
 			"err":  err.Error(),
-		}).Error("路径缓存刷新失败")
+		}).Warning("路径缓存刷新失败")
 		return false
 	}
 
@@ -91,7 +91,7 @@ func (b *BaiShan) RefreshPath(paths []string) bool {
 		facades.Log().Tags("CDN", "白山云").With(map[string]any{
 			"code": resp.Code,
 			"data": resp.Data,
-		}).Error("路径缓存刷新失败")
+		}).Warning("路径缓存刷新失败")
 		return false
 	}
 
@@ -115,7 +115,7 @@ func (b *BaiShan) GetUsage(domain string, startTime, endTime carbon.Carbon) uint
 			"code": usage.Code,
 			"data": usage.Data,
 			"err":  err.Error(),
-		}).Error("获取用量失败")
+		}).Warning("获取用量失败")
 		return 0
 	}
 
@@ -124,7 +124,7 @@ func (b *BaiShan) GetUsage(domain string, startTime, endTime carbon.Carbon) uint
 			"code":     usage.Code,
 			"data":     usage.Data,
 			"response": resp.String(),
-		}).Error("获取用量失败")
+		}).Warning("获取用量失败")
 		return 0
 	}
 

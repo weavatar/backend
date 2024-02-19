@@ -44,13 +44,13 @@ func (s *StarShield) RefreshUrl(urls []string) bool {
 		facades.Log().Tags("CDN", "星盾").With(map[string]any{
 			"err":  err.Error(),
 			"resp": resp,
-		}).Error("URL缓存刷新失败")
+		}).Warning("URL缓存刷新失败")
 		return false
 	}
 	if resp.Error.Code != 0 {
 		facades.Log().Tags("CDN", "星盾").With(map[string]any{
 			"resp": resp,
-		}).Error("URL缓存刷新失败")
+		}).Warning("URL缓存刷新失败")
 		return false
 	}
 
@@ -71,13 +71,13 @@ func (s *StarShield) RefreshPath(paths []string) bool {
 		facades.Log().Tags("CDN", "星盾").With(map[string]any{
 			"err":  err.Error(),
 			"resp": resp,
-		}).Error("目录缓存刷新失败")
+		}).Warning("目录缓存刷新失败")
 		return false
 	}
 	if resp.Error.Code != 0 {
 		facades.Log().Tags("CDN", "星盾").With(map[string]any{
 			"resp": resp,
-		}).Error("目录缓存刷新失败")
+		}).Warning("目录缓存刷新失败")
 		return false
 	}
 
@@ -97,13 +97,13 @@ func (s *StarShield) GetUsage(domain string, startTime, endTime carbon.Carbon) u
 		facades.Log().Tags("CDN", "星盾").With(map[string]any{
 			"err":  err.Error(),
 			"resp": resp,
-		}).Error("获取用量失败")
+		}).Warning("获取用量失败")
 		return 0
 	}
 	if resp.Error.Code != 0 {
 		facades.Log().Tags("CDN", "星盾").With(map[string]any{
 			"resp": resp,
-		}).Error("获取用量失败")
+		}).Warning("获取用量失败")
 		return 0
 	}
 

@@ -495,7 +495,7 @@ func (r *AvatarImpl) checkBan(img []byte, hash string, appid uint) []byte {
 					"hash":  h,
 					"appid": a,
 					"error": err.Error(),
-				}).Error("WeAvatar[任务分发失败]")
+				}).Error("任务分发失败")
 			}
 		}(hash, appid)
 	}

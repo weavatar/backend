@@ -53,7 +53,7 @@ func (c *CTYun) RefreshUrl(urls []string) bool {
 	if err != nil {
 		facades.Log().Tags("CDN", "天翼云").With(map[string]any{
 			"err": err.Error(),
-		}).Error("计算签名失败")
+		}).Warning("计算签名失败")
 		return false
 	}
 
@@ -83,7 +83,7 @@ func (c *CTYun) RefreshUrl(urls []string) bool {
 			"code":    resp.Code,
 			"message": resp.Message,
 			"err":     err.Error(),
-		}).Error("URL缓存刷新失败")
+		}).Warning("URL缓存刷新失败")
 		return false
 	}
 
@@ -91,7 +91,7 @@ func (c *CTYun) RefreshUrl(urls []string) bool {
 		facades.Log().Tags("CDN", "天翼云").With(map[string]any{
 			"code":    resp.Code,
 			"message": resp.Message,
-		}).Error("URL缓存刷新失败")
+		}).Warning("URL缓存刷新失败")
 		return false
 	}
 
@@ -106,7 +106,7 @@ func (c *CTYun) RefreshPath(paths []string) bool {
 	if err != nil {
 		facades.Log().Tags("CDN", "天翼云").With(map[string]any{
 			"err": err.Error(),
-		}).Error("计算签名失败")
+		}).Warning("计算签名失败")
 		return false
 	}
 
@@ -137,7 +137,7 @@ func (c *CTYun) RefreshPath(paths []string) bool {
 			"code":    resp.Code,
 			"message": resp.Message,
 			"err":     err.Error(),
-		}).Error("路径缓存刷新失败")
+		}).Warning("路径缓存刷新失败")
 		return false
 	}
 
@@ -145,7 +145,7 @@ func (c *CTYun) RefreshPath(paths []string) bool {
 		facades.Log().Tags("CDN", "天翼云").With(map[string]any{
 			"code":    resp.Code,
 			"message": resp.Message,
-		}).Error("路径缓存刷新失败")
+		}).Warning("路径缓存刷新失败")
 		return false
 	}
 
@@ -160,7 +160,7 @@ func (c *CTYun) GetUsage(domain string, startTime, endTime carbon.Carbon) uint {
 	if err != nil {
 		facades.Log().Tags("CDN", "天翼云").With(map[string]any{
 			"err": err.Error(),
-		}).Error("计算签名失败")
+		}).Warning("计算签名失败")
 		return 0
 	}
 
@@ -186,7 +186,7 @@ func (c *CTYun) GetUsage(domain string, startTime, endTime carbon.Carbon) uint {
 			"code":    usage.Code,
 			"message": usage.Message,
 			"err":     err.Error(),
-		}).Error("获取用量失败")
+		}).Warning("获取用量失败")
 		return 0
 	}
 
@@ -195,7 +195,7 @@ func (c *CTYun) GetUsage(domain string, startTime, endTime carbon.Carbon) uint {
 			"code":     usage.Code,
 			"message":  usage.Message,
 			"response": resp.String(),
-		}).Error("获取用量失败")
+		}).Warning("获取用量失败")
 		return 0
 	}
 
