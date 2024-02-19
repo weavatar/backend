@@ -34,13 +34,14 @@ func (b *BaiShan) RefreshUrl(urls []string) bool {
 		urls[i] = "https://" + url
 	}
 
+	refreshURL := "https://cdn.api.baishan.com/v2/cache/refresh?token=" + b.Token
 	data := map[string]any{
 		"urls": urls,
 		"type": "url",
 	}
 
 	var resp BaiShanRefreshResponse
-	_, err := client.R().SetBody(data).SetSuccessResult(&resp).SetErrorResult(&resp).Post("https://cdn.api.baishan.com/v2/cache/refresh?token=" + b.Token)
+	_, err := client.R().SetBody(data).SetSuccessResult(&resp).SetErrorResult(&resp).Post(refreshURL)
 	if err != nil {
 		facades.Log().Tags("CDN", "白山云").With(map[string]any{
 			"code": resp.Code,
@@ -107,8 +108,8 @@ func (b *BaiShan) GetUsage(domain string, startTime, endTime carbon.Carbon) uint
 	resp, err := client.R().SetQueryParams(map[string]string{
 		"token":      b.Token,
 		"domains":    domain,
-		"start_time": startTime.ToDateTimeString(),
-		"end_time":   endTime.ToDateTimeString(),
+		"start_time": startTime.ToDateString(),
+		"end_time":   endTime.ToDateString(),
 	}).SetSuccessResult(&usage).Get("https://cdn.api.baishan.com/v2/stat/request/eachDomain")
 	if err != nil {
 		facades.Log().Tags("CDN", "白山云").With(map[string]any{
