@@ -59,7 +59,6 @@ func (s *CloudFlare) RefreshUrl(urls []string) bool {
 	}
 	if !resp.Response.Success {
 		facades.Log().Tags("CDN", "CloudFlare").With(map[string]any{
-			"err":  err.Error(),
 			"resp": resp.Response.Errors,
 		}).Warning("URL缓存刷新失败")
 		return false
@@ -90,7 +89,6 @@ func (s *CloudFlare) RefreshPath(paths []string) bool {
 	}
 	if !resp.Response.Success {
 		facades.Log().Tags("CDN", "CloudFlare").With(map[string]any{
-			"err":  err.Error(),
 			"resp": resp.Response.Errors,
 		}).Warning("路径缓存刷新失败")
 		return false
