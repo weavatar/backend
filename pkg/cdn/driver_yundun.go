@@ -105,7 +105,7 @@ func (y *YunDun) RefreshUrl(urls []string) bool {
 	if err != nil {
 		facades.Log().Tags("CDN", "云盾").With(map[string]any{
 			"err": err.Error(),
-		}).Error("登录失败")
+		}).Warning("登录失败")
 		return false
 	}
 
@@ -123,7 +123,7 @@ func (y *YunDun) RefreshUrl(urls []string) bool {
 			"urls":  urls,
 			"resp":  resp.String(),
 			"error": err.Error(),
-		}).Error("URL刷新失败")
+		}).Warning("URL刷新失败")
 		return false
 	}
 
@@ -134,7 +134,7 @@ func (y *YunDun) RefreshUrl(urls []string) bool {
 	facades.Log().Tags("CDN", "云盾").With(map[string]any{
 		"urls":  urls,
 		"error": errorResponse.Status.Message,
-	}).Error("URL刷新失败")
+	}).Warning("URL刷新失败")
 	return false
 }
 
@@ -144,7 +144,7 @@ func (y *YunDun) RefreshPath(paths []string) bool {
 	if err != nil {
 		facades.Log().Tags("CDN", "云盾").With(map[string]any{
 			"err": err.Error(),
-		}).Error("登录失败")
+		}).Warning("登录失败")
 		return false
 	}
 
@@ -162,7 +162,7 @@ func (y *YunDun) RefreshPath(paths []string) bool {
 			"paths": paths,
 			"resp":  resp.String(),
 			"error": err.Error(),
-		}).Error("路径刷新失败")
+		}).Warning("路径刷新失败")
 		return false
 	}
 
@@ -173,7 +173,7 @@ func (y *YunDun) RefreshPath(paths []string) bool {
 	facades.Log().Tags("CDN", "云盾").With(map[string]any{
 		"paths": paths,
 		"error": errorResponse.Status.Message,
-	}).Error("路径刷新失败")
+	}).Warning("路径刷新失败")
 	return false
 }
 
@@ -184,7 +184,7 @@ func (y *YunDun) GetUsage(domain string, startTime, endTime carbon.Carbon) uint 
 	if err != nil {
 		facades.Log().Tags("CDN", "云盾").With(map[string]any{
 			"err": err.Error(),
-		}).Error("登录失败")
+		}).Warning("登录失败")
 		return 0
 	}
 
@@ -208,7 +208,7 @@ func (y *YunDun) GetUsage(domain string, startTime, endTime carbon.Carbon) uint 
 			"end":    endTime.ToDateTimeString(),
 			"resp":   resp.String(),
 			"error":  err.Error(),
-		}).Error("获取用量失败")
+		}).Warning("获取用量失败")
 		return 0
 	}
 
@@ -221,7 +221,7 @@ func (y *YunDun) GetUsage(domain string, startTime, endTime carbon.Carbon) uint 
 		"start":  startTime.ToDateTimeString(),
 		"end":    endTime.ToDateTimeString(),
 		"error":  errorResponse.Status.Message,
-	}).Error("获取用量失败")
+	}).Warning("获取用量失败")
 	return 0
 }
 

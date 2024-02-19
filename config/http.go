@@ -14,6 +14,9 @@ func init() {
 		// HTTP Drivers
 		"drivers": map[string]any{
 			"fiber": map[string]any{
+				// Optional, default is 4096 KB
+				"body_limit":   102400,
+				"header_limit": 10240,
 				"route": func() (route.Route, error) {
 					return fiberfacades.Route("fiber"), nil
 				},

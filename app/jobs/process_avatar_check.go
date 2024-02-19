@@ -31,7 +31,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 	if len(args) < 2 {
 		facades.Log().With(map[string]any{
 			"args": args,
-		}).Error("图片审核[队列参数不足]")
+		}).Warning("图片审核[队列参数不足]")
 		return errors.New("图片审核[队列参数不足]")
 	}
 
@@ -39,7 +39,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 	if !ok {
 		facades.Log().With(map[string]any{
 			"hash": hash,
-		}).Error("图片审核[队列参数断言失败]")
+		}).Warning("图片审核[队列参数断言失败]")
 		return errors.New("图片审核[队列参数断言失败]")
 	}
 
@@ -47,7 +47,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 	if !ok2 {
 		facades.Log().With(map[string]any{
 			"appID": appID,
-		}).Error("图片审核[队列参数断言失败]")
+		}).Warning("图片审核[队列参数断言失败]")
 		return errors.New("图片审核[队列参数断言失败]")
 	}
 
@@ -61,7 +61,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 				facades.Log().With(map[string]any{
 					"hash": hash,
 					"err":  err.Error(),
-				}).Error("图片审核[文件读取失败]")
+				}).Warning("图片审核[文件读取失败]")
 				return err
 			}
 
@@ -72,7 +72,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 					"avatarHash": hash,
 					"imageHash":  imageHash,
 					"err":        err.Error(),
-				}).Error("图片审核[文件缓存失败]")
+				}).Warning("图片审核[文件缓存失败]")
 				return err
 			}
 		} else {
@@ -86,7 +86,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 				facades.Log().With(map[string]any{
 					"hash":     hash,
 					"response": resp.String(),
-				}).Error("图片审核[Gravatar头像下载失败]")
+				}).Warning("图片审核[Gravatar头像下载失败]")
 				return err
 			}
 
@@ -97,7 +97,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 					"avatarHash": hash,
 					"imageHash":  imageHash,
 					"err":        err.Error(),
-				}).Error("图片审核[文件缓存失败]")
+				}).Warning("图片审核[文件缓存失败]")
 				return err
 			}
 		}
@@ -110,7 +110,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 				"hash":  hash,
 				"appID": appID,
 				"err":   err.Error(),
-			}).Error("图片审核[数据查询失败]")
+			}).Warning("图片审核[数据查询失败]")
 			return err
 		}
 		if exist := facades.Storage().Exists("upload/app/" + strconv.Itoa(int(avatar.AppID)) + "/" + hash[:2] + "/" + hash); exist {
@@ -120,7 +120,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 					"hash":  hash,
 					"appID": appID,
 					"err":   fileErr.Error(),
-				}).Error("图片审核[文件读取失败]")
+				}).Warning("图片审核[文件读取失败]")
 				return fileErr
 			}
 
@@ -132,7 +132,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 					"imageHash":  imageHash,
 					"appID":      appID,
 					"err":        err.Error(),
-				}).Error("图片审核[文件缓存失败]")
+				}).Warning("图片审核[文件缓存失败]")
 				return err
 			}
 		} else {
@@ -149,7 +149,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 				"hash":      hash,
 				"imageHash": imageHash,
 				"err":       checkErr.Error(),
-			}).Error("图片审核[审核失败]")
+			}).Warning("图片审核[审核失败]")
 			return err
 		}
 
@@ -162,7 +162,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 			facades.Log().With(map[string]any{
 				"hash": hash,
 				"err":  err.Error(),
-			}).Error("图片审核[数据创建失败]")
+			}).Warning("图片审核[数据创建失败]")
 		}
 	}
 

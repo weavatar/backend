@@ -38,7 +38,7 @@ func (receiver *WangSu) RefreshUrl(urls []string) bool {
 		facades.Log().Tags("CDN", "网宿").With(map[string]any{
 			"urls":     urls,
 			"response": response,
-		}).Error("URL缓存刷新失败")
+		}).Warning("URL缓存刷新失败")
 		return false
 	}
 
@@ -69,7 +69,7 @@ func (receiver *WangSu) RefreshPath(paths []string) bool {
 		facades.Log().Tags("CDN", "网宿").With(map[string]any{
 			"paths":    paths,
 			"response": response,
-		}).Error("路径缓存刷新失败")
+		}).Warning("路径缓存刷新失败")
 		return false
 	}
 
@@ -103,7 +103,7 @@ func (receiver *WangSu) GetUsage(domain string, startTime, endTime carbon.Carbon
 		facades.Log().Tags("CDN", "网宿").With(map[string]any{
 			"response": response,
 			"error":    err.Error(),
-		}).Error("获取用量失败")
+		}).Warning("获取用量失败")
 		return 0
 	}
 
