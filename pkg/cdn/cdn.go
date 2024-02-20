@@ -53,6 +53,11 @@ func NewCDN() CDN {
 					UserName: config["username"],
 					PassWord: config["password"],
 				})
+			case "kuocai":
+				internalCDN.Driver = append(internalCDN.Driver, &KuoCai{
+					UserName: config["username"],
+					PassWord: config["password"],
+				})
 			case "cloudflare":
 				internalCDN.Driver = append(internalCDN.Driver, &CloudFlare{
 					Key:    config["key"],

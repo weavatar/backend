@@ -34,6 +34,11 @@ func init() {
 			"username": config.Env("CDN_YUNDUN_USERNAME", ""),
 			"password": config.Env("CDN_YUNDUN_PASSWORD", ""),
 		},
+		// 括彩云
+		"kuocai": map[string]any{
+			"username": config.Env("CDN_KUOCAI_USERNAME", ""),
+			"password": config.Env("CDN_KUOCAI_PASSWORD", ""),
+		},
 		// CloudFlare
 		"cloudflare": map[string]any{
 			"key":     config.Env("CDN_CLOUDFLARE_KEY", ""),
