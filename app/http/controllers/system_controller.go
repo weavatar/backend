@@ -39,7 +39,7 @@ func (r *SystemController) CdnUsage(ctx http.Context) http.Response {
 	cdn := packagecdn.NewCDN()
 	usage = int64(cdn.GetUsage(domain, yesterday, today))
 	if usage != 0 {
-		cacheTime := time.Duration(carbon.Now().EndOfDay().Timestamp() - carbon.Now().Timestamp())
+		cacheTime := time.Duration(carbon.Now().EndOfDay().Timestamp() - carbon.Now().Timestamp() + 7200)
 		err := facades.Cache().Put("cdn_usage", usage, cacheTime*time.Second)
 		if err != nil {
 			facades.Log().Error("[SystemController][CdnUsage] 缓存CDN使用情况失败 " + err.Error())
