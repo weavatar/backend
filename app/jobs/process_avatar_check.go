@@ -35,10 +35,10 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 		return errors.New("图片审核[队列参数不足]")
 	}
 
-	sha256, ok := args[0].(string)
+	hash, ok := args[0].(string)
 	if !ok {
 		facades.Log().With(map[string]any{
-			"sha256": sha256,
+			"hash": hash,
 		}).Warning("图片审核[队列参数断言失败]")
 		return errors.New("图片审核[队列参数断言失败]")
 	}
@@ -55,12 +55,12 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 
 	if appID == 0 {
 		// 默认头像
-		if exist := facades.Storage().Exists("upload/default/" + sha256[:2] + "/" + sha256); exist {
-			fileString, err := facades.Storage().Get("upload/default/" + sha256[:2] + "/" + sha256)
+		if exist := facades.Storage().Exists("upload/default/" + hash[:2] + "/" + hash); exist {
+			fileString, err := facades.Storage().Get("upload/default/" + hash[:2] + "/" + hash)
 			if err != nil {
 				facades.Log().With(map[string]any{
-					"sha256": sha256,
-					"err":    err.Error(),
+					"hash": hash,
+					"err":  err.Error(),
 				}).Warning("图片审核[文件读取失败]")
 				return err
 			}
@@ -69,9 +69,9 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 			err = facades.Storage().Put("checker/"+imageHash[:2]+"/"+imageHash, fileString)
 			if err != nil {
 				facades.Log().With(map[string]any{
-					"avatarSHA256": sha256,
-					"imageHash":    imageHash,
-					"err":          err.Error(),
+					"avatarHash": hash,
+					"imageHash":  imageHash,
+					"err":        err.Error(),
 				}).Warning("图片审核[文件缓存失败]")
 				return err
 			}
@@ -81,10 +81,10 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 			client.SetCommonRetryCount(2)
 			client.ImpersonateSafari()
 
-			resp, err := client.R().Get("http://proxy.server/https://0.gravatar.com/avatar/" + sha256 + ".png?s=600&r=g&d=404")
+			resp, err := client.R().Get("http://proxy.server/https://0.gravatar.com/avatar/" + hash + ".png?s=600&r=g&d=404")
 			if err != nil || !resp.IsSuccessState() {
 				facades.Log().With(map[string]any{
-					"sha256":   sha256,
+					"hash":     hash,
 					"response": resp.String(),
 				}).Warning("图片审核[Gravatar头像下载失败]")
 				return err
@@ -94,9 +94,9 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 			err = facades.Storage().Put("checker/"+imageHash[:2]+"/"+imageHash, resp.String())
 			if err != nil {
 				facades.Log().With(map[string]any{
-					"avatarSHA256": sha256,
-					"imageHash":    imageHash,
-					"err":          err.Error(),
+					"avatarHash": hash,
+					"imageHash":  imageHash,
+					"err":        err.Error(),
 				}).Warning("图片审核[文件缓存失败]")
 				return err
 			}
@@ -104,22 +104,22 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 	} else {
 		// APP头像
 		var avatar models.AppAvatar
-		err := facades.Orm().Query().Where("avatar_sha256", sha256).First(&avatar)
+		err := facades.Orm().Query().Where("avatar_sha256", hash).First(&avatar)
 		if err != nil {
 			facades.Log().With(map[string]any{
-				"sha256": sha256,
-				"appID":  appID,
-				"err":    err.Error(),
+				"avatarSHA256": hash,
+				"appID":        appID,
+				"err":          err.Error(),
 			}).Warning("图片审核[数据查询失败]")
 			return err
 		}
-		if exist := facades.Storage().Exists("upload/app/" + strconv.Itoa(int(avatar.AppID)) + "/" + sha256[:2] + "/" + sha256); exist {
-			fileString, fileErr := facades.Storage().Get("upload/app/" + strconv.Itoa(int(avatar.AppID)) + "/" + sha256[:2] + "/" + sha256)
+		if exist := facades.Storage().Exists("upload/app/" + strconv.Itoa(int(avatar.AppID)) + "/" + hash[:2] + "/" + hash); exist {
+			fileString, fileErr := facades.Storage().Get("upload/app/" + strconv.Itoa(int(avatar.AppID)) + "/" + hash[:2] + "/" + hash)
 			if fileErr != nil {
 				facades.Log().With(map[string]any{
-					"sha256": sha256,
-					"appID":  appID,
-					"err":    fileErr.Error(),
+					"avatarSHA256": hash,
+					"appID":        appID,
+					"err":          fileErr.Error(),
 				}).Warning("图片审核[文件读取失败]")
 				return fileErr
 			}
@@ -128,7 +128,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 			err = facades.Storage().Put("checker/"+imageHash[:2]+"/"+imageHash, fileString)
 			if err != nil {
 				facades.Log().With(map[string]any{
-					"avatarSHA256": sha256,
+					"avatarSHA256": hash,
 					"imageHash":    imageHash,
 					"appID":        appID,
 					"err":          err.Error(),
@@ -143,10 +143,10 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 	var image models.Image
 	if err := facades.Orm().Query().Where("hash", imageHash).FirstOrFail(&image); err != nil {
 		checker := imagecheck.NewChecker()
-		ban, checkErr := checker.Check("https://weavatar.com/avatar/" + sha256 + ".png?s=600&d=404")
+		ban, checkErr := checker.Check("https://weavatar.com/avatar/" + hash + ".png?s=600&d=404")
 		if checkErr != nil {
 			facades.Log().With(map[string]any{
-				"sha256":    sha256,
+				"hash":      hash,
 				"imageHash": imageHash,
 				"err":       checkErr.Error(),
 			}).Warning("图片审核[审核失败]")
@@ -160,8 +160,8 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 		})
 		if err != nil {
 			facades.Log().With(map[string]any{
-				"sha256": sha256,
-				"err":    err.Error(),
+				"hash": hash,
+				"err":  err.Error(),
 			}).Warning("图片审核[数据创建失败]")
 		}
 	}
