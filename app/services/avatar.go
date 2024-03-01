@@ -456,7 +456,7 @@ func (r *AvatarImpl) GetAvatar(appid uint, hash string, defaultAvatar string, op
 
 	img, lastModified, err = r.GetGravatar(hash)
 	if err == nil {
-		return r.checkBan(img, avatar.SHA256, 0), lastModified, "gravatar", nil
+		return r.checkBan(img, hash, 0), lastModified, "gravatar", nil
 	}
 
 	_, img, lastModified, err = r.GetQQ(hash)
@@ -491,24 +491,24 @@ func (r *AvatarImpl) getAppAvatar(appid uint, sha256 string) (img []byte, lastMo
 }
 
 // checkBan 检查图片是否被封禁
-func (r *AvatarImpl) checkBan(img []byte, sha256 string, appid uint) []byte {
+func (r *AvatarImpl) checkBan(img []byte, hash string, appid uint) []byte {
 	imageHash := helper.MD5(string(img))
 	var imgModel models.Image
 	if err := facades.Orm().Query().Where("hash", imageHash).FirstOrFail(&imgModel); err != nil {
 		// 审核无记录的图片
-		go func(s string, a uint) {
+		go func(h string, a uint) {
 			err := facades.Queue().Job(&jobs.ProcessAvatarCheck{}, []queue.Arg{
-				{Type: "string", Value: s},
+				{Type: "string", Value: h},
 				{Type: "uint", Value: a},
 			}).Dispatch()
 			if err != nil {
 				facades.Log().With(map[string]any{
-					"sha256": s,
-					"appid":  a,
-					"error":  err.Error(),
+					"hash":  hash,
+					"appid": a,
+					"error": err.Error(),
 				}).Error("任务分发失败")
 			}
-		}(sha256, appid)
+		}(hash, appid)
 	}
 
 	if imgModel.Ban {
