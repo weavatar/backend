@@ -2,6 +2,7 @@ package requests
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/contracts/validation"
@@ -47,5 +48,6 @@ func (r *EmailRequest) Attributes(ctx http.Context) map[string]string {
 
 func (r *EmailRequest) PrepareForValidation(ctx http.Context, data validation.Data) error {
 	_ = data.Set("ip", ctx.Request().Ip())
+	_ = data.Set("email", strings.ToLower(ctx.Request().Input("email")))
 	return nil
 }

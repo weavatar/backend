@@ -4,6 +4,7 @@ package helper
 import (
 	"crypto/md5"
 	"crypto/rand"
+	"crypto/sha256"
 	"fmt"
 	"io"
 	"net/url"
@@ -74,6 +75,11 @@ func RandomString(length int) string {
 // MD5 生成字符串的 MD5 值
 func MD5(str string) string {
 	return fmt.Sprintf("%x", md5.Sum([]byte(str)))
+}
+
+// SHA256 生成字符串的 SHA256 值
+func SHA256(str string) string {
+	return fmt.Sprintf("%x", sha256.Sum256([]byte(str)))
 }
 
 // IsURL 判断字符串是否是 URL

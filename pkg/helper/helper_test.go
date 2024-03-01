@@ -47,6 +47,10 @@ func (s *HelperTestSuite) TestMD5() {
 	s.Equal("e10adc3949ba59abbe56e057f20f883e", MD5("123456"))
 }
 
+func (s *HelperTestSuite) TestSHA256() {
+	s.Equal("8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92", SHA256("123456"))
+}
+
 func (s *HelperTestSuite) TestIsURL() {
 	s.True(IsURL("https://weavatar.com"))
 	s.True(IsURL("https://weavatar.com?name=HaoZi"))
