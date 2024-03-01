@@ -1,14 +1,16 @@
 CREATE TABLE avatars
 (
-    hash       CHAR(32) PRIMARY KEY NOT NULL,
-    raw        TEXT UNIQUE          NOT NULL,
-    user_id    BIGINT               NOT NULL,
-    created_at TIMESTAMP            NOT NULL,
-    updated_at TIMESTAMP            NOT NULL
+    sha256     TEXT PRIMARY KEY NOT NULL,
+    md5        TEXT UNIQUE      NOT NULL,
+    raw        TEXT UNIQUE      NOT NULL,
+    user_id    BIGINT           NOT NULL,
+    created_at TIMESTAMP        NOT NULL,
+    updated_at TIMESTAMP        NOT NULL
 );
 
 COMMENT ON TABLE avatars IS '头像';
-COMMENT ON COLUMN avatars.hash IS '哈希';
+COMMENT ON COLUMN avatars.sha256 IS 'SHA256';
+COMMENT ON COLUMN avatars.md5 IS 'MD5';
 COMMENT ON COLUMN avatars.raw IS '原始';
 COMMENT ON COLUMN avatars.user_id IS '用户ID';
 COMMENT ON COLUMN avatars.created_at IS '创建时间';

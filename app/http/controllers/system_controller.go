@@ -54,10 +54,10 @@ func (r *SystemController) CdnUsage(ctx http.Context) http.Response {
 // CheckBind 检查绑定
 func (r *SystemController) CheckBind(ctx http.Context) http.Response {
 	raw := ctx.Request().Input("raw", "12345")
-	hash := helper.MD5(raw)
+	sha256 := helper.SHA256(raw)
 
 	var avatar models.Avatar
-	if err := facades.Orm().Query().Where("hash", hash).First(&avatar); err != nil {
+	if err := facades.Orm().Query().Where("sha256", sha256).First(&avatar); err != nil {
 		facades.Log().Error("[AvatarController][CheckBind] 查询用户头像失败 ", err.Error())
 		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
 	}

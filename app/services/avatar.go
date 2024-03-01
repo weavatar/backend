@@ -3,11 +3,13 @@ package services
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"image"
 	"image/color"
 	"image/png"
 	"os"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -23,7 +25,6 @@ import (
 	"github.com/ipsn/go-adorable"
 	"github.com/issue9/identicon/v2"
 	"github.com/o1egl/govatar"
-	"golang.org/x/exp/slices"
 
 	"weavatar/app/jobs"
 	"weavatar/app/models"
@@ -125,7 +126,7 @@ func (r *AvatarImpl) Sanitize(ctx http.Context) (appid uint, hash string, ext st
 		}
 	}
 
-	match, _ := regexp.MatchString("^[a-f0-9]{32}$", hash)
+	match, _ := regexp.MatchString(`^([a-f0-9]{64})|([a-f0-9]{32})$`, hash)
 	if !match {
 		forceDefault = true
 	}
@@ -135,6 +136,12 @@ func (r *AvatarImpl) Sanitize(ctx http.Context) (appid uint, hash string, ext st
 
 // GetQQ 通过 QQ 号获取头像
 func (r *AvatarImpl) GetQQ(hash string) (qq int, img []byte, lastModified carbon.Carbon, err error) {
+	hashType := "md5"
+	if len(hash) == 64 {
+		// hashType = "sha256"
+		// TODO 暂时不支持 SHA256
+		return 0, nil, carbon.Now(), errors.New("暂不支持 SHA256")
+	}
 	hashIndex, err := strconv.ParseInt(hash[:10], 16, 64)
 	if err != nil {
 		return 0, nil, carbon.Now(), err
@@ -142,20 +149,22 @@ func (r *AvatarImpl) GetQQ(hash string) (qq int, img []byte, lastModified carbon
 	tableIndex := (hashIndex % int64(500)) + 1
 	type qqHash struct {
 		Hash string `gorm:"primaryKey"`
-		QQ   int    `gorm:"type:bigint;not null"`
+		QQ   int
 	}
+	table := fmt.Sprintf("qq_%s_%d", hashType, tableIndex)
 
 	var qqModel qqHash
-	if err = facades.Orm().Connection("hash").Query().Table("qq_"+strconv.Itoa(int(tableIndex))).Where("hash", hash).First(&qqModel); err != nil {
+	if err = facades.Orm().Connection("hash").Query().Table(table).Where("md5", hash).First(&qqModel); err != nil {
 		return 0, nil, carbon.Now(), err
 	}
 	if qqModel.QQ == 0 {
 		return 0, nil, carbon.Now(), errors.New("未找到对应的 QQ 号")
 	}
 
-	if facades.Storage().Exists("cache/qq/" + hash[:2] + "/" + hash) {
-		img, err = os.ReadFile(facades.Storage().Path("cache/qq/" + hash[:2] + "/" + hash))
-		lastModifiedStd, lastModifiedErr := facades.Storage().LastModified("cache/qq/" + hash[:2] + "/" + hash)
+	qqStr := strconv.Itoa(qqModel.QQ)
+	if facades.Storage().Exists("cache/qq/" + qqStr[:2] + "/" + qqStr) {
+		img, err = os.ReadFile(facades.Storage().Path("cache/qq/" + qqStr[:2] + "/" + qqStr))
+		lastModifiedStd, lastModifiedErr := facades.Storage().LastModified("cache/qq/" + qqStr[:2] + "/" + qqStr)
 		if err == nil && lastModifiedErr == nil {
 			return qqModel.QQ, img, carbon.FromStdTime(lastModifiedStd), nil
 		}
@@ -163,7 +172,7 @@ func (r *AvatarImpl) GetQQ(hash string) (qq int, img []byte, lastModified carbon
 
 	resp, reqErr := r.Client.R().SetQueryParams(map[string]string{
 		"b":  "qq",
-		"nk": strconv.Itoa(qqModel.QQ),
+		"nk": qqStr,
 		"s":  "640",
 	}).Get("http://q1.qlogo.cn/g")
 	if !resp.IsSuccessState() {
@@ -179,7 +188,7 @@ func (r *AvatarImpl) GetQQ(hash string) (qq int, img []byte, lastModified carbon
 		// 如果图片小于 6400 字节，则尝试获取 100 尺寸的图片
 		resp, reqErr = r.Client.R().SetQueryParams(map[string]string{
 			"b":  "qq",
-			"nk": strconv.Itoa(qqModel.QQ),
+			"nk": qqStr,
 			"s":  "100",
 		}).Get("http://q1.qlogo.cn/g")
 		if !resp.IsSuccessState() {
@@ -191,10 +200,10 @@ func (r *AvatarImpl) GetQQ(hash string) (qq int, img []byte, lastModified carbon
 		}
 	}
 
-	if err := facades.Storage().Put("cache/qq/"+hash[:2]+"/"+hash, resp.String()); err != nil {
+	if err := facades.Storage().Put("cache/qq/"+qqStr[:2]+"/"+qqStr, resp.String()); err != nil {
 		return 0, nil, carbon.Now(), err
 	}
-	lastModifiedStd, err := facades.Storage().LastModified("cache/qq/" + hash[:2] + "/" + hash)
+	lastModifiedStd, err := facades.Storage().LastModified("cache/qq/" + qqStr[:2] + "/" + qqStr)
 	if err != nil {
 		return 0, nil, carbon.Now(), err
 	}
@@ -203,6 +212,8 @@ func (r *AvatarImpl) GetQQ(hash string) (qq int, img []byte, lastModified carbon
 }
 
 // GetGravatar 通过 Gravatar 获取头像
+// Gravatar 支持 SHA256 和 MD5，可以直接缓存
+// 但这样对于一个邮箱，可能会有两个头像，但是这个概率非常小，且不会造成问题，所以不做处理
 func (r *AvatarImpl) GetGravatar(hash string) (img []byte, lastModified carbon.Carbon, err error) {
 	if facades.Storage().Exists("cache/gravatar/" + hash[:2] + "/" + hash) {
 		img, err = os.ReadFile(facades.Storage().Path("cache/gravatar/" + hash[:2] + "/" + hash))
@@ -422,7 +433,7 @@ func (r *AvatarImpl) GetAvatar(appid uint, hash string, defaultAvatar string, op
 	var avatar models.Avatar
 
 	// 取头像数据
-	if err = facades.Orm().Query().Where("hash", hash).First(&avatar); err != nil {
+	if err = facades.Orm().Query().Where("md5", hash).OrWhere("sha256", hash).First(&avatar); err != nil {
 		facades.Log().With(map[string]any{
 			"hash":  hash,
 			"error": err.Error(),
@@ -430,22 +441,22 @@ func (r *AvatarImpl) GetAvatar(appid uint, hash string, defaultAvatar string, op
 		return nil, carbon.Now(), "weavatar", err
 	}
 
-	img, lastModified, err = r.getAppAvatar(appid, hash)
+	img, lastModified, err = r.getAppAvatar(appid, avatar.SHA256)
 	if err == nil {
-		return r.checkBan(img, hash, appid), lastModified, "weavatar", nil
+		return r.checkBan(img, avatar.SHA256, appid), lastModified, "weavatar", nil
 	}
 
-	if avatar.Hash != "" {
-		img, err = os.ReadFile(facades.Storage().Path("upload/default/" + hash[:2] + "/" + hash))
+	if avatar.UserID != 0 {
+		img, err = os.ReadFile(facades.Storage().Path("upload/default/" + avatar.SHA256[:2] + "/" + avatar.SHA256))
 		if err == nil {
 			lastModified = avatar.UpdatedAt.Carbon
-			return r.checkBan(img, hash, 0), lastModified, "weavatar", nil
+			return r.checkBan(img, avatar.SHA256, 0), lastModified, "weavatar", nil
 		}
 	}
 
 	img, lastModified, err = r.GetGravatar(hash)
 	if err == nil {
-		return r.checkBan(img, hash, 0), lastModified, "gravatar", nil
+		return r.checkBan(img, avatar.SHA256, 0), lastModified, "gravatar", nil
 	}
 
 	_, img, lastModified, err = r.GetQQ(hash)
@@ -458,18 +469,18 @@ func (r *AvatarImpl) GetAvatar(appid uint, hash string, defaultAvatar string, op
 }
 
 // getAppAvatar 获取应用头像
-func (r *AvatarImpl) getAppAvatar(appid uint, hash string) (img []byte, lastModified carbon.Carbon, err error) {
+func (r *AvatarImpl) getAppAvatar(appid uint, sha256 string) (img []byte, lastModified carbon.Carbon, err error) {
 	if appid == 0 {
 		return nil, carbon.Now(), errors.New("无应用头像")
 	}
 
 	var appAvatar models.AppAvatar
-	if err = facades.Orm().Query().Where("app_id", appid).Where("avatar_hash", hash).First(&appAvatar); err != nil {
+	if err = facades.Orm().Query().Where("app_id", appid).Where("avatar_sha256", sha256).First(&appAvatar); err != nil {
 		return nil, carbon.Now(), err
 	}
 
 	if appAvatar.AppID != 0 {
-		img, err = os.ReadFile(facades.Storage().Path("upload/app/" + strconv.Itoa(int(appAvatar.AppID)) + "/" + hash[:2] + "/" + hash))
+		img, err = os.ReadFile(facades.Storage().Path("upload/app/" + strconv.Itoa(int(appAvatar.AppID)) + "/" + sha256[:2] + "/" + sha256))
 		if err == nil {
 			lastModified = appAvatar.UpdatedAt.Carbon
 			return img, lastModified, nil
@@ -480,24 +491,24 @@ func (r *AvatarImpl) getAppAvatar(appid uint, hash string) (img []byte, lastModi
 }
 
 // checkBan 检查图片是否被封禁
-func (r *AvatarImpl) checkBan(img []byte, hash string, appid uint) []byte {
+func (r *AvatarImpl) checkBan(img []byte, sha256 string, appid uint) []byte {
 	imageHash := helper.MD5(string(img))
 	var imgModel models.Image
 	if err := facades.Orm().Query().Where("hash", imageHash).FirstOrFail(&imgModel); err != nil {
 		// 审核无记录的图片
-		go func(h string, a uint) {
+		go func(s string, a uint) {
 			err := facades.Queue().Job(&jobs.ProcessAvatarCheck{}, []queue.Arg{
-				{Type: "string", Value: h},
+				{Type: "string", Value: s},
 				{Type: "uint", Value: a},
 			}).Dispatch()
 			if err != nil {
 				facades.Log().With(map[string]any{
-					"hash":  h,
-					"appid": a,
-					"error": err.Error(),
+					"sha256": s,
+					"appid":  a,
+					"error":  err.Error(),
 				}).Error("任务分发失败")
 			}
-		}(hash, appid)
+		}(sha256, appid)
 	}
 
 	if imgModel.Ban {

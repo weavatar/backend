@@ -5,7 +5,8 @@ import (
 )
 
 type Avatar struct {
-	Hash      string          `gorm:"primaryKey" json:"hash"`
+	SHA256    string          `gorm:"primaryKey" json:"sha256"`
+	MD5       string          `json:"md5"`
 	Raw       string          `json:"raw"`
 	UserID    uint            `json:"user_id"`
 	CreatedAt carbon.DateTime `gorm:"autoCreateTime;column:created_at" json:"created_at"`
