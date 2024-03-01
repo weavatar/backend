@@ -9,8 +9,8 @@ WeAvatar 是超越 Gravatar 的新一代头像服务，不仅支持用户上传�
 ## 依赖
 
 - AlmaLinux / RockyLinux 9
-- OpenResty >= 1.21
-- Go >= 1.21
+- OpenResty >= 1.25
+- Go >= 1.22
 - PostgreSQL >= 16
 - vips >= 8.15
 

@@ -154,7 +154,7 @@ func (r *AvatarImpl) GetQQ(hash string) (qq int, img []byte, lastModified carbon
 	table := fmt.Sprintf("qq_%s_%d", hashType, tableIndex)
 
 	var qqModel qqHash
-	if err = facades.Orm().Connection("hash").Query().Table(table).Where("md5", hash).First(&qqModel); err != nil {
+	if err = facades.Orm().Connection("hash").Query().Table(table).Where("hash", hash).First(&qqModel); err != nil {
 		return 0, nil, carbon.Now(), err
 	}
 	if qqModel.QQ == 0 {
