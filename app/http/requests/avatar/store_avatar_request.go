@@ -5,6 +5,7 @@ import (
 
 	"github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/contracts/validation"
+	"github.com/spf13/cast"
 )
 
 type StoreAvatarRequest struct {
@@ -45,6 +46,9 @@ func (r *StoreAvatarRequest) Attributes(ctx http.Context) map[string]string {
 
 func (r *StoreAvatarRequest) PrepareForValidation(ctx http.Context, data validation.Data) error {
 	_ = data.Set("ip", ctx.Request().Ip())
-	_ = data.Set("raw", strings.ToLower(ctx.Request().Input("raw")))
+	if raw, exist := data.Get("raw"); exist {
+		return data.Set("raw", strings.ToLower(cast.ToString(raw)))
+	}
+
 	return nil
 }
