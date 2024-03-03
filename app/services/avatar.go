@@ -43,8 +43,8 @@ type Avatar interface {
 
 type AvatarImpl struct {
 	BanImage []byte
-	Font     *truetype.Font
-	Client   *req.Client
+	font     *truetype.Font
+	client   *req.Client
 }
 
 func NewAvatarImpl() *AvatarImpl {
@@ -68,8 +68,8 @@ func NewAvatarImpl() *AvatarImpl {
 
 	return &AvatarImpl{
 		BanImage: ban,
-		Font:     font,
-		Client:   client,
+		font:     font,
+		client:   client,
 	}
 }
 
@@ -138,9 +138,7 @@ func (r *AvatarImpl) Sanitize(ctx http.Context) (appid uint, hash string, ext st
 func (r *AvatarImpl) GetQQ(hash string) (qq int, img []byte, lastModified carbon.Carbon, err error) {
 	hashType := "md5"
 	if len(hash) == 64 {
-		// hashType = "sha256"
-		// TODO 暂时不支持 SHA256
-		return 0, nil, carbon.Now(), errors.New("暂不支持 SHA256")
+		hashType = "sha256"
 	}
 	hashIndex, err := strconv.ParseInt(hash[:10], 16, 64)
 	if err != nil {
@@ -170,7 +168,7 @@ func (r *AvatarImpl) GetQQ(hash string) (qq int, img []byte, lastModified carbon
 		}
 	}
 
-	resp, reqErr := r.Client.R().SetQueryParams(map[string]string{
+	resp, reqErr := r.client.R().SetQueryParams(map[string]string{
 		"b":  "qq",
 		"nk": qqStr,
 		"s":  "640",
@@ -186,7 +184,7 @@ func (r *AvatarImpl) GetQQ(hash string) (qq int, img []byte, lastModified carbon
 	length, lengthErr := strconv.Atoi(resp.GetHeader("Content-Length"))
 	if length < 6400 || lengthErr != nil {
 		// 如果图片小于 6400 字节，则尝试获取 100 尺寸的图片
-		resp, reqErr = r.Client.R().SetQueryParams(map[string]string{
+		resp, reqErr = r.client.R().SetQueryParams(map[string]string{
 			"b":  "qq",
 			"nk": qqStr,
 			"s":  "100",
@@ -223,7 +221,7 @@ func (r *AvatarImpl) GetGravatar(hash string) (img []byte, lastModified carbon.C
 		}
 	}
 
-	resp, reqErr := r.Client.R().Get("http://proxy.server/https://0.gravatar.com/avatar/" + hash + ".png?s=600&r=g&d=404")
+	resp, reqErr := r.client.R().Get("http://proxy.server/https://0.gravatar.com/avatar/" + hash + ".png?s=600&r=g&d=404")
 	if reqErr != nil || !resp.IsSuccessState() {
 		return nil, carbon.Now(), errors.New("获取 Gravatar 头像失败")
 	}
@@ -379,7 +377,7 @@ func (r *AvatarImpl) GetDefault(defaultAvatar string, option []string) (img []by
 
 		var imgStd image.Image
 		imgStd, err = letteravatar.Draw(1000, letters, &letteravatar.Options{
-			Font:       r.Font,
+			Font:       r.font,
 			FontSize:   fontSize,
 			PaletteKey: option[1], // 对相同的字符串使用相同的颜色
 		})

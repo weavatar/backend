@@ -50,11 +50,13 @@ cp .env.example .env
 
 ```bash
 ./weavatar artisan migrate
-./weavatar artisan hash:make
-./weavatar artisan hash:insert
+./weavatar artisan hash:make -t md5 -d /path/to/md5
+./weavatar artisan hash:make -t sha256 -d /path/to/sha256
+./weavatar artisan hash:insert -t md5 -d /path/to/md5
+./weavatar artisan hash:insert -t sha256 -d /path/to/sha256
 ```
 
-其中 `hash:make` 步骤可选，用于生成 QQ 邮箱的 Hash 表，纯 csv 约占用 150 GB，导入后约占用 450 GB。
+其中 `hash:make` 步骤可选，用于生成 QQ 邮箱的 Hash 表，分 `MD5` 和 `SHA256` 两种格式，`MD5` 纯 csv 约占用 150 GB，`SHA256` 纯 csv 约占用 300 GB，`MD5` 导入后约占用 450 GB，`SHA256` 导入后约占用 700 GB。
 
 ### 6. 启动项目
 

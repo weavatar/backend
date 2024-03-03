@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"strings"
 	"time"
 
 	"github.com/goravel/framework/contracts/http"
@@ -53,7 +54,7 @@ func (r *SystemController) CdnUsage(ctx http.Context) http.Response {
 
 // CheckBind 检查绑定
 func (r *SystemController) CheckBind(ctx http.Context) http.Response {
-	raw := ctx.Request().Input("raw", "12345")
+	raw := strings.ToLower(ctx.Request().Input("raw"))
 	sha256 := helper.SHA256(raw)
 
 	var avatar models.Avatar
