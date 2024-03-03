@@ -12,7 +12,7 @@ require (
 	github.com/gertd/go-pluralize v0.2.1
 	github.com/goki/freetype v1.0.4
 	github.com/gookit/color v1.5.4
-	github.com/goravel/fiber v1.1.11-0.20240302035856-a7d534b9ad50
+	github.com/goravel/fiber v1.1.11-0.20240302045937-5a7d285f866e
 	github.com/goravel/framework v1.13.1-0.20240302020320-df69512e577c
 	github.com/haozi-team/letteravatar v1.0.4
 	github.com/iancoleman/strcase v0.3.0
