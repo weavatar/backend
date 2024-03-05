@@ -7,10 +7,10 @@ require (
 	github.com/alibabacloud-go/dysmsapi-20170525/v3 v3.0.6
 	github.com/alibabacloud-go/green-20220302 v1.3.1
 	github.com/alibabacloud-go/tea v1.2.2
-	github.com/alibabacloud-go/tea-utils/v2 v2.0.4
-	github.com/cloudflare/cloudflare-go v0.88.0
+	github.com/alibabacloud-go/tea-utils/v2 v2.0.5
+	github.com/cloudflare/cloudflare-go v0.89.0
 	github.com/gertd/go-pluralize v0.2.1
-	github.com/goki/freetype v1.0.4
+	github.com/goki/freetype v1.0.5
 	github.com/gookit/color v1.5.4
 	github.com/goravel/fiber v1.1.11-0.20240302045937-5a7d285f866e
 	github.com/goravel/framework v1.13.1-0.20240302020320-df69512e577c
@@ -18,7 +18,7 @@ require (
 	github.com/iancoleman/strcase v0.3.0
 	github.com/imroc/req/v3 v3.42.3
 	github.com/ipsn/go-adorable v1.0.0
-	github.com/issue9/identicon/v2 v2.1.1
+	github.com/issue9/identicon/v2 v2.1.2
 	github.com/jdcloud-api/jdcloud-sdk-go v1.62.0
 	github.com/mojocn/base64Captcha v1.3.6
 	github.com/o1egl/govatar v0.4.1
