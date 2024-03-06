@@ -168,7 +168,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 
 	if image.Ban {
 		cdn := packagecdn.NewCDN()
-		cdn.RefreshPath([]string{"weavatar.com/avatar/"})
+		cdn.RefreshUrl([]string{"weavatar.com/avatar/" + hash})
 	}
 
 	return nil
