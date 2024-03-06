@@ -3,7 +3,7 @@ module weavatar
 go 1.22
 
 require (
-	github.com/alibabacloud-go/darabonba-openapi/v2 v2.0.5
+	github.com/alibabacloud-go/darabonba-openapi/v2 v2.0.6
 	github.com/alibabacloud-go/dysmsapi-20170525/v3 v3.0.6
 	github.com/alibabacloud-go/green-20220302 v1.3.1
 	github.com/alibabacloud-go/tea v1.2.2
@@ -26,7 +26,7 @@ require (
 	github.com/stretchr/testify v1.9.0
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.857
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.857
-	google.golang.org/grpc v1.62.0
+	google.golang.org/grpc v1.62.1
 	gorm.io/gorm v1.25.7
 )
 
