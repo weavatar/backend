@@ -51,8 +51,14 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 		return errors.New("图片审核[队列参数断言失败]")
 	}
 
-	var imageHash string
+	// 防止并发下重复审核
+	if facades.Cache().Has("avatar_check_" + hash) {
+		return nil
+	}
+	_ = facades.Cache().Put("avatar_check_"+hash, true, 30*time.Second)
+	defer facades.Cache().Forget("avatar_check_" + hash)
 
+	var imageHash string
 	if appID == 0 {
 		// 默认头像
 		if exist := facades.Storage().Exists("upload/default/" + hash[:2] + "/" + hash); exist {
