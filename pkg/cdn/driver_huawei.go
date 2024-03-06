@@ -30,11 +30,18 @@ func (r *HuaWei) RefreshUrl(urls []string) bool {
 		}).Warning("初始化华为云CDN客户端失败")
 	}
 
-	client := cdn.NewCdnClient(cdn.CdnClientBuilder().
+	build, err := cdn.CdnClientBuilder().
 		WithRegion(region.CN_NORTH_1).
 		WithCredential(auth).
-		Build())
+		SafeBuild()
+	if err != nil {
+		facades.Log().Tags("CDN", "华为云").With(map[string]any{
+			"err": err.Error(),
+		}).Warning("初始化华为云CDN客户端失败")
 
+	}
+
+	client := cdn.NewCdnClient(build)
 	request := &model.CreateRefreshTasksRequest{}
 	typeRefreshTask := model.GetRefreshTaskRequestBodyTypeEnum().PREFIX
 	modeRefreshTask := model.GetRefreshTaskRequestBodyModeEnum().ALL
@@ -81,11 +88,18 @@ func (r *HuaWei) RefreshPath(paths []string) bool {
 		}).Warning("初始化华为云CDN客户端失败")
 	}
 
-	client := cdn.NewCdnClient(cdn.CdnClientBuilder().
+	build, err := cdn.CdnClientBuilder().
 		WithRegion(region.CN_NORTH_1).
 		WithCredential(auth).
-		Build())
+		SafeBuild()
+	if err != nil {
+		facades.Log().Tags("CDN", "华为云").With(map[string]any{
+			"err": err.Error(),
+		}).Warning("初始化华为云CDN客户端失败")
 
+	}
+
+	client := cdn.NewCdnClient(build)
 	request := &model.CreateRefreshTasksRequest{}
 	typeRefreshTask := model.GetRefreshTaskRequestBodyTypeEnum().DIRECTORY
 	modeRefreshTask := model.GetRefreshTaskRequestBodyModeEnum().ALL
@@ -128,12 +142,18 @@ func (r *HuaWei) GetUsage(domain string, startTime, endTime carbon.Carbon) uint 
 		}).Warning("初始化华为云CDN客户端失败")
 	}
 
-	client := cdn.NewCdnClient(
-		cdn.CdnClientBuilder().
-			WithRegion(region.CN_NORTH_1).
-			WithCredential(auth).
-			Build())
+	build, err := cdn.CdnClientBuilder().
+		WithRegion(region.CN_NORTH_1).
+		WithCredential(auth).
+		SafeBuild()
+	if err != nil {
+		facades.Log().Tags("CDN", "华为云").With(map[string]any{
+			"err": err.Error(),
+		}).Warning("初始化华为云CDN客户端失败")
 
+	}
+
+	client := cdn.NewCdnClient(build)
 	request := &model.ShowDomainStatsRequest{}
 	request.Action = "summary"
 	request.StartTime = startTime.AddDay().TimestampMilli()
