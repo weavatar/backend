@@ -15,6 +15,7 @@ require (
 	github.com/goravel/fiber v1.1.11-0.20240302045937-5a7d285f866e
 	github.com/goravel/framework v1.13.1-0.20240302020320-df69512e577c
 	github.com/haozi-team/letteravatar v1.0.4
+	github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.1.84
 	github.com/iancoleman/strcase v0.3.0
 	github.com/imroc/req/v3 v3.42.3
 	github.com/ipsn/go-adorable v1.0.0
@@ -167,7 +168,7 @@ require (
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20201027041543-1326539a0a0a // indirect
-	go.mongodb.org/mongo-driver v1.11.6 // indirect
+	go.mongodb.org/mongo-driver v1.12.0 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.47.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.47.0 // indirect
@@ -207,3 +208,5 @@ require (
 	modernc.org/memory v1.7.2 // indirect
 	modernc.org/sqlite v1.28.0 // indirect
 )
+
+replace github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.1.84 => github.com/devhaozi/huaweicloud-sdk-go-v3 v0.1.85-0.20240306131341-3bfacd6a8e63

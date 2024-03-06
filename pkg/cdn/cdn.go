@@ -48,6 +48,11 @@ func NewCDN() CDN {
 				internalCDN.Driver = append(internalCDN.Driver, &BaiShan{
 					Token: config["token"],
 				})
+			case "huawei":
+				internalCDN.Driver = append(internalCDN.Driver, &HuaWei{
+					AccessKey: config["access_key"],
+					SecretKey: config["secret_key"],
+				})
 			case "yundun":
 				internalCDN.Driver = append(internalCDN.Driver, &YunDun{
 					UserName: config["username"],
