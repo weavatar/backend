@@ -14,6 +14,7 @@ import (
 	requests "weavatar/app/http/requests/avatar"
 	"weavatar/app/models"
 	"weavatar/app/services"
+	packagecdn "weavatar/pkg/cdn"
 	"weavatar/pkg/helper"
 )
 
@@ -210,6 +211,11 @@ func (r *AvatarController) Store(ctx http.Context) http.Response {
 		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
 	}
 
+	go func() {
+		cdn := packagecdn.NewCDN()
+		cdn.RefreshUrl([]string{"weavatar.com/avatar/" + avatar.MD5, "weavatar.com/avatar/" + avatar.SHA256})
+	}()
+
 	return Success(ctx, nil)
 }
 
@@ -279,6 +285,11 @@ func (r *AvatarController) Update(ctx http.Context) http.Response {
 		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
 	}
 
+	go func() {
+		cdn := packagecdn.NewCDN()
+		cdn.RefreshUrl([]string{"weavatar.com/avatar/" + avatar.MD5, "weavatar.com/avatar/" + avatar.SHA256})
+	}()
+
 	return Success(ctx, nil)
 }
 
@@ -313,6 +324,11 @@ func (r *AvatarController) Destroy(ctx http.Context) http.Response {
 		facades.Log().Error("[AvatarController][Destroy] 删除用户头像失败 ", err.Error())
 		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
 	}
+
+	go func() {
+		cdn := packagecdn.NewCDN()
+		cdn.RefreshUrl([]string{"weavatar.com/avatar/" + avatar.MD5, "weavatar.com/avatar/" + avatar.SHA256})
+	}()
 
 	return Success(ctx, nil)
 }
