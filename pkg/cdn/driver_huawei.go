@@ -156,8 +156,8 @@ func (r *HuaWei) GetUsage(domain string, startTime, endTime carbon.Carbon) uint 
 	client := cdn.NewCdnClient(build)
 	request := &model.ShowDomainStatsRequest{}
 	request.Action = "summary"
-	request.StartTime = startTime.AddDay().TimestampMilli()
-	request.EndTime = endTime.AddDay().TimestampMilli()
+	request.StartTime = startTime.TimestampMilli()
+	request.EndTime = endTime.TimestampMilli()
 	request.DomainName = domain
 	request.StatType = "req_num"
 	response, err := client.ShowDomainStats(request)
