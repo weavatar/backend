@@ -8,16 +8,16 @@ require (
 	github.com/alibabacloud-go/green-20220302 v1.3.1
 	github.com/alibabacloud-go/tea v1.2.2
 	github.com/alibabacloud-go/tea-utils/v2 v2.0.5
-	github.com/cloudflare/cloudflare-go v0.89.0
+	github.com/cloudflare/cloudflare-go v0.92.0
 	github.com/gertd/go-pluralize v0.2.1
 	github.com/goki/freetype v1.0.5
 	github.com/gookit/color v1.5.4
 	github.com/goravel/fiber v1.1.11-0.20240302045937-5a7d285f866e
 	github.com/goravel/framework v1.13.1-0.20240302020320-df69512e577c
 	github.com/haozi-team/letteravatar v1.0.4
-	github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.1.84
+	github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.1.88
 	github.com/iancoleman/strcase v0.3.0
-	github.com/imroc/req/v3 v3.43.0
+	github.com/imroc/req/v3 v3.43.1
 	github.com/ipsn/go-adorable v1.0.0
 	github.com/issue9/identicon/v2 v2.1.2
 	github.com/jdcloud-api/jdcloud-sdk-go v1.62.0
@@ -28,7 +28,7 @@ require (
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.857
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.857
 	google.golang.org/grpc v1.62.1
-	gorm.io/gorm v1.25.7
+	gorm.io/gorm v1.25.9
 )
 
 require (
