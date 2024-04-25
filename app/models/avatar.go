@@ -8,7 +8,7 @@ type Avatar struct {
 	SHA256    string          `gorm:"primaryKey" json:"sha256"`
 	MD5       string          `json:"md5"`
 	Raw       string          `json:"raw"`
-	UserID    uint            `json:"user_id"`
+	UserID    string          `json:"user_id"`
 	CreatedAt carbon.DateTime `gorm:"autoCreateTime;column:created_at" json:"created_at"`
 	UpdatedAt carbon.DateTime `gorm:"autoUpdateTime;column:updated_at" json:"updated_at"`
 

@@ -1,9 +1,9 @@
 CREATE TABLE images
 (
-    hash       CHAR(32) PRIMARY KEY  NOT NULL,
+    hash       TEXT PRIMARY KEY      NOT NULL,
     ban        BOOLEAN DEFAULT FALSE NOT NULL,
-    created_at TIMESTAMP             NOT NULL,
-    updated_at TIMESTAMP             NOT NULL
+    created_at TIMESTAMP(0)          NOT NULL,
+    updated_at TIMESTAMP(0)          NOT NULL
 );
 
 COMMENT ON TABLE images IS '图片';

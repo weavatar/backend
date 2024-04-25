@@ -173,7 +173,7 @@ func (r *AvatarImpl) GetQQ(hash string) (qq int, img []byte, lastModified carbon
 		"nk": qqStr,
 		"s":  "640",
 	}).Get("http://q1.qlogo.cn/g")
-	if !resp.IsSuccessState() {
+	if resp != nil && !resp.IsSuccessState() {
 		if reqErr != nil {
 			return 0, nil, carbon.Now(), reqErr
 		} else {
@@ -189,7 +189,7 @@ func (r *AvatarImpl) GetQQ(hash string) (qq int, img []byte, lastModified carbon
 			"nk": qqStr,
 			"s":  "100",
 		}).Get("http://q1.qlogo.cn/g")
-		if !resp.IsSuccessState() {
+		if resp != nil && !resp.IsSuccessState() {
 			if reqErr != nil {
 				return 0, nil, carbon.Now(), reqErr
 			} else {
@@ -444,7 +444,7 @@ func (r *AvatarImpl) GetAvatar(appid uint, hash string, defaultAvatar string, op
 		return r.checkBan(img, avatar.SHA256, appid), lastModified, "weavatar", nil
 	}
 
-	if avatar.UserID != 0 {
+	if avatar.UserID != "" {
 		img, err = os.ReadFile(facades.Storage().Path("upload/default/" + avatar.SHA256[:2] + "/" + avatar.SHA256))
 		if err == nil {
 			lastModified = avatar.UpdatedAt.Carbon
@@ -477,8 +477,8 @@ func (r *AvatarImpl) getAppAvatar(appid uint, sha256 string) (img []byte, lastMo
 		return nil, carbon.Now(), err
 	}
 
-	if appAvatar.AppID != 0 {
-		img, err = os.ReadFile(facades.Storage().Path("upload/app/" + strconv.Itoa(int(appAvatar.AppID)) + "/" + sha256[:2] + "/" + sha256))
+	if appAvatar.AppID != "" {
+		img, err = os.ReadFile(facades.Storage().Path("upload/app/" + appAvatar.AppID + "/" + sha256[:2] + "/" + sha256))
 		if err == nil {
 			lastModified = appAvatar.UpdatedAt.Carbon
 			return img, lastModified, nil

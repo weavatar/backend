@@ -5,8 +5,8 @@ import (
 )
 
 type App struct {
-	ID        uint            `gorm:"primaryKey" json:"id"`
-	UserID    uint            `json:"user_id"`
+	ID        string          `gorm:"primaryKey" json:"id"`
+	UserID    string          `json:"user_id"`
 	Name      string          `json:"name"`
 	Secret    string          `json:"-"`
 	CreatedAt carbon.DateTime `gorm:"autoCreateTime;column:created_at" json:"created_at"`

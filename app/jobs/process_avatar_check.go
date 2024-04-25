@@ -2,7 +2,6 @@ package jobs
 
 import (
 	"errors"
-	"strconv"
 	"time"
 
 	"github.com/goravel/framework/facades"
@@ -119,8 +118,8 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 			}).Warning("图片审核[数据查询失败]")
 			return err
 		}
-		if exist := facades.Storage().Exists("upload/app/" + strconv.Itoa(int(avatar.AppID)) + "/" + hash[:2] + "/" + hash); exist {
-			fileString, fileErr := facades.Storage().Get("upload/app/" + strconv.Itoa(int(avatar.AppID)) + "/" + hash[:2] + "/" + hash)
+		if exist := facades.Storage().Exists("upload/app/" + avatar.AppID + "/" + hash[:2] + "/" + hash); exist {
+			fileString, fileErr := facades.Storage().Get("upload/app/" + avatar.AppID + "/" + hash[:2] + "/" + hash)
 			if fileErr != nil {
 				facades.Log().With(map[string]any{
 					"avatarSHA256": hash,
