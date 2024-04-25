@@ -3,9 +3,9 @@ CREATE TABLE avatars
     sha256     TEXT PRIMARY KEY NOT NULL,
     md5        TEXT UNIQUE      NOT NULL,
     raw        TEXT UNIQUE      NOT NULL,
-    user_id    BIGINT           NOT NULL,
-    created_at TIMESTAMP        NOT NULL,
-    updated_at TIMESTAMP        NOT NULL
+    user_id    TEXT             NOT NULL,
+    created_at TIMESTAMP(0)     NOT NULL,
+    updated_at TIMESTAMP(0)     NOT NULL
 );
 
 COMMENT ON TABLE avatars IS '头像';

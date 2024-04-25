@@ -1,15 +1,15 @@
 CREATE TABLE users
 (
-    id         BIGINT PRIMARY KEY      NOT NULL,
-    open_id    CHAR(32) UNIQUE         NOT NULL,
-    union_id   CHAR(32) UNIQUE         NOT NULL,
-    nickname   TEXT                    NOT NULL,
-    avatar     TEXT                    NOT NULL,
-    is_admin   BOOLEAN   DEFAULT FALSE NOT NULL,
-    real_name  BOOLEAN   DEFAULT FALSE NOT NULL,
-    created_at TIMESTAMP               NOT NULL,
-    updated_at TIMESTAMP               NOT NULL,
-    deleted_at TIMESTAMP DEFAULT NULL
+    id         TEXT PRIMARY KEY           NOT NULL,
+    open_id    TEXT UNIQUE                NOT NULL,
+    union_id   TEXT UNIQUE                NOT NULL,
+    nickname   TEXT                       NOT NULL,
+    avatar     TEXT                       NOT NULL,
+    is_admin   BOOLEAN      DEFAULT FALSE NOT NULL,
+    real_name  BOOLEAN      DEFAULT FALSE NOT NULL,
+    created_at TIMESTAMP(0)               NOT NULL,
+    updated_at TIMESTAMP(0)               NOT NULL,
+    deleted_at TIMESTAMP(0) DEFAULT NULL
 );
 
 COMMENT ON TABLE users IS '用户';

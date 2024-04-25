@@ -68,14 +68,8 @@ func (r *UserController) OauthCallback(ctx http.Context) http.Response {
 		return Error(ctx, http.StatusInternalServerError, "获取用户信息失败")
 	}
 
-	userID, idErr := id.NewRatID().Generate()
-	if idErr != nil {
-		facades.Log().Error("[UserController][OauthCallback] 生成用户ID失败 ", idErr.Error())
-		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
-	}
-
 	var user models.User
-	if err := facades.Orm().Query().FirstOrCreate(&user, models.User{OpenID: userInfo.Data.OpenID, UnionID: userInfo.Data.UnionID}, models.User{ID: userID, Nickname: userInfo.Data.Nickname, Avatar: "https://weavatar.com/avatar/?d=mp"}); err != nil {
+	if err := facades.Orm().Query().FirstOrCreate(&user, models.User{OpenID: userInfo.Data.OpenID, UnionID: userInfo.Data.UnionID}, models.User{ID: id.Generate(), Nickname: userInfo.Data.Nickname, Avatar: "https://weavatar.com/avatar/?d=mp"}); err != nil {
 		facades.Log().Error("[UserController][OauthCallback] 查询用户失败 ", err.Error())
 		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
 	}

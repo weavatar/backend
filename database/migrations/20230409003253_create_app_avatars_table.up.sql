@@ -1,10 +1,10 @@
 CREATE TABLE app_avatars
 (
-    id            BIGINT PRIMARY KEY NOT NULL,
-    app_id        BIGINT             NOT NULL,
-    avatar_sha256 TEXT               NOT NULL,
-    created_at    TIMESTAMP          NOT NULL,
-    updated_at    TIMESTAMP          NOT NULL
+    id            TEXT PRIMARY KEY NOT NULL,
+    app_id        TEXT             NOT NULL,
+    avatar_sha256 TEXT             NOT NULL,
+    created_at    TIMESTAMP(0)     NOT NULL,
+    updated_at    TIMESTAMP(0)     NOT NULL
 );
 
 COMMENT ON TABLE app_avatars IS '应用头像';

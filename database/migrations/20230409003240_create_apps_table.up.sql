@@ -1,11 +1,11 @@
 CREATE TABLE apps
 (
-    id         BIGINT PRIMARY KEY NOT NULL,
-    user_id    BIGINT             NOT NULL,
-    name       TEXT               NOT NULL,
-    secret     TEXT               NOT NULL,
-    created_at TIMESTAMP          NOT NULL,
-    updated_at TIMESTAMP          NOT NULL
+    id         TEXT PRIMARY KEY NOT NULL,
+    user_id    TEXT             NOT NULL,
+    name       TEXT             NOT NULL,
+    secret     TEXT             NOT NULL,
+    created_at TIMESTAMP(0)     NOT NULL,
+    updated_at TIMESTAMP(0)     NOT NULL
 );
 
 COMMENT ON TABLE apps IS '应用';

@@ -141,7 +141,7 @@ func (r *AvatarController) Show(ctx http.Context) http.Response {
 		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
 	}
 
-	if avatar.UserID == 0 {
+	if avatar.UserID == "" {
 		return Error(ctx, http.StatusNotFound, "头像不存在")
 	}
 
@@ -244,7 +244,7 @@ func (r *AvatarController) Update(ctx http.Context) http.Response {
 		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
 	}
 
-	if avatar.UserID == 0 {
+	if avatar.UserID == "" {
 		return Error(ctx, http.StatusNotFound, "头像不存在")
 	}
 
@@ -311,7 +311,7 @@ func (r *AvatarController) Destroy(ctx http.Context) http.Response {
 		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
 	}
 
-	if avatar.UserID == 0 {
+	if avatar.UserID == "" {
 		return Error(ctx, http.StatusNotFound, "头像不存在")
 	}
 
