@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	openapi "github.com/alibabacloud-go/darabonba-openapi/v2/client"
-	green20220302 "github.com/alibabacloud-go/green-20220302/client"
+	green20220302 "github.com/alibabacloud-go/green-20220302/v2/client"
 	util "github.com/alibabacloud-go/tea-utils/v2/service"
 	"github.com/alibabacloud-go/tea/tea"
 	"github.com/goravel/framework/support/json"

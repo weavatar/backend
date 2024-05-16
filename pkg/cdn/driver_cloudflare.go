@@ -4,7 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/cloudflare/cloudflare-go"
+	"github.com/cloudflare/cloudflare-go/v2"
+	"github.com/cloudflare/cloudflare-go/v2/cache"
+	"github.com/cloudflare/cloudflare-go/v2/option"
 	"github.com/goravel/framework/facades"
 	"github.com/goravel/framework/support/carbon"
 	"github.com/imroc/req/v3"
@@ -39,28 +41,35 @@ type CloudFlareHttpRequests struct {
 
 // RefreshUrl 刷新URL
 func (s *CloudFlare) RefreshUrl(urls []string) bool {
-	api, err := cloudflare.New(s.Key, s.Email)
-	if err != nil {
-		facades.Log().Tags("CDN", "CloudFlare").With(map[string]any{
-			"err": err.Error(),
-		}).Warning("初始化失败")
-		return false
+	client := cloudflare.NewClient(
+		option.WithAPIKey(s.Key),
+		option.WithAPIEmail(s.Email),
+	)
+
+	var newUrls []cache.CachePurgeParamsBodyCachePurgeFilesFileUnion
+	for _, url := range urls {
+		newUrls = append(newUrls, cache.CachePurgeParamsBodyCachePurgeFilesFile{
+			URL: cloudflare.F(url),
+		})
 	}
 
-	resp, err := api.PurgeCache(context.Background(), s.ZoneID, cloudflare.PurgeCacheRequest{
-		Files: urls,
+	resp, err := client.Cache.Purge(context.Background(), cache.CachePurgeParams{
+		ZoneID: cloudflare.F(s.ZoneID),
+		Body: cache.CachePurgeParamsBodyCachePurgeFiles{
+			Files: cloudflare.F(newUrls),
+		},
 	})
 	if err != nil {
 		facades.Log().Tags("CDN", "CloudFlare").With(map[string]any{
 			"err":  err.Error(),
 			"resp": resp,
-		}).Warning("URL缓存刷新失败")
+		}).Warning("缓存刷新失败")
 		return false
 	}
-	if !resp.Response.Success {
+	if resp.ID == "" {
 		facades.Log().Tags("CDN", "CloudFlare").With(map[string]any{
-			"resp": resp.Response.Errors,
-		}).Warning("URL缓存刷新失败")
+			"resp": resp.JSON.RawJSON(),
+		}).Warning("缓存刷新失败")
 		return false
 	}
 
@@ -69,32 +78,7 @@ func (s *CloudFlare) RefreshUrl(urls []string) bool {
 
 // RefreshPath 刷新路径
 func (s *CloudFlare) RefreshPath(paths []string) bool {
-	api, err := cloudflare.New(s.Key, s.Email)
-	if err != nil {
-		facades.Log().Tags("CDN", "CloudFlare").With(map[string]any{
-			"err": err.Error(),
-		}).Warning("初始化失败")
-		return false
-	}
-
-	resp, err := api.PurgeCache(context.Background(), s.ZoneID, cloudflare.PurgeCacheRequest{
-		Files: paths,
-	})
-	if err != nil {
-		facades.Log().Tags("CDN", "CloudFlare").With(map[string]any{
-			"err":  err.Error(),
-			"resp": resp,
-		}).Warning("路径缓存刷新失败")
-		return false
-	}
-	if !resp.Response.Success {
-		facades.Log().Tags("CDN", "CloudFlare").With(map[string]any{
-			"resp": resp.Response.Errors,
-		}).Warning("路径缓存刷新失败")
-		return false
-	}
-
-	return true
+	return s.RefreshUrl(paths)
 }
 
 // GetUsage 获取用量
