@@ -14,6 +14,8 @@ func init() {
 		// HTTP Drivers
 		"drivers": map[string]any{
 			"fiber": map[string]any{
+				// prefork mode, see https://docs.gofiber.io/api/fiber/#config
+				"prefork": false,
 				// Optional, default is 4096 KB
 				"body_limit":   102400,
 				"header_limit": 10240,
