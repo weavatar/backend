@@ -1,4 +1,5 @@
 name: Lint
+
 on:
   push:
     branches:
@@ -8,22 +9,15 @@ on:
 permissions:
   contents: read
 
-env:
-  GO111MODULE: on
-  GOPROXY: https://goproxy.cn,direct
-  http_proxy: ${{ vars.HTTP_PROXY }}
-  https_proxy: ${{ vars.HTTPS_PROXY }}
-
 jobs:
   lint:
     name: lint
     runs-on: ubuntu-latest
     steps:
-      - uses: https://code.haozi.net/actions/checkout@v4
-      - uses: https://code.haozi.net/actions/setup-go@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
         with:
           go-version: 'stable'
-          cache: false
       - name: Lint
         uses: golangci/golangci-lint-action@v6
         with:

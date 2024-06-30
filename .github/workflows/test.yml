@@ -1,25 +1,19 @@
 name: Test
+
 on:
   push:
     branches:
       - main
   pull_request:
 
-env:
-  GO111MODULE: on
-  GOPROXY: https://goproxy.cn,direct
-  http_proxy: ${{ vars.HTTP_PROXY }}
-  https_proxy: ${{ vars.HTTPS_PROXY }}
-
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: https://code.haozi.net/actions/checkout@v4
-      - uses: https://code.haozi.net/actions/setup-go@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
         with:
           go-version: 'stable'
-          cache: false
       - name: Set up environment
         run: |
           cp .env.example .env
