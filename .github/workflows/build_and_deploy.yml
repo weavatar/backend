@@ -42,12 +42,12 @@ jobs:
           sudo apt-get install -y openssh-client sshpass
       - name: Deploy to development
         env:
-          SSHPASS: ${{ secrets.DEVELOPMENT_SERVER_PASSWORD }}
+          SSHPASS: ${{ secrets.SERVER_PASSWORD }}
         run: |
           mv ${{ vars.PROJECT_NAME }} ${{ vars.PROJECT_NAME }}@new
-          sshpass -e scp -o StrictHostKeyChecking=no -P ${{ secrets.DEVELOPMENT_SERVER_PORT }} -r ${{ vars.PROJECT_NAME }}@new database public storage ${{ secrets.DEVELOPMENT_SERVER_USER }}@${{ secrets.DEVELOPMENT_SERVER_IP }}:${{ secrets.DEVELOPMENT_SERVER_PATH }}
-          sshpass -e ssh -o StrictHostKeyChecking=no -p ${{ secrets.DEVELOPMENT_SERVER_PORT }} ${{ secrets.DEVELOPMENT_SERVER_USER }}@${{ secrets.DEVELOPMENT_SERVER_IP }} "supervisorctl stop ${{ vars.PROJECT_NAME }}" || true
-          sshpass -e ssh -o StrictHostKeyChecking=no -p ${{ secrets.DEVELOPMENT_SERVER_PORT }} ${{ secrets.DEVELOPMENT_SERVER_USER }}@${{ secrets.DEVELOPMENT_SERVER_IP }} "rm -f ${{ secrets.DEVELOPMENT_SERVER_PATH }}/${{ vars.PROJECT_NAME }} && mv ${{ secrets.DEVELOPMENT_SERVER_PATH }}/${{ vars.PROJECT_NAME }}@new ${{ secrets.DEVELOPMENT_SERVER_PATH }}/${{ vars.PROJECT_NAME }} && chmod -R 755 ${{ secrets.DEVELOPMENT_SERVER_PATH }} && chown -R www:www ${{ secrets.DEVELOPMENT_SERVER_PATH }} && supervisorctl start ${{ vars.PROJECT_NAME }}"
+          sshpass -e scp -o StrictHostKeyChecking=no -P ${{ secrets.SERVER_PORT }} -r ${{ vars.PROJECT_NAME }}@new database public storage ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:${{ secrets.SERVER_PATH }}
+          sshpass -e ssh -o StrictHostKeyChecking=no -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "supervisorctl stop ${{ vars.PROJECT_NAME }}" || true
+          sshpass -e ssh -o StrictHostKeyChecking=no -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "rm -f ${{ secrets.SERVER_PATH }}/${{ vars.PROJECT_NAME }} && mv ${{ secrets.SERVER_PATH }}/${{ vars.PROJECT_NAME }}@new ${{ secrets.SERVER_PATH }}/${{ vars.PROJECT_NAME }} && chmod -R 755 ${{ secrets.SERVER_PATH }} && chown -R www:www ${{ secrets.SERVER_PATH }} && supervisorctl start ${{ vars.PROJECT_NAME }}"
   deploy_production:
     runs-on: ubuntu-latest
     needs: build
@@ -65,9 +65,9 @@ jobs:
           sudo apt-get install -y openssh-client sshpass
       - name: Deploy to production
         env:
-          SSHPASS: ${{ secrets.PRODUCTION_SERVER_PASSWORD }}
+          SSHPASS: ${{ secrets.SERVER_PASSWORD }}
         run: |
           mv ${{ vars.PROJECT_NAME }} ${{ vars.PROJECT_NAME }}@new
-          sshpass -e scp -o StrictHostKeyChecking=no -P ${{ secrets.PRODUCTION_SERVER_PORT }} -r ${{ vars.PROJECT_NAME }}@new database public storage ${{ secrets.PRODUCTION_SERVER_USER }}@${{ secrets.PRODUCTION_SERVER_IP }}:${{ secrets.PRODUCTION_SERVER_PATH }}
-          sshpass -e ssh -o StrictHostKeyChecking=no -p ${{ secrets.PRODUCTION_SERVER_PORT }} ${{ secrets.PRODUCTION_SERVER_USER }}@${{ secrets.PRODUCTION_SERVER_IP }} "supervisorctl stop ${{ vars.PROJECT_NAME }}" || true
-          sshpass -e ssh -o StrictHostKeyChecking=no -p ${{ secrets.PRODUCTION_SERVER_PORT }} ${{ secrets.PRODUCTION_SERVER_USER }}@${{ secrets.PRODUCTION_SERVER_IP }} "rm -f ${{ secrets.PRODUCTION_SERVER_PATH }}/${{ vars.PROJECT_NAME }} && mv ${{ secrets.PRODUCTION_SERVER_PATH }}/${{ vars.PROJECT_NAME }}@new ${{ secrets.PRODUCTION_SERVER_PATH }}/${{ vars.PROJECT_NAME }} && chmod -R 755 ${{ secrets.PRODUCTION_SERVER_PATH }} && chown -R www:www ${{ secrets.PRODUCTION_SERVER_PATH }} && supervisorctl start ${{ vars.PROJECT_NAME }}"
+          sshpass -e scp -o StrictHostKeyChecking=no -P ${{ secrets.SERVER_PORT }} -r ${{ vars.PROJECT_NAME }}@new database public storage ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:${{ secrets.SERVER_PATH }}
+          sshpass -e ssh -o StrictHostKeyChecking=no -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "supervisorctl stop ${{ vars.PROJECT_NAME }}" || true
+          sshpass -e ssh -o StrictHostKeyChecking=no -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "rm -f ${{ secrets.SERVER_PATH }}/${{ vars.PROJECT_NAME }} && mv ${{ secrets.SERVER_PATH }}/${{ vars.PROJECT_NAME }}@new ${{ secrets.SERVER_PATH }}/${{ vars.PROJECT_NAME }} && chmod -R 755 ${{ secrets.SERVER_PATH }} && chown -R www:www ${{ secrets.SERVER_PATH }} && supervisorctl start ${{ vars.PROJECT_NAME }}"
