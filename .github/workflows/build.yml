@@ -29,6 +29,7 @@ jobs:
             storage
   deploy:
     strategy:
+      fail-fast: false
       matrix:
         isMain:
           - ${{ github.ref == 'refs/heads/main' }}
