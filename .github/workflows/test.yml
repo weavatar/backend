@@ -18,5 +18,4 @@ jobs:
         run: |
           cp .env.example .env
           go run . artisan key:generate
-      - name: Run tests
-        run: go test -v -coverprofile=coverage.txt -covermode=atomic ./...
+      - run: go test -v -coverprofile=coverage.txt -covermode=atomic ./...
