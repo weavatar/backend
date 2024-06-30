@@ -722,11 +722,10 @@ github.com/stvp/tempredis v0.0.0-20181119212430-b82af8480203 h1:QVqDTf3h2WHt08Yu
 github.com/stvp/tempredis v0.0.0-20181119212430-b82af8480203/go.mod h1:oqN97ltKNihBbwlX8dLpwxCl3+HnXKV/R0e+sRLd9C8=
 github.com/subosito/gotenv v1.6.0 h1:9NlTDc1FTs4qu0DDq7AEtTPNw6SVm7uBMsUCUjABIf8=
 github.com/subosito/gotenv v1.6.0/go.mod h1:Dk4QP5c2W3ibzajGcXpNraDfq2IrhjMIvMSWPKKo0FU=
-github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.952/go.mod h1:r5r4xbfxSaeR04b166HGsBa/R4U3SueirEUpXGuw+Q0=
 github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.953 h1:TgHZNUPE/ushXlqpKkLyiWCktnKqZ813Cimr1NCU/hs=
 github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.953/go.mod h1:r5r4xbfxSaeR04b166HGsBa/R4U3SueirEUpXGuw+Q0=
-github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.952 h1:TlMQbulCd4EJD+H6a1EPcDD6B9f1bkJT4w5OxRqZidc=
-github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.952/go.mod h1:C9zsGXKJ4FnERStatX3Hybi4ZN+NibXEpc4wRKYOan0=
+github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.953 h1:8fl+yYozatLQ1ok3OtR8uoCGqF1ngGt/Oo9XLNjAzqY=
+github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.953/go.mod h1:vZWRkB/SR+nccxpb9YdC9LL8OcEf0ddVKPYGSoC7iMM=
 github.com/tidwall/gjson v1.14.2/go.mod h1:/wbyibRr2FHMks5tjHJ5F8dMZh3AcwJEMf5vlfC0lxk=
 github.com/tidwall/gjson v1.14.4 h1:uo0p8EbA09J7RQaflQ1aBRffTR7xedD2bcIVSYxLnkM=
 github.com/tidwall/gjson v1.14.4/go.mod h1:/wbyibRr2FHMks5tjHJ5F8dMZh3AcwJEMf5vlfC0lxk=
