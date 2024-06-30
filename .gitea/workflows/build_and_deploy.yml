@@ -5,27 +5,20 @@ on:
       - main
   pull_request:
 
-env:
-  GO111MODULE: on
-  GOPROXY: https://goproxy.cn,direct
-  http_proxy: ${{ vars.HTTP_PROXY }}
-  https_proxy: ${{ vars.HTTPS_PROXY }}
-
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: https://code.haozi.net/actions/checkout@v4
-      - uses: https://code.haozi.net/actions/setup-go@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
         with:
           go-version: 'stable'
-          cache: false
       - name: Build
         run: |
           go mod download
           CGO_ENABLED=0 GOAMD64=v3 go build -ldflags '-s -w --extldflags "-static"' -o ${{ vars.PROJECT_NAME }}
       - name: Upload artifact
-        uses: https://code.haozi.net/actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ vars.PROJECT_NAME }}
           path: |
@@ -39,7 +32,7 @@ jobs:
     environment: development
     steps:
       - name: Download artifact
-        uses: https://code.haozi.net/actions/download-artifact@v3
+        uses: actions/download-artifact@v3
         with:
           name: ${{ vars.PROJECT_NAME }}
           path: .
@@ -52,9 +45,9 @@ jobs:
           SSHPASS: ${{ secrets.DEVELOPMENT_SERVER_PASSWORD }}
         run: |
           mv ${{ vars.PROJECT_NAME }} ${{ vars.PROJECT_NAME }}@new
-          sshpass -e scp -o StrictHostKeyChecking=no -P ${{ vars.DEVELOPMENT_SERVER_PORT }} -r ${{ vars.PROJECT_NAME }}@new database public storage ${{ vars.DEVELOPMENT_SERVER_USER }}@${{ secrets.DEVELOPMENT_SERVER_IP }}:${{ vars.DEVELOPMENT_SERVER_PATH }}
-          sshpass -e ssh -o StrictHostKeyChecking=no -p ${{ vars.DEVELOPMENT_SERVER_PORT }} ${{ vars.DEVELOPMENT_SERVER_USER }}@${{ secrets.DEVELOPMENT_SERVER_IP }} "supervisorctl stop ${{ vars.PROJECT_NAME }}" || true
-          sshpass -e ssh -o StrictHostKeyChecking=no -p ${{ vars.DEVELOPMENT_SERVER_PORT }} ${{ vars.DEVELOPMENT_SERVER_USER }}@${{ secrets.DEVELOPMENT_SERVER_IP }} "rm -f ${{ vars.DEVELOPMENT_SERVER_PATH }}/${{ vars.PROJECT_NAME }} && mv ${{ vars.DEVELOPMENT_SERVER_PATH }}/${{ vars.PROJECT_NAME }}@new ${{ vars.DEVELOPMENT_SERVER_PATH }}/${{ vars.PROJECT_NAME }} && chmod -R 755 ${{ vars.DEVELOPMENT_SERVER_PATH }} && chown -R www:www ${{ vars.DEVELOPMENT_SERVER_PATH }} && supervisorctl start ${{ vars.PROJECT_NAME }}"
+          sshpass -e scp -o StrictHostKeyChecking=no -P ${{ secrets.DEVELOPMENT_SERVER_PORT }} -r ${{ vars.PROJECT_NAME }}@new database public storage ${{ secrets.DEVELOPMENT_SERVER_USER }}@${{ secrets.DEVELOPMENT_SERVER_IP }}:${{ secrets.DEVELOPMENT_SERVER_PATH }}
+          sshpass -e ssh -o StrictHostKeyChecking=no -p ${{ secrets.DEVELOPMENT_SERVER_PORT }} ${{ secrets.DEVELOPMENT_SERVER_USER }}@${{ secrets.DEVELOPMENT_SERVER_IP }} "supervisorctl stop ${{ vars.PROJECT_NAME }}" || true
+          sshpass -e ssh -o StrictHostKeyChecking=no -p ${{ secrets.DEVELOPMENT_SERVER_PORT }} ${{ secrets.DEVELOPMENT_SERVER_USER }}@${{ secrets.DEVELOPMENT_SERVER_IP }} "rm -f ${{ secrets.DEVELOPMENT_SERVER_PATH }}/${{ vars.PROJECT_NAME }} && mv ${{ secrets.DEVELOPMENT_SERVER_PATH }}/${{ vars.PROJECT_NAME }}@new ${{ secrets.DEVELOPMENT_SERVER_PATH }}/${{ vars.PROJECT_NAME }} && chmod -R 755 ${{ secrets.DEVELOPMENT_SERVER_PATH }} && chown -R www:www ${{ secrets.DEVELOPMENT_SERVER_PATH }} && supervisorctl start ${{ vars.PROJECT_NAME }}"
   deploy_production:
     runs-on: ubuntu-latest
     needs: build
@@ -62,7 +55,7 @@ jobs:
     environment: production
     steps:
       - name: Download artifact
-        uses: https://code.haozi.net/actions/download-artifact@v3
+        uses: actions/download-artifact@v3
         with:
           name: ${{ vars.PROJECT_NAME }}
           path: .
@@ -75,6 +68,6 @@ jobs:
           SSHPASS: ${{ secrets.PRODUCTION_SERVER_PASSWORD }}
         run: |
           mv ${{ vars.PROJECT_NAME }} ${{ vars.PROJECT_NAME }}@new
-          sshpass -e scp -o StrictHostKeyChecking=no -P ${{ vars.PRODUCTION_SERVER_PORT }} -r ${{ vars.PROJECT_NAME }}@new database public storage ${{ vars.PRODUCTION_SERVER_USER }}@${{ secrets.PRODUCTION_SERVER_IP }}:${{ vars.PRODUCTION_SERVER_PATH }}
-          sshpass -e ssh -o StrictHostKeyChecking=no -p ${{ vars.PRODUCTION_SERVER_PORT }} ${{ vars.PRODUCTION_SERVER_USER }}@${{ secrets.PRODUCTION_SERVER_IP }} "supervisorctl stop ${{ vars.PROJECT_NAME }}" || true
-          sshpass -e ssh -o StrictHostKeyChecking=no -p ${{ vars.PRODUCTION_SERVER_PORT }} ${{ vars.PRODUCTION_SERVER_USER }}@${{ secrets.PRODUCTION_SERVER_IP }} "rm -f ${{ vars.PRODUCTION_SERVER_PATH }}/${{ vars.PROJECT_NAME }} && mv ${{ vars.PRODUCTION_SERVER_PATH }}/${{ vars.PROJECT_NAME }}@new ${{ vars.PRODUCTION_SERVER_PATH }}/${{ vars.PROJECT_NAME }} && chmod -R 755 ${{ vars.PRODUCTION_SERVER_PATH }} && chown -R www:www ${{ vars.PRODUCTION_SERVER_PATH }} && supervisorctl start ${{ vars.PROJECT_NAME }}"
+          sshpass -e scp -o StrictHostKeyChecking=no -P ${{ secrets.PRODUCTION_SERVER_PORT }} -r ${{ vars.PROJECT_NAME }}@new database public storage ${{ secrets.PRODUCTION_SERVER_USER }}@${{ secrets.PRODUCTION_SERVER_IP }}:${{ secrets.PRODUCTION_SERVER_PATH }}
+          sshpass -e ssh -o StrictHostKeyChecking=no -p ${{ secrets.PRODUCTION_SERVER_PORT }} ${{ secrets.PRODUCTION_SERVER_USER }}@${{ secrets.PRODUCTION_SERVER_IP }} "supervisorctl stop ${{ vars.PROJECT_NAME }}" || true
+          sshpass -e ssh -o StrictHostKeyChecking=no -p ${{ secrets.PRODUCTION_SERVER_PORT }} ${{ secrets.PRODUCTION_SERVER_USER }}@${{ secrets.PRODUCTION_SERVER_IP }} "rm -f ${{ secrets.PRODUCTION_SERVER_PATH }}/${{ vars.PROJECT_NAME }} && mv ${{ secrets.PRODUCTION_SERVER_PATH }}/${{ vars.PROJECT_NAME }}@new ${{ secrets.PRODUCTION_SERVER_PATH }}/${{ vars.PROJECT_NAME }} && chmod -R 755 ${{ secrets.PRODUCTION_SERVER_PATH }} && chown -R www:www ${{ secrets.PRODUCTION_SERVER_PATH }} && supervisorctl start ${{ vars.PROJECT_NAME }}"
