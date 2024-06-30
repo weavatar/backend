@@ -10,13 +10,11 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment}}
+    environment: ${{ inputs.environment }}
     steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
           name: ${{ vars.PROJECT_NAME }}
-          path: .
       - name: Set up SSH
         run: |
           sudo apt-get update
