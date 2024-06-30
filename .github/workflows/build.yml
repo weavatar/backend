@@ -30,6 +30,9 @@ jobs:
     strategy:
       matrix:
         target: [ development, production ]
+        exclude:
+          - target: production
+            if: ${{ gitea.ref != 'refs/heads/main' }}
     name: ${{ matrix.target }}
     needs: build
     uses: ./.github/workflows/deploy.yml
