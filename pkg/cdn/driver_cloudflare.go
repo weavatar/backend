@@ -46,18 +46,12 @@ func (s *CloudFlare) RefreshUrl(urls []string) bool {
 		option.WithAPIEmail(s.Email),
 	)
 
-	var newUrls []cache.CachePurgeParamsBodyCachePurgeFilesFileUnion
-	for _, url := range urls {
-		newUrls = append(newUrls, cache.CachePurgeParamsBodyCachePurgeFilesFile{
-			URL: cloudflare.F(url),
-		})
-	}
+	var newUrls cache.CachePurgeParamsBodyCachePurgeSingleFile
+	newUrls.Files = cloudflare.F(urls)
 
 	resp, err := client.Cache.Purge(context.Background(), cache.CachePurgeParams{
 		ZoneID: cloudflare.F(s.ZoneID),
-		Body: cache.CachePurgeParamsBodyCachePurgeFiles{
-			Files: cloudflare.F(newUrls),
-		},
+		Body:   newUrls,
 	})
 	if err != nil {
 		facades.Log().Tags("CDN", "CloudFlare").With(map[string]any{
