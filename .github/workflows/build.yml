@@ -29,7 +29,8 @@ jobs:
   deploy:
     strategy:
       matrix:
-        isMain: ${{ github.ref == 'refs/heads/main' }}
+        isMain:
+          - ${{ github.ref == 'refs/heads/main' }}
         environment: [ development, production ]
         exclude:
           - isMain: false
