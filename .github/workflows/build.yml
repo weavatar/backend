@@ -1,0 +1,39 @@
+name: Build
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: 'stable'
+      - name: Build
+        run: |
+          go mod download
+          CGO_ENABLED=0 GOAMD64=v3 go build -ldflags '-s -w --extldflags "-static"' -o ${{ vars.PROJECT_NAME }}
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ vars.PROJECT_NAME }}
+          path: |
+            ${{ vars.PROJECT_NAME }}
+            database
+            public
+            storage
+  deploy_development:
+    needs: build
+    uses: ./.github/workflows/deploy.yml
+      with:
+        environment: "development"
+  deploy_production:
+    needs: build
+    if: ${{ github.ref == 'refs/heads/main' }}
+    uses: ./.github/workflows/deploy.yml
+      with:
+        environment: "production"

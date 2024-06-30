@@ -1,0 +1,31 @@
+name: Deploy
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment}}
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ vars.PROJECT_NAME }}
+          path: .
+      - name: Set up SSH
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openssh-client sshpass
+      - name: Deploy to ${{ inputs.environment }}
+        env:
+          SSHPASS: ${{ secrets.SERVER_PASSWORD }}
+        run: |
+          mv ${{ vars.PROJECT_NAME }} ${{ vars.PROJECT_NAME }}@new
+          sshpass -e scp -o StrictHostKeyChecking=no -P ${{ secrets.SERVER_PORT }} -r ${{ vars.PROJECT_NAME }}@new database public storage ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:${{ secrets.SERVER_PATH }}
+          sshpass -e ssh -o StrictHostKeyChecking=no -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "supervisorctl stop ${{ vars.PROJECT_NAME }}" || true
+          sshpass -e ssh -o StrictHostKeyChecking=no -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "rm -f ${{ secrets.SERVER_PATH }}/${{ vars.PROJECT_NAME }} && mv ${{ secrets.SERVER_PATH }}/${{ vars.PROJECT_NAME }}@new ${{ secrets.SERVER_PATH }}/${{ vars.PROJECT_NAME }} && chmod -R 755 ${{ secrets.SERVER_PATH }} && chown -R www:www ${{ secrets.SERVER_PATH }} && supervisorctl start ${{ vars.PROJECT_NAME }}"
