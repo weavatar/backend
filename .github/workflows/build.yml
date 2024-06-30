@@ -27,13 +27,15 @@ jobs:
             public
             storage
   deploy_development:
+    name: Deploy to Development
     needs: build
     uses: ./.github/workflows/deploy.yml
-      with:
-        environment: "development"
+    with:
+      environment: "development"
   deploy_production:
+    name: Deploy to Production
     needs: build
     if: ${{ github.ref == 'refs/heads/main' }}
     uses: ./.github/workflows/deploy.yml
-      with:
-        environment: "production"
+    with:
+      environment: "production"
