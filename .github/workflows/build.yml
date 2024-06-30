@@ -29,13 +29,14 @@ jobs:
   deploy:
     strategy:
       matrix:
-        target: [ development, production ]
+        isMain: ${{ github.ref == 'refs/heads/main' }}
+        environment: [ development, production ]
         exclude:
-          - target: production
-            if: ${{ github.ref != 'refs/heads/main' }}
-    name: ${{ matrix.target }}
+          - isMain: false
+            environment: production
+    name: ${{ matrix.environment }}
     needs: build
     uses: ./.github/workflows/deploy.yml
     with:
-      environment: ${{ matrix.target }}
+      environment: ${{ matrix.environment }}
     secrets: inherit
