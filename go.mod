@@ -13,8 +13,8 @@ require (
 	github.com/goki/freetype v1.0.5
 	github.com/gookit/color v1.5.4
 	github.com/goravel-kit/geetest v1.1.0
-	github.com/goravel/fiber v1.2.1
-	github.com/goravel/framework v1.14.2
+	github.com/goravel/fiber v1.2.2
+	github.com/goravel/framework v1.14.3
 	github.com/haozi-team/letteravatar v1.0.4
 	github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.1.84
 	github.com/iancoleman/strcase v0.3.0
@@ -91,9 +91,9 @@ require (
 	github.com/go-resty/resty/v2 v2.12.0 // indirect
 	github.com/go-sql-driver/mysql v1.8.1 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
-	github.com/gofiber/fiber/v2 v2.52.4 // indirect
+	github.com/gofiber/fiber/v2 v2.52.5 // indirect
 	github.com/gofiber/template v1.8.3 // indirect
-	github.com/gofiber/template/html/v2 v2.1.1 // indirect
+	github.com/gofiber/template/html/v2 v2.1.2 // indirect
 	github.com/gofiber/utils v1.1.0 // indirect
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
