@@ -4,8 +4,6 @@ import (
 	"github.com/goravel-kit/geetest"
 	geetestfacades "github.com/goravel-kit/geetest/facades"
 	"github.com/goravel/framework/contracts/validation"
-	"github.com/goravel/framework/support/debug"
-	"github.com/goravel/framework/support/json"
 	"github.com/spf13/cast"
 )
 
@@ -19,14 +17,8 @@ func (receiver *Geetest) Signature() string {
 
 // Passes Determine if the validation rule passes.
 func (receiver *Geetest) Passes(data validation.Data, val any, options ...any) bool {
-	debug.Dump(val)
-	if t, ok := val.(geetest.Ticket); ok {
-		verify, _ := geetestfacades.Geetest().Verify(t)
-		return verify
-	}
-
-	ticket := make(map[string]string)
-	if err := json.UnmarshalString(cast.ToString(val), &ticket); err != nil {
+	ticket, err := cast.ToStringMapStringE(val)
+	if err != nil {
 		return false
 	}
 
