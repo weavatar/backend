@@ -39,6 +39,7 @@ func (r *SmsRequest) Messages(ctx http.Context) map[string]string {
 		"phone.phone":      "手机号格式不正确",
 		"use_for.required": "用途不能为空",
 		"use_for.in":       "用途不正确",
+		"captcha.required": "验证码不能为空",
 		"captcha.geetest":  "验证码校验失败（更换设备环境或刷新重试）",
 	}
 }
