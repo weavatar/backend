@@ -17,27 +17,24 @@ func (receiver *Geetest) Signature() string {
 
 // Passes Determine if the validation rule passes.
 func (receiver *Geetest) Passes(data validation.Data, val any, options ...any) bool {
-	captcha, err := cast.ToStringMapStringE(val)
+	ticket, err := cast.ToStringMapStringE(val)
 	if err != nil {
 		return false
 	}
 
 	keys := []string{"lot_number", "captcha_output", "pass_token", "gen_time"}
 	for _, key := range keys {
-		if _, ok := captcha[key]; !ok {
+		if _, ok := ticket[key]; !ok {
 			return false
 		}
 	}
 
-	verify, err := geetestfacades.Geetest().Verify(geetest.Ticket{
-		LotNumber:     captcha["lot_number"],
-		CaptchaOutput: captcha["captcha_output"],
-		PassToken:     captcha["pass_token"],
-		GenTime:       captcha["gen_time"],
+	verify, _ := geetestfacades.Geetest().Verify(geetest.Ticket{
+		LotNumber:     ticket["lot_number"],
+		CaptchaOutput: ticket["captcha_output"],
+		PassToken:     ticket["pass_token"],
+		GenTime:       ticket["gen_time"],
 	})
-	if err != nil {
-		return false
-	}
 
 	return verify
 }

@@ -3,10 +3,8 @@ package avatar
 import (
 	"strings"
 
-	"github.com/goravel-kit/geetest"
 	"github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/contracts/validation"
-	"github.com/goravel/framework/support/json"
 	"github.com/spf13/cast"
 )
 
@@ -14,7 +12,7 @@ type StoreAvatarRequest struct {
 	Raw        string `json:"raw" form:"raw"`
 	VerifyCode string `json:"verify_code" form:"verify_code"`
 
-	Captcha geetest.Ticket `json:"captcha" form:"captcha"`
+	Captcha string `json:"captcha" form:"captcha"`
 }
 
 func (r *StoreAvatarRequest) Authorize(ctx http.Context) error {
@@ -48,16 +46,6 @@ func (r *StoreAvatarRequest) Attributes(ctx http.Context) map[string]string {
 func (r *StoreAvatarRequest) PrepareForValidation(ctx http.Context, data validation.Data) error {
 	if raw, exist := data.Get("raw"); exist {
 		if err := data.Set("raw", strings.ToLower(cast.ToString(raw))); err != nil {
-			return err
-		}
-	}
-
-	ticket := make(map[string]string)
-	if captcha, exist := data.Get("captcha"); exist {
-		if err := json.UnmarshalString(cast.ToString(captcha), &ticket); err != nil {
-			return err
-		}
-		if err := data.Set("captcha", ticket); err != nil {
 			return err
 		}
 	}

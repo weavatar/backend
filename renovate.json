@@ -22,6 +22,8 @@
     }
   ],
   "ignoreDeps": [
-    "github.com/huaweicloud/huaweicloud-sdk-go-v3"
+    "github.com/huaweicloud/huaweicloud-sdk-go-v3",
+    "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common",
+    "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms"
   ]
 }
