@@ -161,9 +161,9 @@ func (r *AvatarController) Store(ctx http.Context) http.Response {
 		return sanitize
 	}
 
-	upload, uploadErr := ctx.Request().File("avatar")
-	if uploadErr != nil {
-		facades.Log().Error("[AvatarController][Store] 解析上传失败 ", uploadErr.Error())
+	upload, err := ctx.Request().File("avatar")
+	if err != nil {
+		facades.Log().Error("[AvatarController][Store] 解析上传失败 ", err.Error())
 		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
 	}
 
@@ -249,9 +249,9 @@ func (r *AvatarController) Update(ctx http.Context) http.Response {
 	}
 
 	// 尝试解析图片
-	upload, uploadErr := ctx.Request().File("avatar")
-	if uploadErr != nil {
-		facades.Log().Error("[AvatarController][Update] 解析上传失败 ", uploadErr.Error())
+	upload, err := ctx.Request().File("avatar")
+	if err != nil {
+		facades.Log().Error("[AvatarController][Update] 解析上传失败 ", err.Error())
 		return Error(ctx, http.StatusInternalServerError, "系统内部错误")
 	}
 
