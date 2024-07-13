@@ -2,6 +2,7 @@ package cdn
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 	"time"
@@ -10,6 +11,17 @@ import (
 	"github.com/goravel/framework/support/carbon"
 	"github.com/imroc/req/v3"
 )
+
+func init() {
+	if !driverInUse("kuocai") {
+		return
+	}
+
+	register(&KuoCai{
+		UserName: facades.Config().GetString("cdn.kuocai.username"),
+		PassWord: facades.Config().GetString("cdn.kuocai.password"),
+	})
+}
 
 type KuoCai struct {
 	UserName, PassWord string
@@ -47,89 +59,62 @@ type KuoCaiUsageResponse struct {
 }
 
 // RefreshUrl 刷新URL
-func (r *KuoCai) RefreshUrl(urls []string) bool {
+func (r *KuoCai) RefreshUrl(urls []string) error {
 	client, err := r.login()
 	if err != nil {
-		facades.Log().Tags("CDN", "括彩云").With(map[string]any{
-			"err": err.Error(),
-		}).Warning("登录失败")
-		return false
+		return err
 	}
 
 	// 提交刷新请求
 	var refreshResponse KuoCaiCommonResponse
-	resp, err := client.R().SetFormDataFromValues(url.Values{
+	_, err = client.R().SetFormDataFromValues(url.Values{
 		"urls[]": urls,
 		"type":   {"file"},
 	}).
 		SetSuccessResult(&refreshResponse).
 		Post("https://kuocai.cn/CdnDomainCache/submitCacheRefresh")
 	if err != nil {
-		facades.Log().Tags("CDN", "括彩云").With(map[string]any{
-			"urls":  urls,
-			"resp":  resp.String(),
-			"error": err.Error(),
-		}).Warning("URL刷新失败")
-		return false
+		return err
 	}
 
 	if refreshResponse.Success && refreshResponse.Code == "SUCCESS" {
-		return true
+		return nil
 	}
 
-	facades.Log().Tags("CDN", "括彩云").With(map[string]any{
-		"urls":  urls,
-		"error": refreshResponse.Message,
-	}).Warning("URL刷新失败")
-	return false
+	return fmt.Errorf("URL刷新失败: %s", refreshResponse.Message)
 }
 
 // RefreshPath 刷新路径
-func (r *KuoCai) RefreshPath(paths []string) bool {
+func (r *KuoCai) RefreshPath(paths []string) error {
 	client, err := r.login()
 	if err != nil {
-		facades.Log().Tags("CDN", "括彩云").With(map[string]any{
-			"err": err.Error(),
-		}).Warning("登录失败")
-		return false
+		return err
 	}
 
 	// 提交刷新请求
 	var refreshResponse KuoCaiCommonResponse
-	resp, err := client.R().SetFormDataFromValues(url.Values{
+	_, err = client.R().SetFormDataFromValues(url.Values{
 		"urls[]": paths,
 		"type":   {"directory"},
 	}).
 		SetSuccessResult(&refreshResponse).
 		Post("https://kuocai.cn/CdnDomainCache/submitCacheRefresh")
 	if err != nil {
-		facades.Log().Tags("CDN", "括彩云").With(map[string]any{
-			"paths": paths,
-			"resp":  resp.String(),
-			"error": err.Error(),
-		}).Warning("路径刷新失败")
-		return false
+		return err
 	}
 
 	if refreshResponse.Success && refreshResponse.Code == "SUCCESS" {
-		return true
+		return nil
 	}
 
-	facades.Log().Tags("CDN", "括彩云").With(map[string]any{
-		"urls":  paths,
-		"error": refreshResponse.Message,
-	}).Warning("路径刷新失败")
-	return false
+	return fmt.Errorf("路径刷新失败: %s", refreshResponse.Message)
 }
 
 // GetUsage 获取使用量
-func (r *KuoCai) GetUsage(domain string, startTime, endTime carbon.Carbon) uint {
+func (r *KuoCai) GetUsage(domain string, startTime, endTime carbon.Carbon) (uint, error) {
 	client, err := r.login()
 	if err != nil {
-		facades.Log().Tags("CDN", "括彩云").With(map[string]any{
-			"err": err.Error(),
-		}).Warning("登录失败")
-		return 0
+		return 0, err
 	}
 
 	var request = map[string]string{
@@ -139,32 +124,19 @@ func (r *KuoCai) GetUsage(domain string, startTime, endTime carbon.Carbon) uint 
 		"type":      "Visits",
 	}
 	var usageResponse KuoCaiUsageResponse
-	resp, err := client.R().
+	_, err = client.R().
 		SetQueryParams(request).
 		SetSuccessResult(&usageResponse).
 		Get("https://kuocai.cn/CdnDomainStatistics/queryStatistics")
 	if err != nil {
-		facades.Log().Tags("CDN", "括彩云").With(map[string]any{
-			"domain": domain,
-			"start":  startTime.ToDateTimeString(),
-			"end":    endTime.ToDateTimeString(),
-			"resp":   resp.String(),
-			"error":  err.Error(),
-		}).Warning("获取用量失败")
-		return 0
+		return 0, err
 	}
 
 	if usageResponse.Success && usageResponse.Code == "SUCCESS" {
-		return uint(usageResponse.Data.VisitsSummary.ReqNum)
+		return uint(usageResponse.Data.VisitsSummary.ReqNum), nil
 	}
 
-	facades.Log().Tags("CDN", "括彩云").With(map[string]any{
-		"domain": domain,
-		"start":  startTime.ToDateTimeString(),
-		"end":    endTime.ToDateTimeString(),
-		"error":  usageResponse.Message,
-	}).Warning("获取用量失败")
-	return 0
+	return 0, fmt.Errorf("获取用量失败: %s", usageResponse.Message)
 }
 
 // login 登录平台

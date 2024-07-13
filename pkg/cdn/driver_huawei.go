@@ -1,6 +1,7 @@
 package cdn
 
 import (
+	"fmt"
 	"github.com/goravel/framework/facades"
 	"github.com/goravel/framework/support/carbon"
 	"github.com/huaweicloud/huaweicloud-sdk-go-v3/core/auth/global"
@@ -10,12 +11,23 @@ import (
 	"github.com/spf13/cast"
 )
 
+func init() {
+	if !driverInUse("huawei") {
+		return
+	}
+
+	register(&HuaWei{
+		AccessKey: facades.Config().GetString("cdn.huawei.access_key"),
+		SecretKey: facades.Config().GetString("cdn.huawei.secret_key"),
+	})
+}
+
 type HuaWei struct {
 	AccessKey, SecretKey string // 密钥
 }
 
 // RefreshUrl 刷新URL
-func (r *HuaWei) RefreshUrl(urls []string) bool {
+func (r *HuaWei) RefreshUrl(urls []string) error {
 	for i, url := range urls {
 		urls[i] = "https://" + url
 	}
@@ -25,9 +37,7 @@ func (r *HuaWei) RefreshUrl(urls []string) bool {
 		WithSk(r.SecretKey).
 		SafeBuild()
 	if err != nil {
-		facades.Log().Tags("CDN", "华为云").With(map[string]any{
-			"err": err.Error(),
-		}).Warning("初始化华为云CDN客户端失败")
+		return err
 	}
 
 	build, err := cdn.CdnClientBuilder().
@@ -35,10 +45,7 @@ func (r *HuaWei) RefreshUrl(urls []string) bool {
 		WithCredential(auth).
 		SafeBuild()
 	if err != nil {
-		facades.Log().Tags("CDN", "华为云").With(map[string]any{
-			"err": err.Error(),
-		}).Warning("初始化华为云CDN客户端失败")
-
+		return err
 	}
 
 	client := cdn.NewCdnClient(build)
@@ -56,24 +63,18 @@ func (r *HuaWei) RefreshUrl(urls []string) bool {
 
 	response, err := client.CreateRefreshTasks(request)
 	if err != nil {
-		facades.Log().Tags("CDN", "华为云").With(map[string]any{
-			"err": err.Error(),
-		}).Warning("刷新URL失败")
-		return false
+		return err
 	}
 
 	if response.HttpStatusCode != 200 {
-		facades.Log().Tags("CDN", "华为云").With(map[string]any{
-			"resp": response.RefreshTask,
-		}).Warning("刷新URL失败")
-		return false
+		return fmt.Errorf("刷新URL失败: %s", *response.RefreshTask)
 	}
 
-	return true
+	return nil
 }
 
 // RefreshPath 刷新路径
-func (r *HuaWei) RefreshPath(paths []string) bool {
+func (r *HuaWei) RefreshPath(paths []string) error {
 	for i, url := range paths {
 		paths[i] = "https://" + url
 	}
@@ -83,9 +84,7 @@ func (r *HuaWei) RefreshPath(paths []string) bool {
 		WithSk(r.SecretKey).
 		SafeBuild()
 	if err != nil {
-		facades.Log().Tags("CDN", "华为云").With(map[string]any{
-			"err": err.Error(),
-		}).Warning("初始化华为云CDN客户端失败")
+		return err
 	}
 
 	build, err := cdn.CdnClientBuilder().
@@ -93,10 +92,7 @@ func (r *HuaWei) RefreshPath(paths []string) bool {
 		WithCredential(auth).
 		SafeBuild()
 	if err != nil {
-		facades.Log().Tags("CDN", "华为云").With(map[string]any{
-			"err": err.Error(),
-		}).Warning("初始化华为云CDN客户端失败")
-
+		return err
 	}
 
 	client := cdn.NewCdnClient(build)
@@ -114,32 +110,24 @@ func (r *HuaWei) RefreshPath(paths []string) bool {
 
 	response, err := client.CreateRefreshTasks(request)
 	if err != nil {
-		facades.Log().Tags("CDN", "华为云").With(map[string]any{
-			"err": err.Error(),
-		}).Warning("刷新路径失败")
-		return false
+		return err
 	}
 
 	if response.HttpStatusCode != 200 {
-		facades.Log().Tags("CDN", "华为云").With(map[string]any{
-			"resp": response.RefreshTask,
-		}).Warning("刷新路径失败")
-		return false
+		return fmt.Errorf("刷新路径失败: %s", *response.RefreshTask)
 	}
 
-	return true
+	return nil
 }
 
 // GetUsage 获取用量
-func (r *HuaWei) GetUsage(domain string, startTime, endTime carbon.Carbon) uint {
+func (r *HuaWei) GetUsage(domain string, startTime, endTime carbon.Carbon) (uint, error) {
 	auth, err := global.NewCredentialsBuilder().
 		WithAk(r.AccessKey).
 		WithSk(r.SecretKey).
 		SafeBuild()
 	if err != nil {
-		facades.Log().Tags("CDN", "华为云").With(map[string]any{
-			"err": err.Error(),
-		}).Warning("初始化华为云CDN客户端失败")
+		return 0, err
 	}
 
 	build, err := cdn.CdnClientBuilder().
@@ -147,10 +135,7 @@ func (r *HuaWei) GetUsage(domain string, startTime, endTime carbon.Carbon) uint 
 		WithCredential(auth).
 		SafeBuild()
 	if err != nil {
-		facades.Log().Tags("CDN", "华为云").With(map[string]any{
-			"err": err.Error(),
-		}).Warning("初始化华为云CDN客户端失败")
-
+		return 0, err
 	}
 
 	client := cdn.NewCdnClient(build)
@@ -162,23 +147,16 @@ func (r *HuaWei) GetUsage(domain string, startTime, endTime carbon.Carbon) uint 
 	request.StatType = "req_num"
 	response, err := client.ShowDomainStats(request)
 	if err != nil {
-		facades.Log().Tags("CDN", "华为云").With(map[string]any{
-			"err":  err.Error(),
-			"resp": response.Result,
-		}).Warning("获取用量失败")
-		return 0
+		return 0, err
 	}
 
 	if response.HttpStatusCode != 200 {
-		facades.Log().Tags("CDN", "华为云").With(map[string]any{
-			"resp": response.Result,
-		}).Warning("获取用量失败")
-		return 0
+		return 0, fmt.Errorf("获取用量失败: %v", response.Result)
 	}
 
 	if _, ok := response.Result["req_num"]; ok {
-		return cast.ToUint(response.Result["req_num"])
+		return cast.ToUint(response.Result["req_num"]), nil
 	}
 
-	return uint(0)
+	return 0, nil
 }

@@ -2,6 +2,7 @@ package cdn
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/cloudflare/cloudflare-go/v2"
@@ -11,6 +12,18 @@ import (
 	"github.com/goravel/framework/support/carbon"
 	"github.com/imroc/req/v3"
 )
+
+func init() {
+	if !driverInUse("cloudflare") {
+		return
+	}
+
+	register(&CloudFlare{
+		Key:    facades.Config().GetString("cdn.cloudflare.key"),
+		Email:  facades.Config().GetString("cdn.cloudflare.email"),
+		ZoneID: facades.Config().GetString("cdn.cloudflare.zone_id"),
+	})
+}
 
 type CloudFlare struct {
 	Key, Email string // 密钥
@@ -36,11 +49,13 @@ type CloudFlareHttpRequests struct {
 			} `json:"zones"`
 		} `json:"viewer"`
 	} `json:"data"`
-	Errors any `json:"errors"`
+	Errors []struct {
+		Message string `json:"message"`
+	} `json:"errors"`
 }
 
 // RefreshUrl 刷新URL
-func (s *CloudFlare) RefreshUrl(urls []string) bool {
+func (s *CloudFlare) RefreshUrl(urls []string) error {
 	client := cloudflare.NewClient(
 		option.WithAPIKey(s.Key),
 		option.WithAPIEmail(s.Email),
@@ -54,29 +69,22 @@ func (s *CloudFlare) RefreshUrl(urls []string) bool {
 		Body:   newUrls,
 	})
 	if err != nil {
-		facades.Log().Tags("CDN", "CloudFlare").With(map[string]any{
-			"err":  err.Error(),
-			"resp": resp,
-		}).Warning("缓存刷新失败")
-		return false
+		return err
 	}
 	if resp.ID == "" {
-		facades.Log().Tags("CDN", "CloudFlare").With(map[string]any{
-			"resp": resp.JSON.RawJSON(),
-		}).Warning("缓存刷新失败")
-		return false
+		return fmt.Errorf("缓存刷新失败: %s", resp.JSON.RawJSON())
 	}
 
-	return true
+	return nil
 }
 
 // RefreshPath 刷新路径
-func (s *CloudFlare) RefreshPath(paths []string) bool {
+func (s *CloudFlare) RefreshPath(paths []string) error {
 	return s.RefreshUrl(paths)
 }
 
 // GetUsage 获取用量
-func (s *CloudFlare) GetUsage(domain string, startTime, endTime carbon.Carbon) uint {
+func (s *CloudFlare) GetUsage(domain string, startTime, endTime carbon.Carbon) (uint, error) {
 	client := req.C()
 	client.SetBaseURL("https://api.cloudflare.com/client/v4")
 	client.SetTimeout(10 * time.Second)
@@ -111,17 +119,13 @@ func (s *CloudFlare) GetUsage(domain string, startTime, endTime carbon.Carbon) u
 	var resp CloudFlareHttpRequests
 	_, err := client.R().SetBodyJsonMarshal(query).SetSuccessResult(&resp).SetErrorResult(&resp).Post("/graphql")
 	if err != nil {
-		facades.Log().Tags("CDN", "CloudFlare").With(map[string]any{
-			"err":  err.Error(),
-			"resp": resp,
-		}).Warning("获取用量失败")
-		return 0
+		return 0, err
 	}
 
 	// 数据可能为空，需要判断
 	if len(resp.Data.Viewer.Zones) == 0 || len(resp.Data.Viewer.Zones[0].HttpRequests1DGroups) == 0 {
-		return 0
+		return 0, fmt.Errorf("获取用量失败: %v", resp.Errors)
 	}
 
-	return uint(resp.Data.Viewer.Zones[0].HttpRequests1DGroups[0].Sum.Requests)
+	return uint(resp.Data.Viewer.Zones[0].HttpRequests1DGroups[0].Sum.Requests), nil
 }

@@ -9,7 +9,7 @@ import (
 	"github.com/goravel/framework/support/carbon"
 
 	"weavatar/app/models"
-	packagecdn "weavatar/pkg/cdn"
+	"weavatar/pkg/cdn"
 	"weavatar/pkg/helper"
 )
 
@@ -37,14 +37,17 @@ func (r *SystemController) CdnUsage(ctx http.Context) http.Response {
 		})
 	}
 
-	cdn := packagecdn.NewCDN()
-	usage = int64(cdn.GetUsage(domain, yesterday, today))
-	if usage != 0 {
-		cacheTime := time.Duration(carbon.Now().EndOfDay().Timestamp() - carbon.Now().Timestamp() + 7200)
-		err := facades.Cache().Put("cdn_usage", usage, cacheTime*time.Second)
-		if err != nil {
-			facades.Log().Error("[SystemController][CdnUsage] 缓存CDN使用情况失败 " + err.Error())
-		}
+	data, err := cdn.GetUsage(domain, yesterday, today)
+	if err != nil {
+		return Success(ctx, http.Json{
+			"usage": 0,
+		})
+	}
+
+	usage = int64(data)
+	cacheTime := time.Duration(carbon.Now().EndOfDay().Timestamp() - carbon.Now().Timestamp() + 7200)
+	if err = facades.Cache().Put("cdn_usage", usage, cacheTime*time.Second); err != nil {
+		facades.Log().Error("[SystemController][CdnUsage] 缓存CDN使用情况失败 " + err.Error())
 	}
 
 	return Success(ctx, http.Json{
