@@ -436,6 +436,8 @@ github.com/gookit/validate v1.5.2 h1:i5I2OQ7WYHFRPRATGu9QarR9snnNHydvwSuHXaRWAV0
 github.com/gookit/validate v1.5.2/go.mod h1:yuPy2WwDlwGRa06fFJ5XIO8QEwhRnTC2LmxmBa5SE14=
 github.com/gopherjs/gopherjs v0.0.0-20181017120253-0766667cb4d1/go.mod h1:wJfORRmW1u3UXTncJ5qlYoELFm8eSnnEO6hX4iZ3EWY=
 github.com/gopherjs/gopherjs v0.0.0-20200217142428-fce0ec30dd00/go.mod h1:wJfORRmW1u3UXTncJ5qlYoELFm8eSnnEO6hX4iZ3EWY=
+github.com/goravel-kit/cdn v1.0.0 h1:9kx4C0p+96sCyR6jk+GzeJD1/AYoBJmfJpejQetyPKE=
+github.com/goravel-kit/cdn v1.0.0/go.mod h1:BJ2Ybg3f8oj5hlaZHVIcrSQ8HNo5d+0GAsMO6dqycyY=
 github.com/goravel-kit/geetest v1.1.0 h1:bec7F6NNcJvyMMB26+5WP3CBAw5mX/gDIp/Wm6Zh0VQ=
 github.com/goravel-kit/geetest v1.1.0/go.mod h1:qbMbO2f0LHITycf5Ow1rmqT0hl7biMPUEveZ/jeIdpA=
 github.com/goravel/fiber v1.2.2 h1:FwIlvn6OaXiVTetyceHzT9hzjBxDMKVfHcZhQmbaQuQ=

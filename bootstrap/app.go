@@ -9,9 +9,9 @@ import (
 func Boot() {
 	app := foundation.NewApplication()
 
-	// 框架，启动！
+	//Bootstrap the application
 	app.Boot()
 
-	// 配置，启动！
+	//Bootstrap the config.
 	config.Boot()
 }

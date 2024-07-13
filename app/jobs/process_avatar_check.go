@@ -4,11 +4,11 @@ import (
 	"errors"
 	"time"
 
+	cdnfacades "github.com/goravel-kit/cdn/facades"
 	"github.com/goravel/framework/facades"
 	"github.com/imroc/req/v3"
 
 	"weavatar/app/models"
-	"weavatar/pkg/cdn"
 	"weavatar/pkg/helper"
 	"weavatar/pkg/imagecheck"
 )
@@ -172,7 +172,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 	}
 
 	if image.Ban {
-		if err := cdn.RefreshUrl([]string{"weavatar.com/avatar/" + hash}); err != nil {
+		if err := cdnfacades.Cdn().RefreshUrl([]string{"weavatar.com/avatar/" + hash}); err != nil {
 			facades.Log().With(map[string]any{
 				"hash": hash,
 				"err":  err.Error(),

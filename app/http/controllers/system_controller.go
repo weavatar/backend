@@ -4,12 +4,12 @@ import (
 	"strings"
 	"time"
 
+	cdnfacades "github.com/goravel-kit/cdn/facades"
 	"github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/facades"
 	"github.com/goravel/framework/support/carbon"
 
 	"weavatar/app/models"
-	"weavatar/pkg/cdn"
 	"weavatar/pkg/helper"
 )
 
@@ -37,7 +37,7 @@ func (r *SystemController) CdnUsage(ctx http.Context) http.Response {
 		})
 	}
 
-	data, err := cdn.GetUsage(domain, yesterday, today)
+	data, err := cdnfacades.Cdn().GetUsage(domain, yesterday, today)
 	if err != nil {
 		return Success(ctx, http.Json{
 			"usage": 0,
