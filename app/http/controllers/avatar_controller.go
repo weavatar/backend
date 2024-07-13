@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"strconv"
 
+	cdnfacades "github.com/goravel-kit/cdn/facades"
 	"github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/facades"
 	"github.com/goravel/framework/support/carbon"
@@ -14,7 +15,6 @@ import (
 	requests "weavatar/app/http/requests/avatar"
 	"weavatar/app/models"
 	"weavatar/app/services"
-	packagecdn "weavatar/pkg/cdn"
 	"weavatar/pkg/helper"
 )
 
@@ -212,8 +212,9 @@ func (r *AvatarController) Store(ctx http.Context) http.Response {
 	}
 
 	go func() {
-		cdn := packagecdn.NewCDN()
-		cdn.RefreshUrl([]string{"weavatar.com/avatar/" + avatar.MD5, "weavatar.com/avatar/" + avatar.SHA256})
+		if err = cdnfacades.Cdn().RefreshUrl([]string{"weavatar.com/avatar/" + avatar.MD5, "weavatar.com/avatar/" + avatar.SHA256}); err != nil {
+			facades.Log().Error("[AvatarController][Store] CDN 刷新失败 ", err.Error())
+		}
 	}()
 
 	return Success(ctx, nil)
@@ -286,8 +287,9 @@ func (r *AvatarController) Update(ctx http.Context) http.Response {
 	}
 
 	go func() {
-		cdn := packagecdn.NewCDN()
-		cdn.RefreshUrl([]string{"weavatar.com/avatar/" + avatar.MD5, "weavatar.com/avatar/" + avatar.SHA256})
+		if err = cdnfacades.Cdn().RefreshUrl([]string{"weavatar.com/avatar/" + avatar.MD5, "weavatar.com/avatar/" + avatar.SHA256}); err != nil {
+			facades.Log().Error("[AvatarController][Update] CDN 刷新失败 ", err.Error())
+		}
 	}()
 
 	return Success(ctx, nil)
@@ -326,8 +328,9 @@ func (r *AvatarController) Destroy(ctx http.Context) http.Response {
 	}
 
 	go func() {
-		cdn := packagecdn.NewCDN()
-		cdn.RefreshUrl([]string{"weavatar.com/avatar/" + avatar.MD5, "weavatar.com/avatar/" + avatar.SHA256})
+		if err := cdnfacades.Cdn().RefreshUrl([]string{"weavatar.com/avatar/" + avatar.MD5, "weavatar.com/avatar/" + avatar.SHA256}); err != nil {
+			facades.Log().Error("[AvatarController][Destroy] CDN 刷新失败 ", err.Error())
+		}
 	}()
 
 	return Success(ctx, nil)

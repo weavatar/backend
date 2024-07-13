@@ -26,6 +26,10 @@ func init() {
 			"local": map[string]any{
 				"driver": "local",
 				"root":   path.Storage("app"),
+			},
+			"public": map[string]any{
+				"driver": "local",
+				"root":   path.Storage("app/public"),
 				"url":    config.Env("APP_URL", "").(string) + "/storage",
 			},
 		},

@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/goravel-kit/cdn"
 	"github.com/goravel-kit/geetest"
 	"github.com/goravel/fiber"
 	"github.com/goravel/framework/auth"
@@ -9,8 +10,10 @@ import (
 	"github.com/goravel/framework/contracts/foundation"
 	"github.com/goravel/framework/crypt"
 	"github.com/goravel/framework/database"
+	"github.com/goravel/framework/event"
 	"github.com/goravel/framework/facades"
 	"github.com/goravel/framework/filesystem"
+	"github.com/goravel/framework/grpc"
 	"github.com/goravel/framework/hash"
 	"github.com/goravel/framework/http"
 	"github.com/goravel/framework/log"
@@ -18,8 +21,10 @@ import (
 	"github.com/goravel/framework/queue"
 	"github.com/goravel/framework/route"
 	"github.com/goravel/framework/schedule"
+	"github.com/goravel/framework/session"
 	"github.com/goravel/framework/support/carbon"
 	"github.com/goravel/framework/testing"
+	"github.com/goravel/framework/translation"
 	"github.com/goravel/framework/validation"
 
 	"weavatar/app/providers"
@@ -54,9 +59,9 @@ func init() {
 
 		// Application Timezone
 		//
-		// Here you may specify the default timezone for your application, which
-		// will be used by the PHP date and date-time functions. We have gone
-		// ahead and set this to a sensible default for you out of the box.
+		// Here you may specify the default timezone for your application.
+		// Example: UTC, Asia/Shanghai
+		// More: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 		"timezone": carbon.PRC,
 
 		// Application Locale Configuration
@@ -92,27 +97,30 @@ func init() {
 			&http.ServiceProvider{},
 			&route.ServiceProvider{},
 			&schedule.ServiceProvider{},
-			// &event.ServiceProvider{},
+			&event.ServiceProvider{},
 			&queue.ServiceProvider{},
-			// &grpc.ServiceProvider{},
+			&grpc.ServiceProvider{},
 			&mail.ServiceProvider{},
 			&auth.ServiceProvider{},
 			&hash.ServiceProvider{},
 			&crypt.ServiceProvider{},
 			&filesystem.ServiceProvider{},
 			&validation.ServiceProvider{},
+			&session.ServiceProvider{},
+			&translation.ServiceProvider{},
 			&testing.ServiceProvider{},
 			&providers.AppServiceProvider{},
 			&providers.AuthServiceProvider{},
 			&providers.RouteServiceProvider{},
-			// &providers.GrpcServiceProvider{},
+			&providers.GrpcServiceProvider{},
 			&providers.ConsoleServiceProvider{},
 			&providers.QueueServiceProvider{},
-			// &providers.EventServiceProvider{},
+			&providers.EventServiceProvider{},
 			&providers.ValidationServiceProvider{},
 			&providers.DatabaseServiceProvider{},
 			&fiber.ServiceProvider{},
 			&geetest.ServiceProvider{},
+			&cdn.ServiceProvider{},
 		},
 	})
 }

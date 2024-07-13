@@ -8,21 +8,19 @@ require (
 	github.com/alibabacloud-go/green-20220302/v2 v2.2.9
 	github.com/alibabacloud-go/tea v1.2.2
 	github.com/alibabacloud-go/tea-utils/v2 v2.0.5
-	github.com/cloudflare/cloudflare-go/v2 v2.3.0
 	github.com/gertd/go-pluralize v0.2.1
 	github.com/goki/freetype v1.0.5
 	github.com/gookit/color v1.5.4
+	github.com/goravel-kit/cdn v1.0.0
 	github.com/goravel-kit/geetest v1.1.0
 	github.com/goravel/fiber v1.2.2
 	github.com/goravel/framework v1.14.3
 	github.com/haozi-team/letteravatar v1.0.4
-	github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.1.84
 	github.com/iancoleman/strcase v0.3.0
 	github.com/imroc/req/v3 v3.43.7
 	github.com/ipsn/go-adorable v1.0.0
 	github.com/issue9/identicon/v2 v2.1.2
 	github.com/jaevor/go-nanoid v1.4.0
-	github.com/jdcloud-api/jdcloud-sdk-go v1.62.0
 	github.com/mojocn/base64Captcha v1.3.6
 	github.com/o1egl/govatar v0.4.1
 	github.com/spf13/cast v1.6.0
@@ -74,6 +72,7 @@ require (
 	github.com/charmbracelet/x/windows v0.1.2 // indirect
 	github.com/clbanning/mxj/v2 v2.5.7 // indirect
 	github.com/cloudflare/circl v1.3.7 // indirect
+	github.com/cloudflare/cloudflare-go/v2 v2.3.0 // indirect
 	github.com/containerd/console v1.0.4-0.20230313162750-1ae8d489ac81 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.4 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
@@ -95,7 +94,6 @@ require (
 	github.com/gofiber/template v1.8.3 // indirect
 	github.com/gofiber/template/html/v2 v2.1.2 // indirect
 	github.com/gofiber/utils v1.1.0 // indirect
-	github.com/gofrs/uuid v4.4.0+incompatible // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
 	github.com/golang-migrate/migrate/v4 v4.17.1 // indirect
@@ -121,6 +119,7 @@ require (
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
+	github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.1.105 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
 	github.com/jackc/pgx/v5 v5.5.4 // indirect
@@ -231,4 +230,4 @@ require (
 	modernc.org/sqlite v1.28.0 // indirect
 )
 
-replace github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.1.84 => github.com/devhaozi/huaweicloud-sdk-go-v3 v0.1.85-0.20240306131341-3bfacd6a8e63
+replace github.com/huaweicloud/huaweicloud-sdk-go-v3 => github.com/devhaozi/huaweicloud-sdk-go-v3 v0.1.85-0.20240306131341-3bfacd6a8e63
