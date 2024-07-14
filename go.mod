@@ -11,7 +11,7 @@ require (
 	github.com/gertd/go-pluralize v0.2.1
 	github.com/goki/freetype v1.0.5
 	github.com/gookit/color v1.5.4
-	github.com/goravel-kit/cdn v1.0.1
+	github.com/goravel-kit/cdn v1.0.2
 	github.com/goravel-kit/geetest v1.1.0
 	github.com/goravel/fiber v1.2.2
 	github.com/goravel/framework v1.14.3
