@@ -28,5 +28,11 @@ func init() {
 			"email":   config.Env("CDN_CLOUDFLARE_EMAIL", ""),
 			"zone_id": config.Env("CDN_CLOUDFLARE_ZONE_ID", ""),
 		},
+		// GoEdge
+		"goedge": map[string]any{
+			"api":           config.Env("CDN_GOEDGE_API", ""),
+			"access_key_id": config.Env("CDN_GOEDGE_ACCESS_KEY_ID", ""),
+			"access_key":    config.Env("CDN_GOEDGE_ACCESS_KEY", ""),
+		},
 	})
 }
