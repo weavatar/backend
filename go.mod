@@ -23,7 +23,7 @@ require (
 	github.com/jaevor/go-nanoid v1.4.0
 	github.com/mojocn/base64Captcha v1.3.6
 	github.com/o1egl/govatar v0.4.1
-	github.com/spf13/cast v1.6.0
+	github.com/spf13/cast v1.7.0
 	github.com/stretchr/testify v1.9.0
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.958
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.957
