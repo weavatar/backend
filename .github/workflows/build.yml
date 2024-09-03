@@ -24,7 +24,6 @@ jobs:
           path: |
             ${{ vars.PROJECT_NAME }}
             database
-            public
             storage
   deploy:
     strategy:
