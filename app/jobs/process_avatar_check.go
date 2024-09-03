@@ -172,7 +172,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 	}
 
 	if image.Ban {
-		if err := cdnfacades.Cdn().RefreshUrl([]string{"weavatar.com/avatar/" + hash}); err != nil {
+		if err := cdnfacades.Cdn().RefreshUrl([]string{"https://weavatar.com/avatar/" + hash}); err != nil {
 			facades.Log().With(map[string]any{
 				"hash": hash,
 				"err":  err.Error(),
