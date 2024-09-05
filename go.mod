@@ -17,7 +17,7 @@ require (
 	github.com/goravel/framework v1.14.4
 	github.com/haozi-team/letteravatar v1.0.4
 	github.com/iancoleman/strcase v0.3.0
-	github.com/imroc/req/v3 v3.43.7
+	github.com/imroc/req/v3 v3.44.0
 	github.com/ipsn/go-adorable v1.0.0
 	github.com/issue9/identicon/v2 v2.1.2
 	github.com/jaevor/go-nanoid v1.4.0
