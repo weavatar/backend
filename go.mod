@@ -15,7 +15,7 @@ require (
 	github.com/gookit/color v1.5.4
 	github.com/goravel-kit/cdn v1.0.5
 	github.com/goravel-kit/geetest v1.1.0
-	github.com/goravel/fiber v1.2.3
+	github.com/goravel/fiber v1.2.4
 	github.com/goravel/framework v1.14.7
 	github.com/haozi-team/letteravatar v1.0.4
 	github.com/iancoleman/strcase v0.3.0

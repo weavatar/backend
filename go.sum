@@ -443,8 +443,8 @@ github.com/goravel-kit/cdn v1.0.5 h1:FrmOrwcWstM3xe2DiglyFDshLCOanrteZPsiu62H8sk
 github.com/goravel-kit/cdn v1.0.5/go.mod h1:d7KE8eMYuAwlIxP9XaN1gCKMzefY8sm0uGEWj80CVgM=
 github.com/goravel-kit/geetest v1.1.0 h1:bec7F6NNcJvyMMB26+5WP3CBAw5mX/gDIp/Wm6Zh0VQ=
 github.com/goravel-kit/geetest v1.1.0/go.mod h1:qbMbO2f0LHITycf5Ow1rmqT0hl7biMPUEveZ/jeIdpA=
-github.com/goravel/fiber v1.2.3 h1:I0Duo5WjRVxTVyoNJSuRNN7lWUypVhxhHje/17q+dl8=
-github.com/goravel/fiber v1.2.3/go.mod h1:QmDkPh6hFHi3Uqm6cIwbTaYV7Iqy4JZqurIK/UvfT7I=
+github.com/goravel/fiber v1.2.4 h1:0C8YhBIocafvrfCgBfs+XSe053mepN3wcJlmHOfIaFw=
+github.com/goravel/fiber v1.2.4/go.mod h1:6OfZ/VkkYQ4Li5pGtdqzGf0a0obRMPle7ATMH2acpMk=
 github.com/goravel/file-rotatelogs/v2 v2.4.2 h1:g68AzbePXcm0V2CpUMc9j4qVzcDn7+7aoWSjZ51C0m4=
 github.com/goravel/file-rotatelogs/v2 v2.4.2/go.mod h1:23VuSW8cBS4ax5cmbV+5AaiLpq25b8UJ96IhbAkdo8I=
 github.com/goravel/framework v1.14.7 h1:mO8HFy8dU0wWRUaLcGrUbXdIyXsC0YWC+VdYouviLbY=
