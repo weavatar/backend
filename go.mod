@@ -232,4 +232,4 @@ require (
 	modernc.org/sqlite v1.28.0 // indirect
 )
 
-replace github.com/huaweicloud/huaweicloud-sdk-go-v3 => github.com/devhaozi/huaweicloud-sdk-go-v3 v0.1.85-0.20240306131341-3bfacd6a8e63
+replace github.com/huaweicloud/huaweicloud-sdk-go-v3 => github.com/devhaozi/huaweicloud-sdk-go-v3 bbebb6de5db7
