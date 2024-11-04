@@ -2,7 +2,7 @@ module weavatar
 
 go 1.22.0
 
-toolchain go1.23.1
+toolchain go1.23
 
 require (
 	github.com/alibabacloud-go/darabonba-openapi/v2 v2.0.9
@@ -13,13 +13,13 @@ require (
 	github.com/gertd/go-pluralize v0.2.1
 	github.com/goki/freetype v1.0.5
 	github.com/gookit/color v1.5.4
-	github.com/goravel-kit/cdn v1.0.4
+	github.com/goravel-kit/cdn v1.0.5
 	github.com/goravel-kit/geetest v1.1.0
 	github.com/goravel/fiber v1.2.3
-	github.com/goravel/framework v1.14.5
+	github.com/goravel/framework v1.14.7
 	github.com/haozi-team/letteravatar v1.0.4
 	github.com/iancoleman/strcase v0.3.0
-	github.com/imroc/req/v3 v3.46.0
+	github.com/imroc/req/v3 v3.48.0
 	github.com/ipsn/go-adorable v1.0.0
 	github.com/issue9/identicon/v2 v2.1.2
 	github.com/jaevor/go-nanoid v1.4.0
@@ -74,10 +74,11 @@ require (
 	github.com/charmbracelet/x/windows v0.1.2 // indirect
 	github.com/clbanning/mxj/v2 v2.5.7 // indirect
 	github.com/cloudflare/circl v1.4.0 // indirect
-	github.com/cloudflare/cloudflare-go/v2 v2.3.0 // indirect
+	github.com/cloudflare/cloudflare-go/v2 v2.4.0 // indirect
 	github.com/containerd/console v1.0.4-0.20230313162750-1ae8d489ac81 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.4 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
+	github.com/devhaozi/huaweicloud-sdk-go-v3 v0.0.0-20241018211007-bbebb6de5db7 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/erikgeiser/coninput v0.0.0-20211004153227-1c3628e74d0f // indirect
@@ -121,7 +122,6 @@ require (
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
-	github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.1.105 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
 	github.com/jackc/pgx/v5 v5.5.4 // indirect
@@ -231,5 +231,3 @@ require (
 	modernc.org/memory v1.7.2 // indirect
 	modernc.org/sqlite v1.28.0 // indirect
 )
-
-replace github.com/huaweicloud/huaweicloud-sdk-go-v3 => github.com/devhaozi/huaweicloud-sdk-go-v3 v0.1.85-0.20240306131341-3bfacd6a8e63
