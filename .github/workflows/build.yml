@@ -21,6 +21,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ vars.PROJECT_NAME }}
+          include-hidden-files: true
           path: |
             ${{ vars.PROJECT_NAME }}
             database
