@@ -12,12 +12,18 @@
   ],
   "packageRules": [
     {
-      "description": "Automerge non-major updates",
-      "matchUpdateTypes": [
-        "minor",
-        "patch"
+      "groupName": "all dependencies",
+      "groupSlug": "all",
+      "description": "Automerge updates",
+      "matchPackageNames": [
+        "*"
       ],
-      "matchCurrentVersion": "!/^0/",
+      "matchUpdateTypes": [
+        "digest",
+        "patch",
+        "minor",
+        "major"
+      ],
       "automerge": true
     }
   ],
