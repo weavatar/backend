@@ -155,7 +155,7 @@ func (receiver *ProcessAvatarCheck) Handle(args ...any) error {
 				"imageHash": imageHash,
 				"err":       checkErr.Error(),
 			}).Warning("图片审核[审核失败]")
-			return err
+			return checkErr
 		}
 
 		err = facades.Orm().Query().UpdateOrCreate(&image, &models.Image{
