@@ -4,7 +4,7 @@
     "config:base"
   ],
   "labels": [
-    "dependencies"
+    "🤖 Dependencies"
   ],
   "commitMessagePrefix": "chore(deps): ",
   "postUpdateOptions": [
