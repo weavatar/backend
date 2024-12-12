@@ -16,7 +16,7 @@ require (
 	github.com/goravel-kit/cdn v1.0.5
 	github.com/goravel-kit/geetest v1.1.0
 	github.com/goravel/fiber v1.2.4
-	github.com/goravel/framework v1.14.8
+	github.com/goravel/framework v1.14.9
 	github.com/haozi-team/letteravatar v1.0.4
 	github.com/iancoleman/strcase v0.3.0
 	github.com/imroc/req/v3 v3.48.0
@@ -92,6 +92,7 @@ require (
 	github.com/go-resty/resty/v2 v2.12.0 // indirect
 	github.com/go-sql-driver/mysql v1.8.1 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
+	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
 	github.com/gofiber/fiber/v2 v2.52.5 // indirect
 	github.com/gofiber/template v1.8.3 // indirect
 	github.com/gofiber/template/html/v2 v2.1.2 // indirect
