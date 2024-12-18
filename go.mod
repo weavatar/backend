@@ -29,7 +29,7 @@ require (
 	github.com/stretchr/testify v1.10.0
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.958
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.957
-	google.golang.org/grpc v1.69.0
+	google.golang.org/grpc v1.69.2
 	gorm.io/gorm v1.25.12
 )
 
