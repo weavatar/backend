@@ -19,7 +19,7 @@ require (
 	github.com/goravel/framework v1.14.9
 	github.com/haozi-team/letteravatar v1.0.4
 	github.com/iancoleman/strcase v0.3.0
-	github.com/imroc/req/v3 v3.49.0
+	github.com/imroc/req/v3 v3.49.1
 	github.com/ipsn/go-adorable v1.0.0
 	github.com/issue9/identicon/v2 v2.1.2
 	github.com/jaevor/go-nanoid v1.4.0
@@ -206,7 +206,7 @@ require (
 	golang.org/x/exp v0.0.0-20241215155358-4a5509556b9e // indirect
 	golang.org/x/image v0.15.0 // indirect
 	golang.org/x/mod v0.22.0 // indirect
-	golang.org/x/net v0.32.0 // indirect
+	golang.org/x/net v0.33.0 // indirect
 	golang.org/x/oauth2 v0.23.0 // indirect
 	golang.org/x/sync v0.10.0 // indirect
 	golang.org/x/sys v0.28.0 // indirect
