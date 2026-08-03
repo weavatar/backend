@@ -6,8 +6,8 @@ toolchain go1.23.4
 
 require (
 	github.com/alibabacloud-go/darabonba-openapi/v2 v2.0.10
-	github.com/alibabacloud-go/dysmsapi-20170525/v4 v4.1.0
-	github.com/alibabacloud-go/green-20220302/v2 v2.19.1
+	github.com/alibabacloud-go/dysmsapi-20170525/v5 v5.6.0
+	github.com/alibabacloud-go/green-20220302/v3 v3.5.4
 	github.com/alibabacloud-go/tea v1.2.2
 	github.com/alibabacloud-go/tea-utils/v2 v2.0.7
 	github.com/gertd/go-pluralize v0.2.1
@@ -17,7 +17,7 @@ require (
 	github.com/goravel-kit/geetest v1.1.0
 	github.com/goravel/fiber v1.2.4
 	github.com/goravel/framework v1.14.9
-	github.com/haozi-team/letteravatar v1.0.4
+	github.com/haozi-team/letteravatar/v2 v2.0.1
 	github.com/iancoleman/strcase v0.3.0
 	github.com/imroc/req/v3 v3.49.1
 	github.com/ipsn/go-adorable v1.0.0
