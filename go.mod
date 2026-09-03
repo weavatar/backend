@@ -2,35 +2,35 @@ module weavatar
 
 go 1.22.7
 
-toolchain go1.23.4
+toolchain go1.27.1
 
 require (
-	github.com/alibabacloud-go/darabonba-openapi/v2 v2.0.10
-	github.com/alibabacloud-go/dysmsapi-20170525/v4 v4.1.0
-	github.com/alibabacloud-go/green-20220302/v2 v2.19.1
-	github.com/alibabacloud-go/tea v1.2.2
-	github.com/alibabacloud-go/tea-utils/v2 v2.0.7
+	github.com/alibabacloud-go/darabonba-openapi/v2 v2.2.4
+	github.com/alibabacloud-go/dysmsapi-20170525/v4 v4.1.3
+	github.com/alibabacloud-go/green-20220302/v2 v2.23.0
+	github.com/alibabacloud-go/tea v1.5.3
+	github.com/alibabacloud-go/tea-utils/v2 v2.0.9
 	github.com/gertd/go-pluralize v0.2.1
 	github.com/goki/freetype v1.0.5
-	github.com/gookit/color v1.5.4
+	github.com/gookit/color v1.6.1
 	github.com/goravel-kit/cdn v1.0.5
 	github.com/goravel-kit/geetest v1.1.0
-	github.com/goravel/fiber v1.2.4
-	github.com/goravel/framework v1.14.9
-	github.com/haozi-team/letteravatar v1.0.4
+	github.com/goravel/fiber v1.18.0
+	github.com/goravel/framework v1.18.0
+	github.com/haozi-team/letteravatar v1.1.1
 	github.com/iancoleman/strcase v0.3.0
-	github.com/imroc/req/v3 v3.49.1
+	github.com/imroc/req/v3 v3.61.0
 	github.com/ipsn/go-adorable v1.0.0
 	github.com/issue9/identicon/v2 v2.1.2
 	github.com/jaevor/go-nanoid v1.4.0
-	github.com/mojocn/base64Captcha v1.3.6
+	github.com/mojocn/base64Captcha v1.3.8
 	github.com/o1egl/govatar v0.4.1
-	github.com/spf13/cast v1.7.1
-	github.com/stretchr/testify v1.10.0
+	github.com/spf13/cast v1.10.0
+	github.com/stretchr/testify v1.12.1
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.958
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.957
-	google.golang.org/grpc v1.69.2
-	gorm.io/gorm v1.25.12
+	google.golang.org/grpc v1.83.2
+	gorm.io/gorm v1.31.2
 )
 
 require (
